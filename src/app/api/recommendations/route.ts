@@ -1,0 +1,98 @@
+import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+
+export async function POST(req: Request) {
+  try {
+    const { selectedFavorites, filters, language, excludeTitles } = await req.json();
+
+    const favoritesStr = selectedFavorites.map((fav: any) => 
+      `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(', ')}`
+    ).join('\n');
+
+    const isOtherSelected = filters.includes('Other');
+    let filtersStr = filters.length > 0 ? `Limit recommendations to these formats: ${filters.join(', ')}` : 'Any format is okay.';
+    
+    if (isOtherSelected) {
+      filtersStr += "\n      The user has filtered for 'Other' format content. Do not recommend anything that fits the standard categories of Book, Movie, TV Show, Podcast, Music, Game, Article, or YouTube. Only recommend content from alternative or niche formats such as newsletters, graphic novels, stand-up specials, audiobooks, tabletop RPGs, stage plays, short films, or interactive fiction.";
+    }
+
+    const langStr = language === 'TR' ? 'Return the response in Turkish.' : 'Return the response in English.';
+    const excludeStr = excludeTitles && excludeTitles.length > 0 ? `Do NOT recommend these titles: ${excludeTitles.join(', ')}` : '';
+
+    const diversityStr = filters.length === 0 
+      ? "Your recommendations must be diverse across formats. Include at least one Book, one Movie, one TV Show, one Podcast, one Music recommendation, one Game, one Article or essay, and one YouTube channel or video. Do not cluster recommendations in a single format even if the user's favorites are all from the same format."
+      : "Ensure recommendations are balanced across the selected formats.";
+
+    const prompt = `You are ContentCompass, an expert content recommendation engine.
+      The user has selected the following favorites:
+      ${favoritesStr}
+      
+      Find the common themes, tones, and stylistic threads that run across ALL selected items, and recommend content that sits at that thematic intersection. Do not recommend content that only matches one of the selected items individually.
+      
+      ${filtersStr}
+      ${diversityStr}
+      ${excludeStr}
+      ${langStr}
+      
+      Provide EXACTLY 8 personalized recommendations.
+      
+      Return the result ONLY as a JSON array with this exact structure:
+      [
+        {
+          "type": "format type",
+          "title": "content title",
+          "creator": "author or creator",
+          "year": "release year",
+          "description": "short description",
+          "why": "explanation directly referencing the intersection of user's favorites",
+          "tags": ["tag1", "tag2", "tag3"]
+        }
+      ]`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}`, 
+        "X-Title": "ContentCompass",
+      },
+      body: JSON.stringify({
+        "model": "google/gemini-2.0-flash-001",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a professional content recommendation engine. Respond only with JSON."
+          },
+          {
+            "role": "user",
+            "content": prompt
+          }
+        ],
+        "response_format": { "type": "json_object" }
+      })
+    });
+
+const data = await response.json();
+
+if (!response.ok || !data.choices) {
+  console.error('OpenRouter API error:', JSON.stringify(data));
+  return NextResponse.json({ error: 'AI service error', details: data }, { status: 500 });
+}
+
+const text = data.choices[0].message.content.trim();    
+    try {
+      // OpenRouter sometimes returns the array directly or wrapped in an object
+      const parsed = JSON.parse(text);
+      const recommendations = Array.isArray(parsed) ? parsed : (parsed.recommendations || []);
+      return NextResponse.json(recommendations);
+    } catch (parseError) {
+      console.error('Parse error:', parseError, text);
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('AI recommendation error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
