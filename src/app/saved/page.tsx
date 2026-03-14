@@ -27,10 +27,12 @@ export default function SavedPage() {
   const fetchSaved = async () => {
     try {
       const res = await fetch('/api/recommendations/save');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setSaved(data);
+      setSaved(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch saved items:', err);
+      setSaved([]);
     } finally {
       setLoading(false);
     }

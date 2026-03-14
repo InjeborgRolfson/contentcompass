@@ -31,12 +31,20 @@ export async function POST(req: Request) {
       })
     });
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('OpenRouter API error:', response.status, errorData);
+      return NextResponse.json({ tags: [] });
+    }
+
     const data = await response.json();
-    const tagsText = data.choices[0].message.content;
+    const tagsText = data.choices?.[0]?.message?.content || "";
 
-    const tags = tagsText.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0);
+    const tags = tagsText.split(',')
+      .map((tag: string) => tag.trim())
+      .filter((tag: string) => tag.length > 0);
 
-    return NextResponse.json({ tags });
+    return NextResponse.json({ tags: tags.length > 0 ? tags : [] });
   } catch (error) {
     console.error('OpenRouter error:', error);
     return NextResponse.json({ tags: [] });

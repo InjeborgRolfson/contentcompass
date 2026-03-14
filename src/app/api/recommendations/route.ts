@@ -74,18 +74,30 @@ export async function POST(req: Request) {
       })
     });
 
-const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      console.error('Failed to parse OpenRouter response:', e);
+      return NextResponse.json({ error: 'AI service returned invalid JSON' }, { status: 500 });
+    }
 
-if (!response.ok || !data.choices) {
-  console.error('OpenRouter API error:', JSON.stringify(data));
-  return NextResponse.json({ error: 'AI service error', details: data }, { status: 500 });
-}
+    if (!response.ok || !data.choices) {
+      console.error('OpenRouter API error:', JSON.stringify(data));
+      return NextResponse.json({ error: 'AI service error', details: data }, { status: 500 });
+    }
 
-const text = data.choices[0].message.content.trim();    
+    const text = data.choices[0]?.message?.content?.trim() || "[]";
     try {
       // OpenRouter sometimes returns the array directly or wrapped in an object
-      const parsed = JSON.parse(text);
-      const recommendations = Array.isArray(parsed) ? parsed : (parsed.recommendations || []);
+      let parsed = JSON.parse(text);
+      
+      // Handle the case where the LLM might have wrapped the array in a "recommendations" field
+      if (!Array.isArray(parsed) && parsed.recommendations) {
+        parsed = parsed.recommendations;
+      }
+      
+      const recommendations = Array.isArray(parsed) ? parsed : [];
       return NextResponse.json(recommendations);
     } catch (parseError) {
       console.error('Parse error:', parseError, text);

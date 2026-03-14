@@ -32,10 +32,14 @@ export default function FavoritesPage() {
   const fetchFavorites = async () => {
     try {
       const res = await fetch('/api/favorites');
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
-      setFavorites(data);
+      setFavorites(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch favorites:', err);
+      setFavorites([]);
     } finally {
       setLoading(false);
     }
@@ -52,7 +56,12 @@ export default function FavoritesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      const { tags } = await tagRes.json();
+      
+      let tags = [];
+      if (tagRes.ok) {
+        const tagData = await tagRes.json().catch(() => ({ tags: [] }));
+        tags = tagData.tags || [];
+      }
 
       // 2. Save favorite with tags
       const res = await fetch('/api/favorites', {
@@ -65,9 +74,12 @@ export default function FavoritesPage() {
         setIsModalOpen(false);
         setFormData({ title: '', creator: '', year: '', type: 'Book', note: '' });
         fetchFavorites();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Failed to save favorite:', errorData);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error adding favorite:', err);
     } finally {
       setAdding(false);
     }

@@ -6,12 +6,17 @@ import Recommendation from '@/models/Recommendation';
 export const runtime = 'nodejs';
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await dbConnect();
-  const saved = await Recommendation.find({ userId: session.user.id }).sort({ createdAt: -1 });
-  return NextResponse.json(saved);
+    await dbConnect();
+    const saved = await Recommendation.find({ userId: session.user.id }).sort({ createdAt: -1 });
+    return NextResponse.json(saved || []);
+  } catch (error) {
+    console.error('Error fetching saved recommendations:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

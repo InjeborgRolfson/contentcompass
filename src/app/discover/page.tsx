@@ -39,10 +39,12 @@ export default function DiscoverPage() {
   const fetchFavorites = async () => {
     try {
       const res = await fetch('/api/favorites');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setFavorites(data);
+      setFavorites(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch favorites:', err);
+      setFavorites([]);
     } finally {
       setFavoritesLoading(false);
     }
@@ -105,10 +107,12 @@ export default function DiscoverPage() {
         }),
       });
 
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setRecommendations(data);
+      setRecommendations(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to find matches:', err);
+      setRecommendations([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
