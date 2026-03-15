@@ -134,27 +134,27 @@ export default function DiscoverPage() {
   }, [selectedFavorites]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-20">
+    <div className="flex flex-col min-h-screen pb-32 md:pb-20">
       {/* Hero Panel */}
-      <div className="bg-[#0f172a] text-white pt-20 pb-12 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex justify-between items-end mb-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 mb-12">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-2">{t('discover')}</h2>
-              <h1 className="text-4xl font-extrabold flex items-center gap-3">
+              <h1 className="text-2xl md:text-5xl font-extrabold flex flex-wrap items-center gap-2 md:gap-3">
                 {t('yourCustomCompassReading')}
-                <span className="text-indigo-400/30 font-light text-2xl">/</span>
-                <span className="text-indigo-300/80 font-medium text-lg italic">{selectionText}</span>
+                <span className="text-indigo-400/30 font-light text-xl md:text-2xl hidden md:inline">/</span>
+                <span className="text-indigo-300/80 font-medium text-base md:text-lg italic w-full md:w-auto mt-1 md:mt-0">{selectionText}</span>
               </h1>
             </div>
             
             <button
               onClick={() => findMatches(false)}
               disabled={selectedIds.length === 0 || loading}
-              className={`px-10 py-4 rounded-2xl font-bold shadow-2xl transition-all flex items-center gap-2 relative group overflow-hidden ${
+              className={`w-full md:w-auto justify-center px-10 py-4 rounded-2xl font-bold shadow-2xl transition-all flex items-center gap-2 relative group overflow-hidden ${
                 selectedIds.length === 0 
                 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:-translate-y-1 active:scale-95'

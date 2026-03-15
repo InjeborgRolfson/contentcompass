@@ -14,8 +14,11 @@ export async function GET() {
     const favorites = await Favorite.find({ userId: session.user.id }).sort({ createdAt: -1 });
     return NextResponse.json(favorites || []);
   } catch (error) {
-    console.error('Error fetching favorites:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    console.error('Full error in GET favorites:', error);
+    return NextResponse.json({ 
+      error: 'Internal Server Error', 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 500 });
   }
 }
 
@@ -34,6 +37,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(favorite, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('Full error in POST favorites:', error);
+    return NextResponse.json({ 
+      error: 'Internal Server Error', 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 500 });
   }
 }

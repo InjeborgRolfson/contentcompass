@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
@@ -27,7 +28,19 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        router.push('/login');
+        // Automatically sign in after registration
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError('Registration successful, but login failed. Please login manually.');
+        } else {
+          router.push('/favorites');
+          router.refresh();
+        }
       } else {
         const data = await res.json();
         setError(data.error || 'An error occurred');

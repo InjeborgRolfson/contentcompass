@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
 import { Plus, X, Loader2, Sparkles } from 'lucide-react';
@@ -25,6 +25,12 @@ export default function FavoritesPage() {
     note: '',
   });
 
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [isSelectionInProgress, setIsSelectionInProgress] = useState(false);
+  const skipSearchRef = useRef(false);
+
   useEffect(() => {
     fetchFavorites();
   }, []);
@@ -42,6 +48,124 @@ export default function FavoritesPage() {
       setFavorites([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Wikidata Autocomplete Logic
+  useEffect(() => {
+    if (formData.title.length < 2 || isSelectionInProgress || skipSearchRef.current) {
+      if (skipSearchRef.current) {
+        skipSearchRef.current = false;
+      }
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const debounceId = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const searchRes = await fetch(
+          `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
+            formData.title
+          )}&language=en&format=json&origin=*&limit=10`
+        );
+        const searchData = await searchRes.json();
+        const results = searchData.search || [];
+
+        // Fetch thumbnails for each result from Wikipedia
+        const suggestionsWithImages = await Promise.all(
+          results.map(async (item: any) => {
+            try {
+              // 1. Get English Wikipedia title for the entity
+              const entityRes = await fetch(
+                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${item.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`
+              );
+              const entityData = await entityRes.json();
+              const wikiTitle =
+                entityData.entities?.[item.id]?.sitelinks?.enwiki?.title;
+
+              if (!wikiTitle) return { ...item, thumbnail: null };
+
+              // 2. Get thumbnail from Wikipedia
+              const thumbRes = await fetch(
+                `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+                  wikiTitle
+                )}&prop=pageimages&format=json&pithumbsize=100&origin=*`
+              );
+              const thumbData = await thumbRes.json();
+              const pages = thumbData.query?.pages || {};
+              const pageId = Object.keys(pages)[0];
+              const thumbnail = pages[pageId]?.thumbnail?.source || null;
+
+              return { ...item, thumbnail, wikiTitle };
+            } catch (err) {
+              return { ...item, thumbnail: null };
+            }
+          })
+        );
+
+        setSuggestions(suggestionsWithImages);
+        setShowSuggestions(suggestionsWithImages.length > 0);
+      } catch (err) {
+        console.error('Wikidata search failed:', err);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceId);
+  }, [formData.title]);
+
+  const handleSelectSuggestion = async (suggestion: any) => {
+    skipSearchRef.current = true;
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setIsSelectionInProgress(true);
+    setFormData((prev) => ({ ...prev, title: suggestion.label }));
+
+    try {
+      // Fetch full details for the selected entity
+      const detailsRes = await fetch(
+        `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${suggestion.id}&props=claims|labels&languages=en&format=json&origin=*`
+      );
+      const detailsData = await detailsRes.json();
+      const entity = detailsData.entities?.[suggestion.id];
+      const claims = entity?.claims || {};
+
+      // Strategy for Year (P577 - Publication, P585 - Point in time)
+      const yearClaim = claims.P577?.[0] || claims.P585?.[0];
+      const year = yearClaim?.mainsnak?.datavalue?.value?.time?.match(/\d{4}/)?.[0] || '';
+
+      // Strategy for Creator
+      // P50: Author, P57: Director, P175: Performer, P178: Developer, P170: Creator
+      const creatorPIDs = ['P50', 'P57', 'P175', 'P178', 'P170'];
+      let creatorId = '';
+      for (const pid of creatorPIDs) {
+        if (claims[pid]?.[0]?.mainsnak?.datavalue?.value?.id) {
+          creatorId = claims[pid][0].mainsnak.datavalue.value.id;
+          break;
+        }
+      }
+
+      let creatorName = '';
+      if (creatorId) {
+        const creatorRes = await fetch(
+          `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${creatorId}&props=labels&languages=en&format=json&origin=*`
+        );
+        const creatorData = await creatorRes.json();
+        creatorName = creatorData.entities?.[creatorId]?.labels?.en?.value || '';
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        year: year || prev.year,
+        creator: creatorName || prev.creator,
+      }));
+    } catch (err) {
+      console.error('Failed to fetch entity details:', err);
+    } finally {
+      setIsSelectionInProgress(false);
     }
   };
 
@@ -130,14 +254,57 @@ export default function FavoritesPage() {
             
             <form onSubmit={handleAddFavorite} className="p-8 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1.5 sm:col-span-2 relative">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('title')}</label>
-                  <input
-                    required
-                    className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  />
+                  <div className="relative">
+                    <input
+                      required
+                      className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      value={formData.title}
+                      onChange={(e) => {
+                        setFormData({ ...formData, title: e.target.value });
+                        if (isSelectionInProgress) setIsSelectionInProgress(false);
+                      }}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      onFocus={() => {
+                        if (suggestions.length > 0) setShowSuggestions(true);
+                      }}
+                      autoComplete="off"
+                    />
+                    {searching && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                      </div>
+                    )}
+                  </div>
+
+                  {showSuggestions && (
+                    <div className="absolute z-[60] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-indigo-50 overflow-hidden max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                      {suggestions.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectSuggestion(item);
+                          }}
+                          className="w-full flex items-start gap-4 p-4 hover:bg-indigo-50 transition-colors border-b border-indigo-50 last:border-0 text-left"
+                        >
+                          <div className="w-12 h-12 flex-shrink-0 bg-indigo-50 rounded-lg overflow-hidden flex items-center justify-center">
+                            {item.thumbnail ? (
+                              <img src={item.thumbnail} alt={item.label} className="w-full h-full object-cover" />
+                            ) : (
+                              <Sparkles className="w-5 h-5 text-indigo-200" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-indigo-900 truncate">{item.label}</p>
+                            <p className="text-xs text-indigo-900/40 line-clamp-2">{item.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 <div className="space-y-1.5">
