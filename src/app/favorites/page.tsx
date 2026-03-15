@@ -309,8 +309,8 @@ export default function FavoritesPage() {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-indigo-900/20 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-indigo-900/20 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
             <div className="px-8 py-6 border-b border-indigo-50 flex justify-between items-center bg-indigo-50/30">
               <h2 className="text-2xl font-bold text-indigo-900">
                 {editingFavorite ? t('editFavorite' as any) || 'Edit Favorite' : t('addFavorite')}
@@ -326,7 +326,7 @@ export default function FavoritesPage() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-5">
+            <form onSubmit={handleSubmit} className="p-8 space-y-5 overflow-y-auto flex-1 pb-32 sm:pb-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-1.5 sm:col-span-2 relative">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('title')}</label>
