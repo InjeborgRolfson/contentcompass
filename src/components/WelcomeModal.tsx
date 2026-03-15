@@ -34,23 +34,23 @@ export default function WelcomeModal() {
       <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
         <div className="relative p-8 md:p-12">
           <div className="absolute top-6 right-6 flex items-center gap-2">
-            <div className="flex bg-indigo-50 p-1 rounded-xl mr-2">
+            <div className="flex bg-indigo-50/50 p-1 rounded-xl border border-indigo-100 mr-2">
               <button
                 onClick={() => changeLanguage('EN')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
                   language === 'EN' 
-                    ? 'bg-white text-indigo-600 shadow-sm' 
-                    : 'text-indigo-300 hover:text-indigo-600'
+                    ? 'bg-indigo-600 text-white shadow-sm' 
+                    : 'text-indigo-400 hover:text-indigo-600'
                 }`}
               >
                 EN
               </button>
               <button
                 onClick={() => changeLanguage('TR')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
                   language === 'TR' 
-                    ? 'bg-white text-indigo-600 shadow-sm' 
-                    : 'text-indigo-300 hover:text-indigo-600'
+                    ? 'bg-indigo-600 text-white shadow-sm' 
+                    : 'text-indigo-400 hover:text-indigo-600'
                 }`}
               >
                 TR

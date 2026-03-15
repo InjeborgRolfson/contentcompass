@@ -16,7 +16,7 @@ function cn(...inputs: ClassValue[]) {
 const Navbar = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, changeLanguage, t } = useLanguage();
 
   if (!session) return null;
 
@@ -59,12 +59,30 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={toggleLanguage}
-              className="px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-900 text-sm font-medium hover:bg-indigo-50 transition-colors"
-            >
-              {language === 'EN' ? 'TR' : 'EN'}
-            </button>
+            <div className="flex bg-indigo-50/50 p-1 rounded-xl border border-indigo-100">
+              <button
+                onClick={() => changeLanguage('EN')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200',
+                  language === 'EN'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-indigo-400 hover:text-indigo-600'
+                )}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => changeLanguage('TR')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200',
+                  language === 'TR'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-indigo-400 hover:text-indigo-600'
+                )}
+              >
+                TR
+              </button>
+            </div>
 
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm text-indigo-900/60">{t('email')}</span>
