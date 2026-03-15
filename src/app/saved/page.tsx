@@ -74,7 +74,7 @@ export default function SavedPage() {
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-4xl font-extrabold text-indigo-900 mb-2">{t('saved')}</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <p className="text-indigo-900/60 font-medium">{t('yourCustomCompassReading')}</p>
             <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />
           </div>

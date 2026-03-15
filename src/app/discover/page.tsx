@@ -270,7 +270,7 @@ export default function DiscoverPage() {
           <div className="mb-12">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-indigo-100 pb-8">
               <div>
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex flex-wrap items-center gap-4 mb-2">
                   <h3 className="text-3xl font-extrabold text-indigo-950">{t('yourCustomCompassReading')}</h3>
                   <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />
                 </div>

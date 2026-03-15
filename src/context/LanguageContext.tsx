@@ -18,7 +18,7 @@ const translations: Translations = {
   addFavorite: { EN: 'Add Favorite', TR: 'Favori Ekle' },
   findMatches: { EN: 'Find Matches', TR: 'Eşleşmeleri Bul' },
   refreshRecommendations: { EN: 'Refresh Recommendations', TR: 'Önerileri Yenile' },
-  yourCustomCompassReading: { EN: 'Your Custom Compass Reading', TR: 'Kişisel Pusula Okumanız' },
+  yourCustomCompassReading: { EN: 'Your Compass Points To', TR: 'Pusulanın Gösterdiği Yer' },
   whyWeRecommend: { EN: 'Why we recommend this', TR: 'Neden öneriyoruz' },
   explorationLimit: { EN: "You've reached the exploration limit for this session.", TR: "Bu oturum için keşif sınırına ulaştınız." },
   book: { EN: 'Book', TR: 'Kitap' },
