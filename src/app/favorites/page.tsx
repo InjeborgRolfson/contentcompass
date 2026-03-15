@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
-import { Plus, X, Loader2, Sparkles } from 'lucide-react';
+import { Plus, X, Loader2, Sparkles, Compass } from 'lucide-react';
 import FavoriteCard from '@/components/FavoriteCard';
 
 const contentTypes: ContentType[] = [
@@ -273,8 +273,27 @@ export default function FavoritesPage() {
           <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
         </div>
       ) : favorites.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-indigo-100">
-          <p className="text-indigo-900/40 text-lg">{t('tagline')}</p>
+        <div className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-[32px] border-2 border-dashed border-indigo-100 text-center animate-in fade-in duration-500">
+          <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-200 mb-8">
+            <Compass className="w-12 h-12 animate-[spin_10s_linear_infinite]" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-indigo-950 mb-3">
+            {t('emptyFavoritesTitle')}
+          </h2>
+          <p className="text-indigo-900/50 max-w-sm mb-10 leading-relaxed">
+            {t('emptyFavoritesSubtitle')}
+          </p>
+          <button
+            onClick={() => {
+              setEditingFavorite(null);
+              setFormData({ title: '', creator: '', year: '', type: 'Book', note: '' });
+              setIsModalOpen(true);
+            }}
+            className="group flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100 transition-all hover:-translate-y-1 active:scale-95"
+          >
+            <Plus className="w-5 h-5" />
+            {t('addFirstFavorite')}
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

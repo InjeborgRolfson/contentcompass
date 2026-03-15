@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { LanguageProvider } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import WelcomeModal from "@/components/WelcomeModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
               <main className="flex-grow pb-16 md:pb-0">
                 {children}
               </main>
+              <WelcomeModal />
               <BottomNav />
             </div>
           </LanguageProvider>

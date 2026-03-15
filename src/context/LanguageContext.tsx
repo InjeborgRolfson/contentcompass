@@ -65,11 +65,24 @@ const translations: Translations = {
   editFavorite: { EN: 'Edit Favorite', TR: 'Favoriyi Düzenle' },
   saveChanges: { EN: 'Save Changes', TR: 'Değişiklikleri Kaydet' },
   confirmDelete: { EN: 'Are you sure you want to delete this favorite?', TR: 'Bu favoriyi silmek istediğinizden emin misiniz?' },
+  welcomeTitle: { EN: 'Welcome to ContentCompass', TR: 'ContentCompass\'a Hoş Geldiniz' },
+  welcomeStep1Title: { EN: 'Add your favorites', TR: 'Favorilerini Ekle' },
+  welcomeStep1Desc: { EN: 'Add the books, films, series, podcasts and anything you love.', TR: 'sevdiğin kitapları, filmleri, dizileri, podcastleri ve daha fazlasını ekle' },
+  welcomeStep2Title: { EN: 'Discover', TR: 'Keşfet' },
+  welcomeStep2Desc: { EN: 'Select your favorites and let the compass find content that matches your taste.', TR: 'favorilerini seç ve pusula sana zevkine uygun içerikler bulsun' },
+  welcomeStep3Title: { EN: 'Save & Explore', TR: 'Kaydet ve Keşfetmeye Devam Et' },
+  welcomeStep3Desc: { EN: 'Save recommendations you like and keep exploring.', TR: 'beğendiğin önerileri kaydet ve keşfetmeye devam et' },
+  getStarted: { EN: 'Get Started', TR: 'Başlayalım' },
+  emptyFavoritesTitle: { EN: 'Your collection is empty', TR: 'Koleksiyonun boş' },
+  emptyFavoritesSubtitle: { EN: 'Start by adding the content you love — books, films, podcasts, anything.', TR: 'Sevdiğin içerikleri eklemeye başla — kitaplar, filmler, podcastler ve daha fazlası.' },
+  addFirstFavorite: { EN: 'Add Your First Favorite', TR: 'İlk Favorini Ekle' },
+  discoverHint: { EN: 'Select one or more favorites below, choose your preferred formats, and hit Find Matches to discover new content.', TR: 'Aşağıdan bir veya daha fazla favori seç, format filtrele ve eşleşmelerini bulmak için Eşleşmeleri Bul\'a bas.' },
 };
 
 interface LanguageContextType {
   language: Language;
   toggleLanguage: () => void;
+  changeLanguage: (lang: Language) => void;
   t: (key: string) => string;
   formatText: (text: string, caseType: 'upper' | 'lower') => string;
 }
@@ -92,6 +105,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('language', newLang);
   };
 
+  const changeLanguage = (newLang: Language) => {
+    setLanguage(newLang);
+    localStorage.setItem('language', newLang);
+  };
+
   const t = (key: string): string => {
     const translation = translations[key];
     if (!translation) return key;
@@ -106,7 +124,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t, formatText }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, changeLanguage, t, formatText }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
-import { Search, Loader2, Sparkles, RefreshCw, Star, Info, LayoutGrid, List } from 'lucide-react';
+import { Search, Loader2, Sparkles, RefreshCw, Star, Info, LayoutGrid, List, Compass, X } from 'lucide-react';
 import RecommendationCard from '@/components/RecommendationCard';
 import ViewToggle from '@/components/ViewToggle';
 import RecommendationTable from '@/components/RecommendationTable';
@@ -23,7 +23,19 @@ export default function DiscoverPage() {
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
+  const [showHint, setShowHint] = useState(false);
+  
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    const hasSeenHint = localStorage.getItem('hasSeenDiscoverHint');
+    if (!hasSeenHint) setShowHint(true);
+  }, []);
+
+  const dismissHint = () => {
+    localStorage.setItem('hasSeenDiscoverHint', 'true');
+    setShowHint(false);
+  };
 
   useEffect(() => {
     fetchFavorites();
@@ -135,6 +147,27 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex flex-col min-h-screen pb-32 md:pb-20">
+      {showHint && (
+        <div className="bg-indigo-600 text-white animate-in slide-in-from-top duration-500 overflow-hidden relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+                <Compass className="w-6 h-6 animate-pulse" />
+              </div>
+              <p className="text-sm md:text-base font-medium leading-tight">
+                {t('discoverHint')}
+              </p>
+            </div>
+            <button 
+              onClick={dismissHint}
+              className="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
+              aria-label="Dismiss hint"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Hero Panel */}
       <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
