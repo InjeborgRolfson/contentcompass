@@ -7,9 +7,10 @@ export const runtime = 'nodejs';
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -18,7 +19,7 @@ export async function PATCH(
 
     // Find and update the favorite, ensuring it belongs to the user
     const favorite = await Favorite.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
+      { _id: id, userId: session.user.id },
       { $set: data },
       { new: true }
     );
@@ -39,9 +40,10 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -49,7 +51,7 @@ export async function DELETE(
 
     // Find and delete the favorite, ensuring it belongs to the user
     const favorite = await Favorite.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: session.user.id,
     });
 
