@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Sparkles, Info, ChevronDown, ChevronUp, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Sparkles, Info, ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 
 interface RecommendationTableProps {
   recommendations: any[];
@@ -116,6 +116,16 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                         >
                           {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
                         </button>
+                        {isSavedPage && (
+                          <button
+                            onClick={(e) => handleSave(rec, e)}
+                            disabled={isSaving}
+                            className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500 group/delete"
+                            title={t('delete')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                         {expandedRow === idx ? (
                           <ChevronUp className="w-4 h-4 text-indigo-300 shrink-0" />
                         ) : (

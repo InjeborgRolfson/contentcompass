@@ -58,6 +58,9 @@ const translations: Translations = {
   noneSelected: { EN: 'none selected', TR: 'hiçbiri seçilmedi' },
   allFavoritesSelected: { EN: 'all favorites', TR: 'tüm favoriler' },
   selectHint: { EN: 'Please select at least one favorite to find matches.', TR: 'Eşleşmeleri bulmak için lütfen en az bir favori seçin.' },
+  delete: { EN: 'Delete', TR: 'Sil' },
+  undo: { EN: 'Undo', TR: 'Geri Al' },
+  removedFromSaved: { EN: 'Removed from saved items', TR: 'Kaydedilenlerden kaldırıldı' },
 };
 
 interface LanguageContextType {

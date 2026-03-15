@@ -6,11 +6,13 @@ import { Loader2, Bookmark } from 'lucide-react';
 import RecommendationCard from '@/components/RecommendationCard';
 import ViewToggle from '@/components/ViewToggle';
 import RecommendationTable from '@/components/RecommendationTable';
+import Toast from '@/components/ui/Toast';
 
 export default function SavedPage() {
   const [saved, setSaved] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [toast, setToast] = useState<{ message: string, onUndo?: () => void } | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -38,8 +40,33 @@ export default function SavedPage() {
     }
   };
 
-  const handleRemove = (id: string) => {
+  const handleRemove = async (id: string) => {
+    const itemToRemove = saved.find(s => s._id === id);
+    if (!itemToRemove) return;
+
+    // Optimistic UI update
     setSaved(prev => prev.filter(s => s._id !== id));
+
+    // Show toast with Undo
+    setToast({
+      message: t('removedFromSaved'),
+      onUndo: async () => {
+        try {
+          const res = await fetch('/api/recommendations/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(itemToRemove),
+          });
+          if (res.ok) {
+            const restoredItem = await res.json();
+            setSaved(prev => [restoredItem, ...prev]);
+            setToast(null);
+          }
+        } catch (err) {
+          console.error('Failed to restore item:', err);
+        }
+      }
+    });
   };
 
   return (
@@ -79,6 +106,14 @@ export default function SavedPage() {
           recommendations={saved} 
           isSavedPage={true}
           onRemove={handleRemove}
+        />
+      )}
+
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          onUndo={toast.onUndo} 
+          onClose={() => setToast(null)} 
         />
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info } from 'lucide-react';
+import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info, Trash2 } from 'lucide-react';
 
 interface RecommendationProps {
   recommendation: {
@@ -81,6 +81,17 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         >
           {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
         </button>
+
+        {isSavedPage && (
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="p-3 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500 shadow-sm hover:shadow-lg hover:shadow-red-100 group/delete"
+            title={t('delete')}
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        )}
       </div>
       
       <div className="mb-6">
