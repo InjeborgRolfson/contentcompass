@@ -17,6 +17,8 @@ export default function FavoritesPage() {
   const [adding, setAdding] = useState(false);
   const { t } = useLanguage();
 
+  const [editingFavorite, setEditingFavorite] = useState<any>(null);
+
   const [formData, setFormData] = useState({
     title: '',
     creator: '',
@@ -48,6 +50,36 @@ export default function FavoritesPage() {
       setFavorites([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = (fav: any) => {
+    setEditingFavorite(fav);
+    setFormData({
+      title: fav.title,
+      creator: fav.creator,
+      year: fav.year,
+      type: fav.type as ContentType,
+      note: fav.note,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteFavorite = async (id: string) => {
+    if (!window.confirm(t('confirmDelete' as any) || 'Are you sure you want to delete this favorite?')) return;
+
+    try {
+      const res = await fetch(`/api/favorites/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        fetchFavorites();
+      } else {
+        console.error('Failed to delete favorite');
+      }
+    } catch (err) {
+      console.error('Error deleting favorite:', err);
     }
   };
 
@@ -169,33 +201,39 @@ export default function FavoritesPage() {
     }
   };
 
-  const handleAddFavorite = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdding(true);
 
     try {
-      // 1. Generate tags via AI
-      const tagRes = await fetch('/api/generate-tags', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      let tags = editingFavorite?.tags || [];
       
-      let tags = [];
-      if (tagRes.ok) {
-        const tagData = await tagRes.json().catch(() => ({ tags: [] }));
-        tags = tagData.tags || [];
+      // Only generate new tags if it's a new favorite or if critical info changed
+      if (!editingFavorite || (editingFavorite.title !== formData.title || editingFavorite.type !== formData.type)) {
+        const tagRes = await fetch('/api/generate-tags', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        if (tagRes.ok) {
+          const tagData = await tagRes.json().catch(() => ({ tags: [] }));
+          tags = tagData.tags || [];
+        }
       }
 
-      // 2. Save favorite with tags
-      const res = await fetch('/api/favorites', {
-        method: 'POST',
+      const url = editingFavorite ? `/api/favorites/${editingFavorite._id}` : '/api/favorites';
+      const method = editingFavorite ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, tags }),
       });
 
       if (res.ok) {
         setIsModalOpen(false);
+        setEditingFavorite(null);
         setFormData({ title: '', creator: '', year: '', type: 'Book', note: '' });
         fetchFavorites();
       } else {
@@ -203,7 +241,7 @@ export default function FavoritesPage() {
         console.error('Failed to save favorite:', errorData);
       }
     } catch (err) {
-      console.error('Error adding favorite:', err);
+      console.error('Error adding/editing favorite:', err);
     } finally {
       setAdding(false);
     }
@@ -218,7 +256,11 @@ export default function FavoritesPage() {
         </div>
         
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingFavorite(null);
+            setFormData({ title: '', creator: '', year: '', type: 'Book', note: '' });
+            setIsModalOpen(true);
+          }}
           className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95"
         >
           <Plus className="w-5 h-5" />
@@ -237,7 +279,12 @@ export default function FavoritesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites.map((fav) => (
-            <FavoriteCard key={fav._id} favorite={fav} />
+            <FavoriteCard 
+              key={fav._id} 
+              favorite={fav} 
+              onEdit={handleEditClick}
+              onDelete={handleDeleteFavorite}
+            />
           ))}
         </div>
       )}
@@ -246,13 +293,21 @@ export default function FavoritesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-indigo-900/20 backdrop-blur-sm">
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-8 py-6 border-b border-indigo-50 flex justify-between items-center bg-indigo-50/30">
-              <h2 className="text-2xl font-bold text-indigo-900">{t('addFavorite')}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-xl transition-colors">
+              <h2 className="text-2xl font-bold text-indigo-900">
+                {editingFavorite ? t('editFavorite' as any) || 'Edit Favorite' : t('addFavorite')}
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingFavorite(null);
+                }} 
+                className="p-2 hover:bg-white rounded-xl transition-colors"
+              >
                 <X className="w-6 h-6 text-indigo-900/40" />
               </button>
             </div>
             
-            <form onSubmit={handleAddFavorite} className="p-8 space-y-5">
+            <form onSubmit={handleSubmit} className="p-8 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-1.5 sm:col-span-2 relative">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('title')}</label>
@@ -370,7 +425,7 @@ export default function FavoritesPage() {
                     <Sparkles className="w-5 h-5 animate-pulse" />
                   </>
                 ) : (
-                  t('addFavorite')
+                  editingFavorite ? (t('saveChanges' as any) || 'Save Changes') : t('addFavorite')
                 )}
               </button>
             </form>

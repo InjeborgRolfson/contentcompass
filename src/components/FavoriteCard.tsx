@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Bookmark, Clock, User } from 'lucide-react';
+import { Bookmark, Clock, User, Pencil, Trash2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -20,18 +20,39 @@ interface FavoriteProps {
     note: string;
     tags: string[];
   };
+  onEdit?: (fav: any) => void;
+  onDelete?: (id: string) => void;
 }
 
-const FavoriteCard: React.FC<FavoriteProps> = ({ favorite }) => {
+const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) => {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative">
       <div className="flex justify-between items-start mb-4">
         <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">
           {t(favorite.type.toLowerCase() as any)}
         </span>
-        <Bookmark className="w-5 h-5 text-indigo-100 group-hover:text-indigo-300 transition-colors" />
+        <div className="flex items-center gap-2">
+          {/* Action Buttons - Always visible on mobile screens, only on hover on desktop */}
+          <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onEdit?.(favorite)}
+              className="p-2 bg-white hover:bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-50 shadow-sm transition-colors"
+              title={t('edit' as any)}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onDelete?.(favorite._id)}
+              className="p-2 bg-white hover:bg-red-50 text-red-500 rounded-xl border border-indigo-50 shadow-sm transition-colors"
+              title={t('delete' as any)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+          <Bookmark className="w-5 h-5 text-indigo-100 group-hover:text-indigo-300 transition-colors" />
+        </div>
       </div>
       
       <h3 className="text-xl font-extrabold text-indigo-950 mb-3 group-hover:text-indigo-600 transition-colors">

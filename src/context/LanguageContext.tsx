@@ -61,6 +61,10 @@ const translations: Translations = {
   delete: { EN: 'Delete', TR: 'Sil' },
   undo: { EN: 'Undo', TR: 'Geri Al' },
   removedFromSaved: { EN: 'Removed from saved items', TR: 'Kaydedilenlerden kaldırıldı' },
+  edit: { EN: 'Edit', TR: 'Düzenle' },
+  editFavorite: { EN: 'Edit Favorite', TR: 'Favoriyi Düzenle' },
+  saveChanges: { EN: 'Save Changes', TR: 'Değişiklikleri Kaydet' },
+  confirmDelete: { EN: 'Are you sure you want to delete this favorite?', TR: 'Bu favoriyi silmek istediğinizden emin misiniz?' },
 };
 
 interface LanguageContextType {
