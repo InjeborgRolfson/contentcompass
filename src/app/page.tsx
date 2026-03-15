@@ -12,15 +12,15 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-indigo-50/50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-2xl w-full text-center space-y-8 bg-white p-12 rounded-[3rem] shadow-2xl shadow-indigo-100 border border-indigo-50">
+      <div className="max-w-2xl w-full text-center space-y-8 bg-white p-8 sm:p-10 md:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl shadow-indigo-100 border border-indigo-50 overflow-hidden">
         <div className="flex flex-col items-center">
           <div className="bg-indigo-600 p-6 rounded-[2rem] shadow-xl shadow-indigo-200 mb-8 animate-bounce duration-[3000ms]">
             <Compass className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-6xl font-black text-indigo-950 mb-4 tracking-tighter">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-indigo-950 mb-4 tracking-tighter break-words px-2">
             ContentCompass
           </h1>
-          <p className="text-xl text-indigo-900/60 font-medium leading-relaxed max-w-md mx-auto">
+          <p className="text-lg sm:text-xl text-indigo-900/60 font-medium leading-relaxed max-w-md mx-auto px-4">
             Your personalized trajectory through books, films, podcasts, and more.
           </p>
         </div>
