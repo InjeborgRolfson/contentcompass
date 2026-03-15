@@ -15,7 +15,7 @@ export default function WelcomeModal() {
   useEffect(() => {
     if (session) {
       const hasSeen = localStorage.getItem('hasSeenWelcomeModal');
-      if (!hasSeen) {
+      if (true) {
         setIsOpen(true);
       }
     }
