@@ -100,7 +100,77 @@ export async function POST(req: Request) {
       }
       
       const recommendations = Array.isArray(parsed) ? parsed : [];
-      return NextResponse.json(recommendations);
+      
+      // Fetch photos for each recommendation
+      const recommendationsWithPhotos = await Promise.all(
+        recommendations.map(async (rec: any) => {
+          let photoUrl = '';
+          try {
+            // Search for the content in Wikidata
+            const searchRes = await fetch(
+              `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
+                rec.title
+              )}&language=en&format=json&origin=*&limit=1`
+            );
+            const searchData = await searchRes.json();
+            const result = searchData.search?.[0];
+            
+            if (result) {
+              // Get Wikipedia title
+              const entityRes = await fetch(
+                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${result.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`
+              );
+              const entityData = await entityRes.json();
+              const wikiTitle = entityData.entities?.[result.id]?.sitelinks?.enwiki?.title;
+
+              if (wikiTitle) {
+                // Get all images from the page
+                const imagesRes = await fetch(
+                  `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+                    wikiTitle
+                  )}&prop=images&imlimit=50&format=json&origin=*`
+                );
+                const imagesData = await imagesRes.json();
+                const pages = imagesData.query?.pages || {};
+                const pageId = Object.keys(pages)[0];
+                const images = pages[pageId]?.images || [];
+                
+                // Filter out common non-infobox images
+                const infoboxImage = images.find((img: any) => {
+                  const title = img.title.toLowerCase();
+                  const isMediaFile = title.endsWith('.jpg') || title.endsWith('.jpeg') || title.endsWith('.png');
+                  return !title.includes('icon') && 
+                         !title.includes('logo') && 
+                         !title.includes('stamp') && 
+                         !title.includes('flag') &&
+                         !title.includes('commons') &&
+                         isMediaFile;
+                });
+
+                if (infoboxImage) {
+                  // Get the image info to get the URL
+                  const imageInfoRes = await fetch(
+                    `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+                      infoboxImage.title
+                    )}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`
+                  );
+                  const imageInfoData = await imageInfoRes.json();
+                  const imagePages = imageInfoData.query?.pages || {};
+                  const imagePageId = Object.keys(imagePages)[0];
+                  photoUrl = imagePages[imagePageId]?.imageinfo?.[0]?.thumburl || 
+                            imagePages[imagePageId]?.imageinfo?.[0]?.url || '';
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Failed to fetch photo for recommendation:', err);
+          }
+          
+          return { ...rec, photo: photoUrl || null };
+        })
+      );
+      
+      return NextResponse.json(recommendationsWithPhotos);
     } catch (parseError) {
       console.error('Parse error:', parseError, text);
       return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });

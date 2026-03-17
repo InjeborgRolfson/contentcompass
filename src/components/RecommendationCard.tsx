@@ -4,6 +4,18 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info, Trash2 } from 'lucide-react';
 
+const contentTypeEmojis: Record<string, string> = {
+  book: '📚',
+  movie: '🎬',
+  'tv show': '📺',
+  podcast: '🎙️',
+  music: '🎵',
+  game: '🎮',
+  article: '📝',
+  youtube: '▶️',
+  other: '🌐',
+};
+
 interface RecommendationProps {
   recommendation: {
     _id?: string;
@@ -14,19 +26,24 @@ interface RecommendationProps {
     description: string;
     why: string;
     tags: string[];
+    photo?: string;
   };
   isSavedPage?: boolean;
   onRemove?: (id: string) => void;
 }
 
-const RecommendationCard: React.FC<RecommendationProps> = ({ 
-  recommendation, 
+const RecommendationCard: React.FC<RecommendationProps> = ({
+  recommendation,
   isSavedPage = false,
   onRemove
 }) => {
   const [isSaved, setIsSaved] = useState(isSavedPage);
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
+
+  const getContentTypeEmoji = (type: string): string => {
+    return contentTypeEmojis[type.toLowerCase()] || '🌐';
+  };
 
   const handleSave = async () => {
     if (isSaved && !isSavedPage) return;
@@ -93,6 +110,23 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </button>
         )}
       </div>
+      
+{recommendation.photo ? (
+        <div className="mb-6 rounded-xl overflow-hidden">
+          <img
+            src={recommendation.photo}
+            alt={recommendation.title}
+            className="w-16 h-16 object-cover rounded-xl"
+          />
+        </div>
+      ) : (
+        <div className="mb-6 w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
+          <div className="text-2xl">{getContentTypeEmoji(recommendation.type)}</div>
+          <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+            {recommendation.type.substring(0, 8)}
+          </div>
+        </div>
+      )}
       
       <div className="mb-6">
         <h3 className="text-2xl font-black text-indigo-950 mb-4 group-hover:text-indigo-600 transition-colors leading-tight">

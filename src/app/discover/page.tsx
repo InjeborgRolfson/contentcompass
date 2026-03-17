@@ -334,7 +334,7 @@ export default function DiscoverPage() {
                 <p className="text-indigo-900/40 font-bold animate-pulse">Calculating your trajectory...</p>
               </div>
             ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {recommendations.map((rec, idx) => (
                   <RecommendationCard key={idx} recommendation={rec} />
                 ))}

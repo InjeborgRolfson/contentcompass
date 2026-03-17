@@ -32,6 +32,10 @@ const RecommendationSchema = new Schema({
     type: String,
     required: true,
   },
+  photo: {
+    type: String,
+    default: null,
+  },
   tags: {
     type: [String],
     default: [],

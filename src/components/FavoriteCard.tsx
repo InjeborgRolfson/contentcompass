@@ -10,6 +10,18 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const contentTypeEmojis: Record<string, string> = {
+  book: '📚',
+  movie: '🎬',
+  'tv show': '📺',
+  podcast: '🎙️',
+  music: '🎵',
+  game: '🎮',
+  article: '📝',
+  youtube: '▶️',
+  other: '🌐',
+};
+
 interface FavoriteProps {
   favorite: {
     _id: string;
@@ -19,6 +31,7 @@ interface FavoriteProps {
     year: string;
     note: string;
     tags: string[];
+    photo?: string;
   };
   onEdit?: (fav: any) => void;
   onDelete?: (id: string) => void;
@@ -26,6 +39,10 @@ interface FavoriteProps {
 
 const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) => {
   const { t } = useLanguage();
+
+  const getContentTypeEmoji = (type: string): string => {
+    return contentTypeEmojis[type.toLowerCase()] || '🌐';
+  };
 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative">
@@ -54,6 +71,23 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
           <Bookmark className="w-5 h-5 text-indigo-100 group-hover:text-indigo-300 transition-colors" />
         </div>
       </div>
+      
+{favorite.photo ? (
+        <div className="mb-4 rounded-xl overflow-hidden">
+          <img
+            src={favorite.photo}
+            alt={favorite.title}
+            className="w-16 h-16 object-cover rounded-xl"
+          />
+        </div>
+      ) : (
+        <div className="mb-4 w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
+          <div className="text-2xl">{getContentTypeEmoji(favorite.type)}</div>
+          <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+            {favorite.type.substring(0, 8)}
+          </div>
+        </div>
+      )}
       
       <h3 className="text-xl font-extrabold text-indigo-950 mb-3 group-hover:text-indigo-600 transition-colors">
         {favorite.title}

@@ -45,11 +45,9 @@
 - `src/models/` — Mongoose schemas
 - `src/types/content.ts` — Content type definitions
 
-## Example Prompts
+## Mobile view
 
-- "How do I add a new content type to recommendations?"
-- "What environment variables are required for local development?"
-- "How does localization work in the UI?"
+After implementing, verify the layout works correctly on mobile screen sizes (375px and 390px width). Fix any overflow, clipping, or touch target issues before finishing.
 
 ---
 

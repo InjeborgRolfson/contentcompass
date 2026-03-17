@@ -91,7 +91,7 @@ export default function SavedPage() {
           <p className="text-indigo-900/40 text-lg font-bold">{t('noneSelected')}</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {saved.map((rec) => (
             <RecommendationCard 
               key={rec._id} 
