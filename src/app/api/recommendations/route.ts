@@ -4,7 +4,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
-    const { selectedFavorites, filters, language, excludeTitles } = await req.json();
+    const { selectedFavorites, filters, language, turkishOnly, excludeTitles } = await req.json();
 
     const favoritesStr = selectedFavorites.map((fav: any) => 
       `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(', ')}`
@@ -19,6 +19,7 @@ export async function POST(req: Request) {
 
     const langStr = language === 'TR' ? 'Return the response in Turkish.' : 'Return the response in English.';
     const excludeStr = excludeTitles && excludeTitles.length > 0 ? `Do NOT recommend these titles: ${excludeTitles.join(', ')}` : '';
+    const turkishOnlyStr = turkishOnly ? 'IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators.' : '';
 
     const diversityStr = filters.length === 0 
       ? "Your recommendations must be diverse across formats. Include at least one Book, one Movie, one TV Show, one Podcast, one Music recommendation, one Game, one Article or essay, and one YouTube channel or video. Do not cluster recommendations in a single format even if the user's favorites are all from the same format."
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
       Find the common themes, tones, and stylistic threads that run across ALL selected items, and recommend content that sits at that thematic intersection. Do not recommend content that only matches one of the selected items individually.
       
       ${filtersStr}
+      ${turkishOnlyStr}
       ${diversityStr}
       ${excludeStr}
       ${langStr}

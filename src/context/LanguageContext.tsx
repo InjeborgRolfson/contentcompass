@@ -77,6 +77,8 @@ const translations: Translations = {
   emptyFavoritesSubtitle: { EN: 'Start by adding the content you love — books, films, podcasts, anything.', TR: 'Sevdiğin içerikleri eklemeye başla — kitaplar, filmler, podcastler ve daha fazlası.' },
   addFirstFavorite: { EN: 'Add Your First Favorite', TR: 'İlk Favorini Ekle' },
   discoverHint: { EN: 'Select one or more favorites below, choose your preferred formats, and hit Find Matches to discover new content.', TR: 'Aşağıdan bir veya daha fazla favori seç, format filtrele ve eşleşmelerini bulmak için Eşleşmeleri Bul\'a bas.' },
+  turkishContent: { EN: 'Turkish Content Only', TR: 'Türkçe İçerik' },
+  turkishContentDesc: { EN: 'Recommend only Turkish content from Turkish creators', TR: 'Yalnızca Türk yapımcılardan Türkçe içerik öner' },
 };
 
 interface LanguageContextType {

@@ -22,6 +22,7 @@ export default function DiscoverPage() {
   const [refreshCount, setRefreshCount] = useState(0);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [turkishOnly, setTurkishOnly] = useState(false);
   
   const [showHint, setShowHint] = useState(false);
   
@@ -115,6 +116,7 @@ export default function DiscoverPage() {
           selectedFavorites,
           filters,
           language,
+          turkishOnly,
           excludeTitles: isRefresh ? recommendations.map(r => r.title) : [],
         }),
       });
@@ -259,6 +261,24 @@ export default function DiscoverPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
+                {t('turkishContent')}
+              </label>
+              <button
+                onClick={() => setTurkishOnly(!turkishOnly)}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border flex items-center gap-2 min-h-[44px] justify-center flex-shrink-0 ${
+                  turkishOnly
+                    ? 'bg-red-600/30 border-red-400 text-red-100 shadow-lg shadow-red-900/20'
+                    : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'
+                }`}
+                title={t('turkishContentDesc')}
+              >
+                <span className="text-sm sm:text-base">🇹🇷</span>
+                <span className="whitespace-nowrap">Türkçe</span>
+              </button>
             </div>
           </div>
         </div>
