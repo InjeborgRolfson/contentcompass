@@ -6,9 +6,17 @@ export async function POST(req: Request) {
   try {
     const { selectedFavorites, filters, language, turkishOnly, excludeTitles } = await req.json();
 
-    const favoritesStr = selectedFavorites.map((fav: any) => 
-      `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(', ')}`
-    ).join('\n');
+    const favoritesStr = selectedFavorites.map((fav: any) => {
+      if (fav.isCreator) {
+        // Format creator entries specially
+        const typeStr = fav.type ? ` (${fav.type})` : '';
+        const noteStr = fav.note ? ` — Note: ${fav.note}` : '';
+        return `[Creator] ${fav.title}${typeStr}${noteStr}`;
+      } else {
+        // Format regular title-based entries
+        return `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(', ')}`;
+      }
+    }).join('\n');
 
     const isOtherSelected = filters.includes('Other');
     let filtersStr = filters.length > 0 ? `Limit recommendations to these formats: ${filters.join(', ')}` : 'Any format is okay.';
@@ -29,7 +37,9 @@ export async function POST(req: Request) {
       The user has selected the following favorites:
       ${favoritesStr}
       
-      Find the common themes, tones, and stylistic threads that run across ALL selected items, and recommend content that sits at that thematic intersection. Do not recommend content that only matches one of the selected items individually.
+      When a favorite is marked with [Creator], it indicates the user appreciates that person's body of work and general creative output, not a specific title. For creator entries, recommend works created by them or by similar creators in the same field. For other entries, find the common themes, tones, and stylistic threads across ALL selected items.
+      
+      Find the intersection of interests across all selected items (both titles and creators combined), and recommend content that sits at that thematic intersection. Do not recommend content that only matches one of the selected items individually.
       
       ${filtersStr}
       ${turkishOnlyStr}

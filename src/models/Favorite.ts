@@ -12,7 +12,7 @@ const FavoriteSchema = new Schema({
   type: {
     type: String,
     enum: ['Book', 'Movie', 'Tv Show', 'Podcast', 'Music', 'Game', 'Article', 'Youtube', 'Other'],
-    required: true,
+    required: false,
   },
   title: {
     type: String,
@@ -20,11 +20,11 @@ const FavoriteSchema = new Schema({
   },
   creator: {
     type: String,
-    required: true,
+    required: false,
   },
   year: {
     type: String,
-    required: true,
+    required: false,
   },
   note: {
     type: String,
@@ -37,6 +37,10 @@ const FavoriteSchema = new Schema({
   tags: {
     type: [String],
     default: [],
+  },
+  isCreator: {
+    type: Boolean,
+    default: false,
   },
 }, { timestamps: true });
 

@@ -32,6 +32,7 @@ interface FavoriteProps {
     note: string;
     tags: string[];
     photo?: string;
+    isCreator?: boolean;
   };
   onEdit?: (fav: any) => void;
   onDelete?: (id: string) => void;
@@ -47,9 +48,16 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative">
       <div className="flex justify-between items-start mb-4">
-        <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">
-          {t(favorite.type.toLowerCase() as any)}
-        </span>
+        <div className="flex items-center gap-2">
+          {favorite.isCreator && (
+            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full uppercase tracking-wider">
+              👤 Creator
+            </span>
+          )}
+          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">
+            {favorite.type ? t(favorite.type.toLowerCase() as any) : '—'}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           {/* Action Buttons - Always visible on mobile screens, only on hover on desktop */}
           <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -94,14 +102,18 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
       </h3>
       
       <div className="space-y-2 mb-6 text-sm text-indigo-900/60 font-medium">
-        <div className="flex items-center gap-2">
-          <User className="w-4 h-4" />
-          <span>{favorite.creator}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4" />
-          <span>{favorite.year}</span>
-        </div>
+        {favorite.creator && (
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            <span>{favorite.creator}</span>
+          </div>
+        )}
+        {favorite.year && (
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span>{favorite.year}</span>
+          </div>
+        )}
       </div>
 
       <div className="bg-indigo-50/50 p-4 rounded-2xl mb-6 relative">

@@ -80,6 +80,11 @@ const translations: Translations = {
   turkishContent: { EN: 'Turkish Content Only', TR: 'Türkçe İçerik' },
   turkishContentDesc: { EN: 'Recommend only Turkish content from Turkish creators', TR: 'Yalnızca Türk yapımcılardan Türkçe içerik öner' },
   noteHelper: { EN: 'Adding a note helps us give you more specific recommendations.', TR: 'Not eklerseniz size daha kişiselleştirilmiş öneriler sunabiliriz.' },
+  addCreatorInstead: { EN: 'Add a Creator instead', TR: 'Bunun yerine bir yaratıcı ekle' },
+  addTitleInstead: { EN: 'Add a specific title instead', TR: 'Bunun yerine belirli bir içerik ekle' },
+  creatorName: { EN: 'Creator Name', TR: 'Yaratıcının Adı' },
+  creatorPlaceholder: { EN: 'e.g., Stephen King, Jane Austen...', TR: 'örn: Stephen King, Jane Austen...' },
+  optional: { EN: 'Optional', TR: 'İsteğe Bağlı' },
 };
 
 interface LanguageContextType {

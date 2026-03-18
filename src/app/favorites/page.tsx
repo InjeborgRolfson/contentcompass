@@ -26,6 +26,7 @@ export default function FavoritesPage() {
     type: 'Book' as ContentType,
     note: '',
     photo: '',
+    creatorMode: false,
   });
 
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -58,11 +59,12 @@ export default function FavoritesPage() {
     setEditingFavorite(fav);
     setFormData({
       title: fav.title,
-      creator: fav.creator,
-      year: fav.year,
+      creator: fav.creator || '',
+      year: fav.year || '',
       type: fav.type as ContentType,
       note: fav.note,
       photo: fav.photo || '',
+      creatorMode: fav.isCreator || false,
     });
     setIsModalOpen(true);
   };
@@ -85,9 +87,9 @@ export default function FavoritesPage() {
     }
   };
 
-  // Wikidata Autocomplete Logic
+  // Wikidata Autocomplete Logic for Title (only in non-creatorMode)
   useEffect(() => {
-    if (formData.title.length < 2 || isSelectionInProgress || skipSearchRef.current) {
+    if (formData.creatorMode || formData.title.length < 2 || isSelectionInProgress || skipSearchRef.current) {
       if (skipSearchRef.current) {
         skipSearchRef.current = false;
       }
@@ -255,6 +257,176 @@ export default function FavoritesPage() {
     }
   };
 
+  // Wikidata Creator Search (filtered for people)
+  useEffect(() => {
+    if (!formData.creatorMode || formData.title.length < 2 || isSelectionInProgress || skipSearchRef.current) {
+      if (skipSearchRef.current) {
+        skipSearchRef.current = false;
+      }
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const debounceId = setTimeout(async () => {
+      setSearching(true);
+      try {
+        // Search Wikidata for entities, we'll filter for people afterwards
+        const searchRes = await fetch(
+          `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
+            formData.title
+          )}&language=en&format=json&origin=*&limit=20`
+        );
+        const searchData = await searchRes.json();
+        const results = searchData.search || [];
+
+        // Filter for people and fetch details
+        const suggestionsWithImages = await Promise.all(
+          results.map(async (item: any) => {
+            try {
+              // Check if entity is a person by looking for human (Q5) in instance of claims
+              const detailsRes = await fetch(
+                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${item.id}&props=claims|labels&languages=en&format=json&origin=*`
+              );
+              const detailsData = await detailsRes.json();
+              const entity = detailsData.entities?.[item.id];
+              const claims = entity?.claims || {};
+              
+              // Check for P31 (instance of) = Q5 (human) or P106 (occupation) to confirm it's a person
+              const isHuman = claims.P31?.some((claim: any) => 
+                claim.mainsnak?.datavalue?.value?.id === 'Q5'
+              );
+              const hasOccupation = claims.P106 && claims.P106.length > 0;
+              
+              if (!isHuman && !hasOccupation) {
+                return null; // Skip non-people
+              }
+
+              // Get English Wikipedia title
+              const entityRes = await fetch(
+                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${item.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`
+              );
+              const entityData = await entityRes.json();
+              const wikiTitle = entityData.entities?.[item.id]?.sitelinks?.enwiki?.title;
+
+              let thumbnail = null;
+              if (wikiTitle) {
+                // Get thumbnail from Wikipedia
+                const thumbRes = await fetch(
+                  `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+                    wikiTitle
+                  )}&prop=pageimages&format=json&pithumbsize=100&origin=*`
+                );
+                const thumbData = await thumbRes.json();
+                const pages = thumbData.query?.pages || {};
+                const pageId = Object.keys(pages)[0];
+                thumbnail = pages[pageId]?.thumbnail?.source || null;
+              }
+
+              return { ...item, thumbnail, wikiTitle };
+            } catch (err) {
+              return null;
+            }
+          })
+        );
+
+        // Filter out nulls
+        const filteredSuggestions = suggestionsWithImages.filter(s => s !== null);
+        setSuggestions(filteredSuggestions);
+        setShowSuggestions(filteredSuggestions.length > 0);
+      } catch (err) {
+        console.error('Creator search failed:', err);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceId);
+  }, [formData.title, formData.creatorMode]);
+
+  const handleSelectCreatorSuggestion = async (suggestion: any) => {
+    skipSearchRef.current = true;
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setIsSelectionInProgress(true);
+    setFormData((prev) => ({ ...prev, title: suggestion.label }));
+
+    try {
+      // Fetch full details for the selected entity
+      const detailsRes = await fetch(
+        `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${suggestion.id}&props=claims|labels&languages=en&format=json&origin=*`
+      );
+      const detailsData = await detailsRes.json();
+      const entity = detailsData.entities?.[suggestion.id];
+      const claims = entity?.claims || {};
+
+      // Extract year of birth/death range if available
+      const birthYearClaim = claims.P569?.[0];
+      const birthYear = birthYearClaim?.mainsnak?.datavalue?.value?.time?.match(/\d{4}/)?.[0] || '';
+
+      // Fetch Wikipedia infobox image
+      let photoUrl = '';
+      try {
+        const entityRes = await fetch(
+          `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${suggestion.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`
+        );
+        const entityData = await entityRes.json();
+        const wikiTitle = entityData.entities?.[suggestion.id]?.sitelinks?.enwiki?.title;
+
+        if (wikiTitle) {
+          // Get all images from the page
+          const imagesRes = await fetch(
+            `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+              wikiTitle
+            )}&prop=images&imlimit=50&format=json&origin=*`
+          );
+          const imagesData = await imagesRes.json();
+          const pages = imagesData.query?.pages || {};
+          const pageId = Object.keys(pages)[0];
+          const images = pages[pageId]?.images || [];
+          
+          // Filter out common non-infobox images
+          const infoboxImage = images.find((img: any) => {
+            const title = img.title.toLowerCase();
+            const isMediaFile = title.endsWith('.jpg') || title.endsWith('.jpeg') || title.endsWith('.png');
+            return !title.includes('icon') && 
+                   !title.includes('logo') && 
+                   !title.includes('stamp') && 
+                   !title.includes('flag') &&
+                   !title.includes('commons') &&
+                   isMediaFile;
+          });
+
+          if (infoboxImage) {
+            // Get the image info to get the URL
+            const imageInfoRes = await fetch(
+              `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+                infoboxImage.title
+              )}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`
+            );
+            const imageInfoData = await imageInfoRes.json();
+            const imagePages = imageInfoData.query?.pages || {};
+            const imagePageId = Object.keys(imagePages)[0];
+            photoUrl = imagePages[imagePageId]?.imageinfo?.[0]?.thumburl || 
+                      imagePages[imagePageId]?.imageinfo?.[0]?.url || '';
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch Wikipedia infobox image:', err);
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        year: birthYear || prev.year,
+        photo: photoUrl || prev.photo,
+      }));
+    } catch (err) {
+      console.error('Failed to fetch creator details:', err);
+    } finally {
+      setIsSelectionInProgress(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdding(true);
@@ -262,8 +434,8 @@ export default function FavoritesPage() {
     try {
       let tags = editingFavorite?.tags || [];
       
-      // Only generate new tags if it's a new favorite or if critical info changed
-      if (!editingFavorite || (editingFavorite.title !== formData.title || editingFavorite.type !== formData.type)) {
+      // Only generate new tags if it's a new favorite or if critical info changed (but not for creator entries)
+      if (!formData.creatorMode && (!editingFavorite || (editingFavorite.title !== formData.title || editingFavorite.type !== formData.type))) {
         const tagRes = await fetch('/api/generate-tags', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -282,13 +454,17 @@ export default function FavoritesPage() {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, tags }),
+        body: JSON.stringify({ 
+          ...formData, 
+          tags,
+          isCreator: formData.creatorMode,
+        }),
       });
 
       if (res.ok) {
         setIsModalOpen(false);
         setEditingFavorite(null);
-        setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '' });
+        setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '', creatorMode: false });
         fetchFavorites();
       } else {
         const errorData = await res.json().catch(() => ({}));
@@ -312,7 +488,7 @@ export default function FavoritesPage() {
         <button
           onClick={() => {
             setEditingFavorite(null);
-            setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '' });
+            setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '', creatorMode: false });
             setIsModalOpen(true);
           }}
           className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95"
@@ -340,7 +516,7 @@ export default function FavoritesPage() {
           <button
             onClick={() => {
               setEditingFavorite(null);
-              setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '' });
+              setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '', creatorMode: false });
               setIsModalOpen(true);
             }}
             className="group flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100 transition-all hover:-translate-y-1 active:scale-95"
@@ -379,14 +555,41 @@ export default function FavoritesPage() {
                 <X className="w-6 h-6 text-indigo-900/40" />
               </button>
             </div>
+
+            <div className="px-8 pt-4 pb-2 border-b border-indigo-50">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({ 
+                    ...prev, 
+                    creatorMode: !prev.creatorMode,
+                    title: '',
+                    creator: '',
+                    year: '',
+                    photo: '',
+                  }));
+                  setSuggestions([]);
+                  setShowSuggestions(false);
+                }}
+                className={`px-3 py-1 rounded-full text-sm font-medium border transition-all ${
+                  formData.creatorMode
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:border-indigo-300'
+                }`}
+              >
+                {formData.creatorMode ? `📚 ${t('addTitleInstead' as any)}` : `👤 ${t('addCreatorInstead' as any)}`}
+              </button>
+            </div>
             
             <form onSubmit={handleSubmit} className="p-8 space-y-5 overflow-y-auto flex-1 pb-32 sm:pb-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Title/Creator Name Field */}
                 <div className="space-y-1.5 sm:col-span-2 relative">
-                  <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('title')}</label>
+                  <label className="text-sm font-semibold text-indigo-900/70 ml-1">
+                    {formData.creatorMode ? t('creatorName' as any) : t('title')}
+                  </label>
                   <div className="relative">
                     <input
-                      required
                       className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                       value={formData.title}
                       onChange={(e) => {
@@ -398,6 +601,7 @@ export default function FavoritesPage() {
                         if (suggestions.length > 0) setShowSuggestions(true);
                       }}
                       autoComplete="off"
+                      placeholder={formData.creatorMode ? t('creatorPlaceholder' as any) : undefined}
                     />
                     {searching && (
                       <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -414,7 +618,7 @@ export default function FavoritesPage() {
                           type="button"
                           onMouseDown={(e) => {
                             e.preventDefault();
-                            handleSelectSuggestion(item);
+                            formData.creatorMode ? handleSelectCreatorSuggestion(item) : handleSelectSuggestion(item);
                           }}
                           className="w-full flex items-start gap-4 p-4 hover:bg-indigo-50 transition-colors border-b border-indigo-50 last:border-0 text-left"
                         >
@@ -435,34 +639,41 @@ export default function FavoritesPage() {
                   )}
                 </div>
                 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('creator')}</label>
-                  <input
-                    required
-                    className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                    value={formData.creator}
-                    onChange={(e) => setFormData({ ...formData, creator: e.target.value })}
-                  />
-                </div>
+                {/* Creator Field - Hidden in Creator Mode */}
+                {!formData.creatorMode && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('creator')}</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      value={formData.creator}
+                      onChange={(e) => setFormData({ ...formData, creator: e.target.value })}
+                    />
+                  </div>
+                )}
                 
+                {/* Year Field - Optional in both modes */}
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('year')}</label>
                   <input
-                    required
                     className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                     value={formData.year}
                     onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                    placeholder={formData.creatorMode ? t('optional' as any) : undefined}
                   />
                 </div>
 
+                {/* Content Type - Optional in both modes */}
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('contentType')}</label>
+                  <label className="text-sm font-semibold text-indigo-900/70 ml-1">
+                    {t('contentType')}
+                    {formData.creatorMode && <span className="text-indigo-900/40 font-normal"> ({t('optional' as any).toLowerCase()})</span>}
+                  </label>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {contentTypes.map((type) => (
                       <button
                         key={type}
                         type="button"
-                        onClick={() => setFormData({ ...formData, type })}
+                        onClick={() => setFormData({ ...formData, type: formData.type === type ? ('Book' as ContentType) : type })}
                         className={`px-2 py-2 text-xs font-bold rounded-xl transition-all border ${
                           formData.type === type 
                             ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100' 
@@ -475,6 +686,7 @@ export default function FavoritesPage() {
                   </div>
                 </div>
 
+                {/* Personal Note - Same in both modes */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('note')}</label>
                   <textarea
