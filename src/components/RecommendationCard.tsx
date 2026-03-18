@@ -39,7 +39,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(isSavedPage);
   const [saving, setSaving] = useState(false);
-  const { t } = useLanguage();
+  const { t, formatText } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
     return contentTypeEmojis[type.toLowerCase()] || '🌐';
@@ -83,8 +83,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
   return (
     <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-indigo-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group flex flex-col h-full">
       <div className="flex justify-between items-start mb-6">
-        <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-indigo-100">
-          {t(recommendation.type.toLowerCase() as any) || recommendation.type}
+        <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full tracking-widest border border-indigo-100">
+          {formatText(t(recommendation.type.toLowerCase() as any) || recommendation.type, 'upper')}
         </span>
         
         <button

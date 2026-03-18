@@ -16,7 +16,7 @@ function cn(...inputs: ClassValue[]) {
 const BottomNav = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, formatText, language } = useLanguage();
 
   if (!session) return null;
 
@@ -55,8 +55,8 @@ const BottomNav = () => {
               )}
             >
               <Icon className={cn('w-6 h-6', isActive && 'fill-indigo-600/10')} />
-              <span className="text-[10px] font-medium uppercase tracking-wider">
-                {item.label}
+              <span className="text-[10px] font-medium tracking-wider">
+                {formatText(item.label, 'upper')}
               </span>
               {isActive && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-indigo-600 rounded-b-full" />

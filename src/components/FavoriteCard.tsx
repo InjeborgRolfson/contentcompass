@@ -39,7 +39,7 @@ interface FavoriteProps {
 }
 
 const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) => {
-  const { t } = useLanguage();
+  const { t, formatText } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
     return contentTypeEmojis[type.toLowerCase()] || '🌐';
@@ -50,12 +50,12 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
           {favorite.isCreator && (
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full uppercase tracking-wider">
-              👤 {t('creatorBadge' as any)}
+            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full tracking-wider">
+              👤 {formatText(t('creatorBadge' as any), 'upper')}
             </span>
           )}
-          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">
-            {favorite.type ? t(favorite.type.toLowerCase() as any) : '—'}
+          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full tracking-wider">
+            {favorite.type ? formatText(t(favorite.type.toLowerCase() as any), 'upper') : '—'}
           </span>
         </div>
         <div className="flex items-center gap-2">

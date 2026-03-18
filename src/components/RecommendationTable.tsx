@@ -15,7 +15,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   isSavedPage = false,
   onRemove
 }) => {
-  const { t } = useLanguage();
+  const { t, formatText } = useLanguage();
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -88,8 +88,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     className="hover:bg-indigo-50/20 cursor-pointer transition-colors group relative"
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded-full uppercase tracking-widest border border-indigo-100">
-                        {t(rec.type.toLowerCase() as any) || rec.type}
+                      <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded-full tracking-widest border border-indigo-100">
+                        {formatText(t(rec.type.toLowerCase() as any) || rec.type, 'upper')}
                       </span>
                     </td>
                     <td className="px-8 py-6">
