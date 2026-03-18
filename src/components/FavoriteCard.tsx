@@ -51,7 +51,7 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
         <div className="flex items-center gap-2">
           {favorite.isCreator && (
             <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full uppercase tracking-wider">
-              👤 Creator
+              👤 {t('creatorBadge' as any)}
             </span>
           )}
           <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">

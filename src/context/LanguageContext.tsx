@@ -85,6 +85,7 @@ const translations: Translations = {
   creatorName: { EN: 'Creator Name', TR: 'Yaratıcının Adı' },
   creatorPlaceholder: { EN: 'e.g., Stephen King, Jane Austen...', TR: 'örn: Stephen King, Jane Austen...' },
   optional: { EN: 'Optional', TR: 'İsteğe Bağlı' },
+  creatorBadge: { EN: 'Creator', TR: 'Yaratıcı' },
 };
 
 interface LanguageContextType {
