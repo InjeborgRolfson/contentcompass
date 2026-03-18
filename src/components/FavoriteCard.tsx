@@ -21,7 +21,19 @@ const contentTypeEmojis: Record<string, string> = {
   youtube: '▶️',
   other: '🌐',
 };
-
+const getTypeBadgeStyle = (type: string): React.CSSProperties => {
+  const styles: Record<string, React.CSSProperties> = {
+    book:     { backgroundColor: '#EAF3DE', color: '#3B6D11', borderColor: '#C0DD97' },
+    movie:    { backgroundColor: '#E6F1FB', color: '#185FA5', borderColor: '#B5D4F4' },
+    'tv show':{ backgroundColor: '#EEEDFE', color: '#534AB7', borderColor: '#CECBF6' },
+    game:     { backgroundColor: '#FAEEDA', color: '#854F0B', borderColor: '#FAC775' },
+    music:    { backgroundColor: '#FBEAF0', color: '#993556', borderColor: '#F4C0D1' },
+    podcast:  { backgroundColor: '#FAECE7', color: '#993C1D', borderColor: '#F5C4B3' },
+    article:  { backgroundColor: '#E1F5EE', color: '#0F6E56', borderColor: '#9FE1CB' },
+    youtube:  { backgroundColor: '#FCEBEB', color: '#A32D2D', borderColor: '#F7C1C1' },
+  };
+  return styles[type.toLowerCase()] ?? { backgroundColor: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' };
+};
 interface FavoriteProps {
   favorite: {
     _id: string;
@@ -50,11 +62,17 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
           {favorite.isCreator && (
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full tracking-wider">
+            <span
+  className="px-3 py-1 text-xs font-bold rounded-full tracking-wider border"
+  style={getTypeBadgeStyle(favorite.type)}
+>
               👤 {formatText(t('creatorBadge' as any), 'upper')}
             </span>
           )}
-          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full tracking-wider">
+          <span
+  className="px-3 py-1 text-xs font-bold rounded-full tracking-wider border"
+  style={getTypeBadgeStyle(favorite.type)}
+>
             {favorite.type ? formatText(t(favorite.type.toLowerCase() as any), 'upper') : '—'}
           </span>
         </div>

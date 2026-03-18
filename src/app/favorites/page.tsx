@@ -690,11 +690,12 @@ export default function FavoritesPage() {
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-sm font-semibold text-indigo-900/70 ml-1">{t('note')}</label>
                   <textarea
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
-                    value={formData.note}
-                    onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                  />
+  rows={3}
+  className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+  value={formData.note}
+  onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+  placeholder={formData.creatorMode ? t('whyDoYouFollowThis' as any) || 'Bu kişiyi neden takip ediyorsun?' : t('whyDoYouLoveThis' as any) || 'Neden seviyorsun?'}
+/>
                   <p className="text-xs text-gray-500 mt-2">{t('noteHelper')}</p>
                 </div>
               </div>

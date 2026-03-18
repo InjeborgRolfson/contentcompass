@@ -312,6 +312,11 @@ export default function DiscoverPage() {
                   >
                     {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                     {t('refreshRecommendations')}
+                    {refreshing && (
+  <span className="text-xs font-normal opacity-60">
+    {String(language) === 'tr' ? 'Yükleniyor...' : 'Finding new matches...'}
+  </span>
+)}
                     <span className="text-[10px] bg-indigo-100 px-2 py-0.5 rounded-full ml-1">
                       {refreshCount}/{refreshLimit}
                     </span>
@@ -331,7 +336,9 @@ export default function DiscoverPage() {
                   <div className="w-16 h-16 border-4 border-indigo-100 rounded-full"></div>
                   <div className="w-16 h-16 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute top-0"></div>
                 </div>
-                <p className="text-indigo-900/40 font-bold animate-pulse">Calculating your trajectory...</p>
+                <p className="text-indigo-900/40 font-bold animate-pulse">
+  {String(language) === 'tr' ? 'Önerin hesaplanıyor...' : 'Calculating your trajectory...'}
+</p>
               </div>
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

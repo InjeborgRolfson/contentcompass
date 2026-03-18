@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info, Trash2 } from 'lucide-react';
 
 const contentTypeEmojis: Record<string, string> = {
+  
   book: '📚',
   movie: '🎬',
   'tv show': '📺',
@@ -15,7 +16,19 @@ const contentTypeEmojis: Record<string, string> = {
   youtube: '▶️',
   other: '🌐',
 };
-
+const getTypeBadgeStyle = (type: string): React.CSSProperties => {
+  const styles: Record<string, React.CSSProperties> = {
+    book:     { backgroundColor: '#EAF3DE', color: '#3B6D11', borderColor: '#C0DD97' },
+    movie:    { backgroundColor: '#E6F1FB', color: '#185FA5', borderColor: '#B5D4F4' },
+    'tv show':{ backgroundColor: '#EEEDFE', color: '#534AB7', borderColor: '#CECBF6' },
+    game:     { backgroundColor: '#FAEEDA', color: '#854F0B', borderColor: '#FAC775' },
+    music:    { backgroundColor: '#FBEAF0', color: '#993556', borderColor: '#F4C0D1' },
+    podcast:  { backgroundColor: '#FAECE7', color: '#993C1D', borderColor: '#F5C4B3' },
+    article:  { backgroundColor: '#E1F5EE', color: '#0F6E56', borderColor: '#9FE1CB' },
+    youtube:  { backgroundColor: '#FCEBEB', color: '#A32D2D', borderColor: '#F7C1C1' },
+  };
+  return styles[type.toLowerCase()] ?? { backgroundColor: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' };
+};
 interface RecommendationProps {
   recommendation: {
     _id?: string;
@@ -83,7 +96,10 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
   return (
     <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-indigo-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group flex flex-col h-full">
       <div className="flex justify-between items-start mb-6">
-        <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full tracking-widest border border-indigo-100">
+        <span
+  className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
+  style={getTypeBadgeStyle(recommendation.type)}
+>
           {formatText(t(recommendation.type.toLowerCase() as any) || recommendation.type, 'upper')}
         </span>
         
