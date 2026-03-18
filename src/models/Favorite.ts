@@ -28,7 +28,7 @@ const FavoriteSchema = new Schema({
   },
   note: {
     type: String,
-    required: true,
+    required: false,
   },
   photo: {
     type: String,
