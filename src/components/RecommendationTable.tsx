@@ -2,23 +2,31 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Sparkles, Info, ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
+import { Sparkles, Info, ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Trash2, Eye } from 'lucide-react';
 
 interface RecommendationTableProps {
   recommendations: any[];
   isSavedPage?: boolean;
   onRemove?: (id: string) => void;
+  seenTitles?: string[];
+  onMarkAsSeen?: (title: string) => void;
+  sessionShowingHidden?: boolean;
 }
 
 const RecommendationTable: React.FC<RecommendationTableProps> = ({ 
   recommendations, 
   isSavedPage = false,
-  onRemove
+  onRemove,
+  seenTitles = [],
+  onMarkAsSeen,
+  sessionShowingHidden = false,
 }) => {
   const { t, formatText } = useLanguage();
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [markingAsSeenId, setMarkingAsSeenId] = useState<string | null>(null);
+  const [fadedIds, setFadedIds] = useState<Set<string>>(new Set());
 
   const toggleRow = (idx: number) => {
     setExpandedRow(expandedRow === idx ? null : idx);
@@ -62,6 +70,33 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
     }
   };
 
+  const handleMarkAsSeen = async (rec: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const id = rec._id || rec.title;
+    if (fadedIds.has(id)) return;
+
+    setMarkingAsSeenId(id);
+    try {
+      const res = await fetch('/api/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: rec.title, type: rec.type }),
+      });
+
+      if (res.ok) {
+        setFadedIds(prev => new Set([...prev, id]));
+        if (onMarkAsSeen) {
+          onMarkAsSeen(rec.title);
+        }
+      }
+    } catch (err) {
+      console.error('Error marking as seen:', err);
+    } finally {
+      setMarkingAsSeenId(null);
+    }
+  };
+
   return (
     <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-indigo-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="overflow-x-auto">
@@ -80,12 +115,16 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
               const id = rec._id || rec.title;
               const isSaved = isSavedPage || savedIds.includes(id);
               const isSaving = savingId === id;
+              const isSeenInDB = seenTitles.includes(rec.title) && !sessionShowingHidden;
+              const isFaded = fadedIds.has(id) || isSeenInDB;
 
               return (
                 <React.Fragment key={idx}>
                   <tr 
                     onClick={() => toggleRow(idx)}
-                    className="hover:bg-indigo-50/20 cursor-pointer transition-colors group relative"
+                    className={`hover:bg-indigo-50/20 cursor-pointer transition-colors group relative ${
+                      isFaded ? 'opacity-40 pointer-events-none' : 'opacity-100'
+                    } transition-opacity duration-500`}
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
                       <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded-full tracking-widest border border-indigo-100">
@@ -105,6 +144,20 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     </td>
                     <td className="px-8 py-6 text-center">
                       <div className="flex items-center gap-4 justify-center">
+                        {!isSavedPage && (
+                          <button
+                            onClick={(e) => handleMarkAsSeen(rec, e)}
+                            disabled={markingAsSeenId === id || isFaded}
+                            className={`p-2 rounded-xl transition-all ${
+                              isFaded
+                                ? 'bg-gray-200 text-gray-400 cursor-default'
+                                : 'bg-indigo-50/50 text-indigo-300 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100'
+                            }`}
+                            title={t('alreadySeen')}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           onClick={(e) => handleSave(rec, e)}
                           disabled={isSaving || (isSaved && !isSavedPage)}

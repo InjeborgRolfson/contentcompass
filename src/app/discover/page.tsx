@@ -23,7 +23,8 @@ export default function DiscoverPage() {
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [turkishOnly, setTurkishOnly] = useState(false);
-  const [seenTitles, setSeenTitles] = useState<Set<string>>(new Set());
+  const [seenTitles, setSeenTitles] = useState<string[]>([]);
+  const [savedTitles, setSavedTitles] = useState<string[]>([]);
   const [sessionShowingHidden, setSessionShowingHidden] = useState(false);
   
   const [showHint, setShowHint] = useState(false);
@@ -43,6 +44,7 @@ export default function DiscoverPage() {
   useEffect(() => {
     fetchFavorites();
     fetchSeenContent();
+    fetchSavedRecommendations();
     const savedView = localStorage.getItem('viewMode') as 'grid' | 'list';
     if (savedView) setViewMode(savedView);
   }, []);
@@ -71,10 +73,22 @@ export default function DiscoverPage() {
       const res = await fetch('/api/seen');
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      const titles = new Set((Array.isArray(data) ? data : []).map((item: any) => item.title));
+      const titles = (Array.isArray(data) ? data : []).map((item: any) => item.title);
       setSeenTitles(titles);
     } catch (err) {
       console.error('Failed to fetch seen content:', err);
+    }
+  };
+
+  const fetchSavedRecommendations = async () => {
+    try {
+      const res = await fetch('/api/recommendations/save');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      const titles = (Array.isArray(data) ? data : []).map((item: any) => item.title);
+      setSavedTitles(titles);
+    } catch (err) {
+      console.error('Failed to fetch saved recommendations:', err);
     }
   };
 
@@ -124,11 +138,11 @@ export default function DiscoverPage() {
     }
 
     try {
-      // Build exclude list: already recommended + seen titles (if not showing hidden)
-      const seenToExclude = !sessionShowingHidden ? Array.from(seenTitles) : [];
+      // Build exclude list: already recommended + seen titles (if not showing hidden) + saved titles
+      const seenToExclude = !sessionShowingHidden ? seenTitles : [];
       const excludeTitles = isRefresh 
-        ? [...recommendations.map(r => r.title), ...seenToExclude] 
-        : seenToExclude;
+        ? [...recommendations.map(r => r.title), ...seenToExclude, ...savedTitles] 
+        : [...seenToExclude, ...savedTitles];
 
       const res = await fetch('/api/recommendations', {
         method: 'POST',
@@ -344,13 +358,13 @@ export default function DiscoverPage() {
                       </span>
                     </button>
                     
-                    {seenTitles.size > 0 && !sessionShowingHidden && (
+                    {seenTitles.length > 0 && !sessionShowingHidden && (
                       <button
                         onClick={() => setSessionShowingHidden(true)}
                         className="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold transition-all border text-xs sm:text-sm bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm whitespace-nowrap"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>{seenTitles.size} {t('hiddenCount')}</span>
+                        <span>{seenTitles.length} {t('hiddenCount')}</span>
                       </button>
                     )}
                   </div>
@@ -376,21 +390,26 @@ export default function DiscoverPage() {
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {recommendations.map((rec, idx) => {
-                  const isSeenInDB = seenTitles.has(rec.title) && !sessionShowingHidden;
+                  const isSeenInDB = seenTitles.includes(rec.title) && !sessionShowingHidden;
                   return (
                     <RecommendationCard 
                       key={idx} 
                       recommendation={rec}
                       isSeenInDB={isSeenInDB}
                       onMarkAsSeen={(title) => {
-                        setSeenTitles(prev => new Set([...prev, title]));
+                        setSeenTitles(prev => prev.includes(title) ? prev : [...prev, title]);
                       }}
                     />
                   );
                 })}
               </div>
             ) : (
-              <RecommendationTable recommendations={recommendations} />
+              <RecommendationTable 
+                recommendations={recommendations}
+                seenTitles={seenTitles}
+                onMarkAsSeen={(title) => setSeenTitles(prev => [...prev, title])}
+                sessionShowingHidden={sessionShowingHidden}
+              />
             )}
           </div>
         )}

@@ -91,6 +91,10 @@ const translations: Translations = {
   alreadySeen: { EN: 'Already seen', TR: 'Zaten gördüm' },
   hiddenCount: { EN: 'hidden — show', TR: 'gizlendi — göster' },
   showHidden: { EN: 'Show hidden', TR: 'Gizlenenleri göster' },
+  seenContent: { EN: 'Seen Content', TR: 'Görülmüş İçerikler' },
+  savedContent: { EN: 'Saved', TR: 'Kaydedilenler' },
+  removeFromSeen: { EN: 'Remove', TR: 'Listeden çıkar' },
+  noSeenContent: { EN: "You haven't marked any content as seen yet.", TR: 'Henüz görülmüş olarak işaretlediğin içerik yok.' },
 };
 
 interface LanguageContextType {
