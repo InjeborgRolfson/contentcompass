@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info, Trash2 } from 'lucide-react';
+import { Bookmark, BookmarkCheck, Sparkles, User, Calendar, Info, Trash2, Eye } from 'lucide-react';
 
 const contentTypeEmojis: Record<string, string> = {
   
@@ -47,16 +47,22 @@ interface RecommendationProps {
   };
   isSavedPage?: boolean;
   onRemove?: (id: string) => void;
+  isSeenInDB?: boolean;
+  onMarkAsSeen?: (title: string, type: string) => void;
 }
 
 const RecommendationCard: React.FC<RecommendationProps> = ({
   recommendation,
   isSavedPage = false,
-  onRemove
+  onRemove,
+  isSeenInDB = false,
+  onMarkAsSeen,
 }) => {
   const [isSaved, setIsSaved] = useState(isSavedPage);
   const [saving, setSaving] = useState(false);
   const [whyExpanded, setWhyExpanded] = useState(false);
+  const [userMarkedAsSeenThisSession, setUserMarkedAsSeenThisSession] = useState(false);
+  const [marking, setMarking] = useState(false);
   const { t, formatText, language } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
@@ -113,9 +119,38 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
     }
   };
 
+  const handleMarkAsSeen = async () => {
+    setMarking(true);
+    setUserMarkedAsSeenThisSession(true);
+    try {
+      const res = await fetch('/api/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: recommendation.title,
+          type: recommendation.type,
+        }),
+      });
+
+      if (res.ok) {
+        if (onMarkAsSeen) {
+          onMarkAsSeen(recommendation.title, recommendation.type);
+        }
+      }
+    } catch (err) {
+      console.error('Error marking as seen:', err);
+    } finally {
+      setMarking(false);
+    }
+  };
+
+  const isFaded = isSeenInDB || userMarkedAsSeenThisSession;
+
   return (
-    <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-indigo-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group flex flex-col h-full">
-      <div className="flex justify-between items-start mb-6">
+    <div className={`bg-white rounded-[2rem] p-8 shadow-sm border border-indigo-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group flex flex-col h-full ${
+      isFaded ? 'opacity-40 pointer-events-none' : 'opacity-100'
+    } transition-opacity duration-500`}>
+      <div className="flex justify-between items-start mb-6 gap-3">
         <span
   className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
   style={getTypeBadgeStyle(recommendation.type)}
@@ -123,28 +158,45 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           {formatText(t(recommendation.type.toLowerCase() as any) || recommendation.type, 'upper')}
         </span>
         
-        <button
-          onClick={handleSave}
-          disabled={saving || (isSaved && !isSavedPage)}
-          className={`p-3 rounded-2xl transition-all ${
-            isSaved 
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-              : 'bg-indigo-50/50 text-indigo-200 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100'
-          }`}
-        >
-          {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
-        </button>
-
-        {isSavedPage && (
+        <div className="flex gap-2">
+          {!isSavedPage && (
+            <button
+              onClick={handleMarkAsSeen}
+              disabled={marking || isFaded}
+              className={`p-3 rounded-2xl transition-all ${
+                isFaded
+                  ? 'bg-gray-200 text-gray-400 cursor-default'
+                  : 'bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-200'
+              }`}
+              title={t('alreadySeen')}
+            >
+              <Eye className="w-5 h-5" />
+            </button>
+          )}
+          
           <button
             onClick={handleSave}
-            disabled={saving}
-            className="p-3 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500 shadow-sm hover:shadow-lg hover:shadow-red-100 group/delete"
-            title={t('delete')}
+            disabled={saving || (isSaved && !isSavedPage)}
+            className={`p-3 rounded-2xl transition-all ${
+              isSaved 
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                : 'bg-indigo-50/50 text-indigo-200 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100'
+            }`}
           >
-            <Trash2 className="w-5 h-5" />
+            {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
           </button>
-        )}
+
+          {isSavedPage && (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="p-3 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500 shadow-sm hover:shadow-lg hover:shadow-red-100 group/delete"
+              title={t('delete')}
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
       
 {recommendation.photo ? (

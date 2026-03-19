@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
-import { Search, Loader2, Sparkles, RefreshCw, Star, Info, LayoutGrid, List, Compass, X } from 'lucide-react';
+import { Search, Loader2, Sparkles, RefreshCw, Star, Info, LayoutGrid, List, Compass, X, Eye } from 'lucide-react';
 import RecommendationCard from '@/components/RecommendationCard';
 import ViewToggle from '@/components/ViewToggle';
 import RecommendationTable from '@/components/RecommendationTable';
@@ -23,6 +23,8 @@ export default function DiscoverPage() {
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [turkishOnly, setTurkishOnly] = useState(false);
+  const [seenTitles, setSeenTitles] = useState<Set<string>>(new Set());
+  const [sessionShowingHidden, setSessionShowingHidden] = useState(false);
   
   const [showHint, setShowHint] = useState(false);
   
@@ -40,6 +42,7 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     fetchFavorites();
+    fetchSeenContent();
     const savedView = localStorage.getItem('viewMode') as 'grid' | 'list';
     if (savedView) setViewMode(savedView);
   }, []);
@@ -60,6 +63,18 @@ export default function DiscoverPage() {
       setFavorites([]);
     } finally {
       setFavoritesLoading(false);
+    }
+  };
+
+  const fetchSeenContent = async () => {
+    try {
+      const res = await fetch('/api/seen');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      const titles = new Set((Array.isArray(data) ? data : []).map((item: any) => item.title));
+      setSeenTitles(titles);
+    } catch (err) {
+      console.error('Failed to fetch seen content:', err);
     }
   };
 
@@ -109,6 +124,12 @@ export default function DiscoverPage() {
     }
 
     try {
+      // Build exclude list: already recommended + seen titles (if not showing hidden)
+      const seenToExclude = !sessionShowingHidden ? Array.from(seenTitles) : [];
+      const excludeTitles = isRefresh 
+        ? [...recommendations.map(r => r.title), ...seenToExclude] 
+        : seenToExclude;
+
       const res = await fetch('/api/recommendations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,7 +138,7 @@ export default function DiscoverPage() {
           filters,
           language,
           turkishOnly,
-          excludeTitles: isRefresh ? recommendations.map(r => r.title) : [],
+          excludeTitles,
         }),
       });
 
@@ -301,26 +322,38 @@ export default function DiscoverPage() {
 
               {recommendations.length > 0 && (
                 <div className="flex flex-col items-start gap-2">
-                  <button
-                    onClick={() => findMatches(true)}
-                    disabled={refreshing || refreshCount >= refreshLimit}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-                      refreshCount >= refreshLimit
-                      ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
-                      : 'bg-white border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 shadow-sm'
-                    }`}
-                  >
-                    {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                    {t('refreshRecommendations')}
-                    {refreshing && (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <button
+                      onClick={() => findMatches(true)}
+                      disabled={refreshing || refreshCount >= refreshLimit}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                        refreshCount >= refreshLimit
+                        ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                        : 'bg-white border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 shadow-sm'
+                      }`}
+                    >
+                      {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      {t('refreshRecommendations')}
+                      {refreshing && (
   <span className="text-xs font-normal opacity-60">
     {String(language) === 'tr' ? 'Yükleniyor...' : 'Finding new matches...'}
   </span>
 )}
-                    <span className="text-[10px] bg-indigo-100 px-2 py-0.5 rounded-full ml-1">
-                      {refreshCount}/{refreshLimit}
-                    </span>
-                  </button>
+                      <span className="text-[10px] bg-indigo-100 px-2 py-0.5 rounded-full ml-1">
+                        {refreshCount}/{refreshLimit}
+                      </span>
+                    </button>
+                    
+                    {seenTitles.size > 0 && !sessionShowingHidden && (
+                      <button
+                        onClick={() => setSessionShowingHidden(true)}
+                        className="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold transition-all border text-xs sm:text-sm bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm whitespace-nowrap"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>{seenTitles.size} {t('hiddenCount')}</span>
+                      </button>
+                    )}
+                  </div>
                   {refreshCount >= refreshLimit && (
                     <p className="text-[10px] font-bold text-red-400 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
                       {t('explorationLimit')}
@@ -342,9 +375,19 @@ export default function DiscoverPage() {
               </div>
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {recommendations.map((rec, idx) => (
-                  <RecommendationCard key={idx} recommendation={rec} />
-                ))}
+                {recommendations.map((rec, idx) => {
+                  const isSeenInDB = seenTitles.has(rec.title) && !sessionShowingHidden;
+                  return (
+                    <RecommendationCard 
+                      key={idx} 
+                      recommendation={rec}
+                      isSeenInDB={isSeenInDB}
+                      onMarkAsSeen={(title) => {
+                        setSeenTitles(prev => new Set([...prev, title]));
+                      }}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <RecommendationTable recommendations={recommendations} />

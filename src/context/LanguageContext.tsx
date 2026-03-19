@@ -88,6 +88,9 @@ const translations: Translations = {
   creatorBadge: { EN: 'Creator', TR: 'Yaratıcı' },
   whyDoYouLoveThis: { EN: 'Why do you love this?', TR: 'Neden seviyorsun?' },
   whyDoYouFollowThis: { EN: 'Why do you follow this creator?', TR: 'Bu sanatçıyı neden takip ediyorsun?' },
+  alreadySeen: { EN: 'Already seen', TR: 'Zaten gördüm' },
+  hiddenCount: { EN: 'hidden — show', TR: 'gizlendi — göster' },
+  showHidden: { EN: 'Show hidden', TR: 'Gizlenenleri göster' },
 };
 
 interface LanguageContextType {
