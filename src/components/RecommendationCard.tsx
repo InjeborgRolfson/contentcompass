@@ -56,6 +56,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(isSavedPage);
   const [saving, setSaving] = useState(false);
+  const [whyExpanded, setWhyExpanded] = useState(false);
   const { t, formatText, language } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
@@ -147,7 +148,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       </div>
       
 {recommendation.photo ? (
-        <div className="mb-6 rounded-xl overflow-hidden">
+        <div className="mb-6 w-full h-20 flex items-center">
           <img
             src={recommendation.photo}
             alt={recommendation.title}
@@ -155,10 +156,12 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           />
         </div>
       ) : (
-        <div className="mb-6 w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
-          <div className="text-2xl">{getContentTypeEmoji(recommendation.type)}</div>
-          <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
-            {recommendation.type.substring(0, 8)}
+        <div className="mb-6 w-full h-20 flex items-center">
+          <div className="w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
+            <div className="text-2xl">{getContentTypeEmoji(recommendation.type)}</div>
+            <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+              {recommendation.type.substring(0, 8)}
+            </div>
           </div>
         </div>
       )}
@@ -196,9 +199,15 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             <Sparkles className="w-3 h-3" />
             {t('whyWeRecommend')}
           </h4>
-          <p className="text-sm text-indigo-900/80 leading-relaxed italic font-medium">
+          <p className={`text-sm text-indigo-900/80 leading-relaxed italic font-medium ${whyExpanded ? '' : 'line-clamp-2'}`}>
             "{getLanguageSpecificField('why', recommendation.why)}"
           </p>
+          <button
+            onClick={() => setWhyExpanded(!whyExpanded)}
+            className="text-[10px] font-bold text-indigo-400 hover:text-indigo-600 mt-1 transition-colors"
+          >
+            {whyExpanded ? '↑ daha az' : '↓ devamını gör'}
+          </button>
         </div>
       </div>
 
