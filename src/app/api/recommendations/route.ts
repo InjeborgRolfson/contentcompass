@@ -25,7 +25,9 @@ export async function POST(req: Request) {
       filtersStr += "\n      The user has filtered for 'Other' format content. Do not recommend anything that fits the standard categories of Book, Movie, TV Show, Podcast, Music, Game, Article, or YouTube. Only recommend content from alternative or niche formats such as newsletters, graphic novels, stand-up specials, audiobooks, tabletop RPGs, stage plays, short films, or interactive fiction.";
     }
 
-    const langStr = language === 'TR' ? 'Return the response in Turkish.' : 'Return the response in English.';
+    const langStr = language?.toUpperCase() === 'TR' 
+  ? 'Return the response in Turkish. ALL fields (description, why, tags) must be in Turkish.' 
+  : 'Return the response in English.';
     const excludeStr = excludeTitles && excludeTitles.length > 0 ? `Do NOT recommend these titles: ${excludeTitles.join(', ')}` : '';
     const turkishOnlyStr = turkishOnly ? 'IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators.' : '';
 
