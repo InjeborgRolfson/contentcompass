@@ -37,7 +37,11 @@ interface RecommendationProps {
     creator: string;
     year: string;
     description: string;
+    description_en?: string;
+    description_tr?: string;
     why: string;
+    why_en?: string;
+    why_tr?: string;
     tags: string[];
     photo?: string;
   };
@@ -52,10 +56,25 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(isSavedPage);
   const [saving, setSaving] = useState(false);
-  const { t, formatText } = useLanguage();
+  const { t, formatText, language } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
     return contentTypeEmojis[type.toLowerCase()] || '🌐';
+  };
+
+  const getLanguageSpecificField = (
+    bilingualField: string,
+    fallbackField: string
+  ): string => {
+    const isTurkish = String(language).toUpperCase() === 'TR';
+    const langSuffix = isTurkish ? '_tr' : '_en';
+    const bilingualValue = (recommendation as any)[`${bilingualField}${langSuffix}`];
+    
+    if (bilingualValue && bilingualValue.trim()) {
+      return bilingualValue;
+    }
+    
+    return fallbackField;
   };
 
   const handleSave = async () => {
@@ -165,7 +184,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         <div className="relative">
           <Info className="w-4 h-4 text-indigo-200 absolute -left-6 top-1" />
           <p className="text-sm text-indigo-900/70 leading-relaxed font-medium">
-            {recommendation.description}
+            {getLanguageSpecificField('description', recommendation.description)}
           </p>
         </div>
 
@@ -178,7 +197,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             {t('whyWeRecommend')}
           </h4>
           <p className="text-sm text-indigo-900/80 leading-relaxed italic font-medium">
-            "{recommendation.why}"
+            "{getLanguageSpecificField('why', recommendation.why)}"
           </p>
         </div>
       </div>

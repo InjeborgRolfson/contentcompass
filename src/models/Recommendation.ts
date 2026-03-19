@@ -28,9 +28,25 @@ const RecommendationSchema = new Schema({
     type: String,
     required: true,
   },
+  description_en: {
+    type: String,
+    default: null,
+  },
+  description_tr: {
+    type: String,
+    default: null,
+  },
   why: {
     type: String,
     required: true,
+  },
+  why_en: {
+    type: String,
+    default: null,
+  },
+  why_tr: {
+    type: String,
+    default: null,
   },
   photo: {
     type: String,

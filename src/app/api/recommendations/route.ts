@@ -59,7 +59,11 @@ export async function POST(req: Request) {
           "creator": "author or creator",
           "year": "release year",
           "description": "short description",
+          "description_en": "short description in English",
+          "description_tr": "short description in Turkish",
           "why": "explanation directly referencing the intersection of user's favorites",
+          "why_en": "explanation in English directly referencing the intersection of user's favorites",
+          "why_tr": "explanation in Turkish directly referencing the intersection of user's favorites",
           "tags": ["tag1", "tag2", "tag3"]
         }
       ]`;
