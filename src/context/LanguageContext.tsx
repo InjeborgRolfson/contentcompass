@@ -86,6 +86,8 @@ const translations: Translations = {
   creatorPlaceholder: { EN: 'e.g., Stephen King, Jane Austen...', TR: 'örn: Stephen King, Jane Austen...' },
   optional: { EN: 'Optional', TR: 'İsteğe Bağlı' },
   creatorBadge: { EN: 'Creator', TR: 'Yaratıcı' },
+  whyDoYouLoveThis: { EN: 'Why do you love this?', TR: 'Neden seviyorsun?' },
+  whyDoYouFollowThis: { EN: 'Why do you follow this creator?', TR: 'Bu sanatçıyı neden takip ediyorsun?' },
 };
 
 interface LanguageContextType {
