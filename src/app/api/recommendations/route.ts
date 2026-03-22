@@ -51,6 +51,8 @@ export async function POST(req: Request) {
       
       Provide EXACTLY 8 personalized recommendations.
       
+      WILDCARD REQUIREMENT: Among the 8 recommendations, EXACTLY ONE must be a "wildcard" — a genuine recommendation that comes from a completely different genre, time period, or cultural context than the user's favorites, but has a subtle, meaningful thematic or emotional connection to their taste profile. This wildcard should be surprising yet satisfying.
+      
       Return the result ONLY as a JSON array with this exact structure:
       [
         {
@@ -64,9 +66,12 @@ export async function POST(req: Request) {
           "why": "explanation directly referencing the intersection of user's favorites",
           "why_en": "explanation in English directly referencing the intersection of user's favorites",
           "why_tr": "explanation in Turkish directly referencing the intersection of user's favorites",
-          "tags": ["tag1", "tag2", "tag3"]
+          "tags": ["tag1", "tag2", "tag3"],
+          "isWildcard": false
         }
-      ]`;
+      ]
+      
+      For your wildcard recommendation, set "isWildcard": true instead of false.`;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -117,9 +122,37 @@ export async function POST(req: Request) {
       
       const recommendations = Array.isArray(parsed) ? parsed : [];
       
+      // Ensure all recommendations have isWildcard field (default: false)
+      // Find the one marked as wildcard, or if none, designate a random one
+      const recommendationsWithWildcard = recommendations.map((rec: any) => ({
+        ...rec,
+        isWildcard: rec.isWildcard === true ? true : false,
+      }));
+      
+      // Count how many wildcards we have
+      const wildcardCount = recommendationsWithWildcard.filter((rec: any) => rec.isWildcard).length;
+      
+      // If no wildcard was marked by the AI, pick one at random to be the wildcard
+      if (wildcardCount === 0 && recommendationsWithWildcard.length > 0) {
+        const randomIndex = Math.floor(Math.random() * recommendationsWithWildcard.length);
+        recommendationsWithWildcard[randomIndex].isWildcard = true;
+      }
+      
+      // Ensure only one wildcard (if somehow multiple were marked)
+      let foundWildcard = false;
+      for (let i = 0; i < recommendationsWithWildcard.length; i++) {
+        if (recommendationsWithWildcard[i].isWildcard) {
+          if (foundWildcard) {
+            recommendationsWithWildcard[i].isWildcard = false;
+          } else {
+            foundWildcard = true;
+          }
+        }
+      }
+      
       // Fetch photos for each recommendation
       const recommendationsWithPhotos = await Promise.all(
-        recommendations.map(async (rec: any) => {
+        recommendationsWithWildcard.map(async (rec: any) => {
           let photoUrl = '';
           try {
             // Search for the content in Wikidata

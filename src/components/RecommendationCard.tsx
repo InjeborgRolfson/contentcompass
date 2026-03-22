@@ -44,6 +44,7 @@ interface RecommendationProps {
     why_tr?: string;
     tags: string[];
     photo?: string;
+    isWildcard?: boolean;
   };
   isSavedPage?: boolean;
   onRemove?: (id: string) => void;
@@ -145,18 +146,43 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
   };
 
   const isFaded = isSeenInDB || userMarkedAsSeenThisSession;
+  const isWildcard = recommendation.isWildcard === true;
 
   return (
-    <div className={`bg-white rounded-[2rem] p-8 shadow-sm border border-indigo-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group flex flex-col h-full ${
+    <div className={`rounded-[2rem] p-8 transition-all group flex flex-col h-full relative overflow-hidden ${
+      isWildcard 
+        ? 'bg-gradient-to-br from-purple-50 via-white to-purple-50/40 border-2 border-purple-400 shadow-lg shadow-purple-200/60 hover:shadow-2xl hover:shadow-purple-300/80' 
+        : 'bg-white border border-indigo-50 shadow-sm hover:shadow-2xl hover:shadow-indigo-100'
+    } ${
       isFaded ? 'opacity-40 pointer-events-none' : 'opacity-100'
-    } transition-opacity duration-500`}>
-      <div className="flex justify-between items-start mb-6 gap-3">
-        <span
-  className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
-  style={getTypeBadgeStyle(recommendation.type)}
->
-          {formatText(t(recommendation.type.toLowerCase() as any) || recommendation.type, 'upper')}
-        </span>
+    } transition-all duration-500`}
+    style={isWildcard ? {
+      backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%)'
+    } : {}}>
+      {isWildcard && (
+        <>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-2 right-4 text-purple-200/40 text-xl">✦</div>
+            <div className="absolute top-1/4 left-2 text-purple-200/30 text-lg">✦</div>
+            <div className="absolute bottom-1/3 right-1/4 text-purple-200/25 text-base">✦</div>
+            <div className="absolute bottom-4 left-1/3 text-purple-200/35 text-sm">✦</div>
+          </div>
+        </>
+      )}
+      <div className="flex justify-between items-start mb-6 gap-3 relative z-10">
+        <div className="flex items-center gap-2">
+          <span
+            className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
+            style={getTypeBadgeStyle(recommendation.type)}
+          >
+            {formatText(t(recommendation.type.toLowerCase() as any) || recommendation.type, 'upper')}
+          </span>
+          {isWildcard && (
+            <span className="px-3 py-1 bg-gradient-to-r from-purple-200 to-purple-100 text-purple-800 text-[10px] font-black rounded-full tracking-widest border-2 border-purple-400 flex items-center gap-1.5 shadow-md">
+              <span className="text-sm">✦</span> {t('wildcard')}
+            </span>
+          )}
+        </div>
         
         <div className="flex gap-2">
           {!isSavedPage && (
@@ -200,30 +226,44 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       </div>
       
 {recommendation.photo ? (
-        <div className="mb-6 w-full h-20 flex items-center">
+        <div className="mb-6 w-full h-20 flex items-center relative z-10">
           <img
             src={recommendation.photo}
             alt={recommendation.title}
-            className="w-16 h-16 object-cover rounded-xl"
+            className={`w-16 h-16 object-cover rounded-xl transition-all ${
+              isWildcard ? 'ring-2 ring-purple-300 shadow-lg shadow-purple-200/50' : ''
+            }`}
           />
         </div>
       ) : (
-        <div className="mb-6 w-full h-20 flex items-center">
-          <div className="w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
+        <div className="mb-6 w-full h-20 flex items-center relative z-10">
+          <div className={`w-16 h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
+            isWildcard
+              ? 'bg-gradient-to-br from-purple-100 to-purple-50 ring-2 ring-purple-300'
+              : 'bg-indigo-50'
+          }`}>
             <div className="text-2xl">{getContentTypeEmoji(recommendation.type)}</div>
-            <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+            <div className={`text-[9px] font-bold mt-1 text-center px-1 ${
+              isWildcard ? 'text-purple-600' : 'text-indigo-400'
+            }`}>
               {recommendation.type.substring(0, 8)}
             </div>
           </div>
         </div>
       )}
       
-      <div className="mb-6">
-        <h3 className="text-2xl font-black text-indigo-950 mb-4 group-hover:text-indigo-600 transition-colors leading-tight">
+      <div className="mb-6 relative z-10">
+        <h3 className={`text-2xl font-black mb-4 transition-colors leading-tight ${
+          isWildcard 
+            ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800 group-hover:from-purple-700 group-hover:to-purple-900' 
+            : 'text-indigo-950 group-hover:text-indigo-600'
+        }`}>
           {recommendation.title}
         </h3>
         
-        <div className="flex flex-wrap gap-4 text-xs font-bold text-indigo-900/40 uppercase tracking-tighter">
+        <div className={`flex flex-wrap gap-4 text-xs font-bold uppercase tracking-tighter ${
+          isWildcard ? 'text-purple-900/60' : 'text-indigo-900/40'
+        }`}>
           <div className="flex items-center gap-1.5">
             <User className="w-3.5 h-3.5" />
             <span>{recommendation.creator}</span>
@@ -235,39 +275,61 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         </div>
       </div>
 
-      <div className="space-y-6 flex-grow">
+      <div className="space-y-6 flex-grow relative z-10">
         <div className="relative">
-          <Info className="w-4 h-4 text-indigo-200 absolute -left-6 top-1" />
-          <p className="text-sm text-indigo-900/70 leading-relaxed font-medium">
+          <Info className={`w-4 h-4 absolute -left-6 top-1 ${
+            isWildcard ? 'text-purple-300' : 'text-indigo-200'
+          }`} />
+          <p className={`text-sm leading-relaxed font-medium ${
+            isWildcard ? 'text-purple-900/75' : 'text-indigo-900/70'
+          }`}>
             {getLanguageSpecificField('description', recommendation.description)}
           </p>
         </div>
 
-        <div className="bg-indigo-50/40 rounded-3xl p-6 border border-indigo-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Sparkles className="w-8 h-8 text-indigo-600" />
+        <div className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
+          isWildcard
+            ? 'bg-gradient-to-br from-purple-100/60 to-purple-50/40 border-purple-300 shadow-md shadow-purple-200/40'
+            : 'bg-indigo-50/40 border-indigo-100'
+        }`}>
+          <div className={`absolute top-0 right-0 p-4 opacity-15 ${
+            isWildcard ? 'text-purple-600' : 'text-indigo-600'
+          }`}>
+            <Sparkles className="w-8 h-8" />
           </div>
-          <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <Sparkles className="w-3 h-3" />
+          <h4 className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${
+            isWildcard ? 'text-purple-700' : 'text-indigo-600'
+          }`}>
+            <Sparkles className={`w-3.5 h-3.5 ${isWildcard ? 'animate-pulse' : ''}`} />
             {t('whyWeRecommend')}
           </h4>
-          <p className={`text-sm text-indigo-900/80 leading-relaxed italic font-medium ${whyExpanded ? '' : 'line-clamp-2'}`}>
+          <p className={`text-sm leading-relaxed italic font-medium ${whyExpanded ? '' : 'line-clamp-2'} ${
+            isWildcard ? 'text-purple-900/85' : 'text-indigo-900/80'
+          }`}>
             "{getLanguageSpecificField('why', recommendation.why)}"
           </p>
           <button
             onClick={() => setWhyExpanded(!whyExpanded)}
-            className="text-[10px] font-bold text-indigo-400 hover:text-indigo-600 mt-1 transition-colors"
+            className={`text-[10px] font-bold mt-1 transition-colors ${
+              isWildcard
+                ? 'text-purple-500 hover:text-purple-700'
+                : 'text-indigo-400 hover:text-indigo-600'
+            }`}
           >
             {whyExpanded ? '↑ daha az' : '↓ devamını gör'}
           </button>
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-8 flex flex-wrap gap-2 relative z-10">
         {recommendation.tags.map((tag, idx) => (
           <span 
             key={idx}
-            className="px-3 py-1.5 bg-white border border-indigo-50 text-indigo-600/60 text-[10px] font-bold rounded-xl uppercase shadow-sm"
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-xl uppercase transition-all ${
+              isWildcard
+                ? 'bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-300 text-purple-700 shadow-md shadow-purple-200/30'
+                : 'bg-white border border-indigo-50 text-indigo-600/60 shadow-sm'
+            }`}
           >
             # {tag}
           </span>

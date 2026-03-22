@@ -122,7 +122,9 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                 <React.Fragment key={idx}>
                   <tr 
                     onClick={() => toggleRow(idx)}
-                    className={`hover:bg-indigo-50/20 cursor-pointer transition-colors group relative ${
+                    className={`cursor-pointer transition-colors group relative ${
+                      rec.isWildcard ? 'bg-purple-50/20 hover:bg-purple-50/30' : 'hover:bg-indigo-50/20'
+                    } ${
                       isFaded ? 'opacity-40 pointer-events-none' : 'opacity-100'
                     } transition-opacity duration-500`}
                   >
@@ -134,6 +136,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     <td className="px-8 py-6">
                       <span className="text-sm font-bold text-indigo-950 group-hover:text-indigo-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
                         {rec.title}
+                        {rec.isWildcard && <span className="text-purple-500 ml-2 text-xs">✦</span>}
                       </span>
                     </td>
                     <td className="px-8 py-6 text-sm text-indigo-900/60 font-medium">
@@ -188,7 +191,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     </td>
                   </tr>
                   {expandedRow === idx && (
-                    <tr className="bg-indigo-50/10">
+                    <tr className={rec.isWildcard ? 'bg-purple-50/10' : 'bg-indigo-50/10'}>
                       <td colSpan={5} className="px-8 py-8">
                         <div className="flex flex-col md:flex-row gap-8">
                           <div className="flex-1 space-y-4">
@@ -209,15 +212,25 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               ))}
                             </div>
                           </div>
-                          <div className="md:w-1/3 bg-indigo-50/40 rounded-3xl p-6 border border-indigo-100 relative overflow-hidden shrink-0 self-start">
-                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                              <Sparkles className="w-8 h-8 text-indigo-600" />
+                          <div className={`md:w-1/3 rounded-3xl p-6 border relative overflow-hidden shrink-0 self-start ${
+                            rec.isWildcard
+                              ? 'bg-purple-50/40 border-purple-100'
+                              : 'bg-indigo-50/40 border-indigo-100'
+                          }`}>
+                            <div className={`absolute top-0 right-0 p-4 opacity-10 ${
+                              rec.isWildcard ? 'text-purple-600' : 'text-indigo-600'
+                            }`}>
+                              <Sparkles className="w-8 h-8" />
                             </div>
-                            <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <h4 className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${
+                              rec.isWildcard ? 'text-purple-600' : 'text-indigo-600'
+                            }`}>
                               <Sparkles className="w-3 h-3" />
                               {t('whyWeRecommend')}
                             </h4>
-                            <p className="text-sm text-indigo-900/80 leading-relaxed italic font-medium">
+                            <p className={`text-sm leading-relaxed italic font-medium ${
+                              rec.isWildcard ? 'text-purple-900/80' : 'text-indigo-900/80'
+                            }`}>
                               "{rec.why}"
                             </p>
                           </div>

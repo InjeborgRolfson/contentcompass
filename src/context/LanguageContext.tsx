@@ -95,6 +95,7 @@ const translations: Translations = {
   savedContent: { EN: 'Saved', TR: 'Kaydedilenler' },
   removeFromSeen: { EN: 'Remove', TR: 'Listeden çıkar' },
   noSeenContent: { EN: "You haven't marked any content as seen yet.", TR: 'Henüz görülmüş olarak işaretlediğin içerik yok.' },
+  wildcard: { EN: 'Surprise', TR: 'Sürpriz' },
 };
 
 interface LanguageContextType {

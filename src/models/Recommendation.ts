@@ -56,6 +56,10 @@ const RecommendationSchema = new Schema({
     type: [String],
     default: [],
   },
+  isWildcard: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 const Recommendation = models.Recommendation || model('Recommendation', RecommendationSchema);
