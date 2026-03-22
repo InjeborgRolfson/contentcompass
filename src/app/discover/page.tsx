@@ -26,6 +26,8 @@ export default function DiscoverPage() {
   const [seenTitles, setSeenTitles] = useState<string[]>([]);
   const [savedTitles, setSavedTitles] = useState<string[]>([]);
   const [sessionShowingHidden, setSessionShowingHidden] = useState(false);
+  const [lengthFilter, setLengthFilter] = useState<'' | 'short' | 'medium' | 'long'>('');
+  const [yearFilter, setYearFilter] = useState<'' | 'classic' | 'retro' | 'modern' | 'recent'>('');
   
   const [showHint, setShowHint] = useState(false);
   
@@ -112,6 +114,14 @@ export default function DiscoverPage() {
     );
   };
 
+  const toggleLength = (length: 'short' | 'medium' | 'long') => {
+    setLengthFilter(prev => prev === length ? '' : length);
+  };
+
+  const toggleYear = (year: 'classic' | 'retro' | 'modern' | 'recent') => {
+    setYearFilter(prev => prev === year ? '' : year);
+  };
+
   const selectedFavorites = useMemo(() => 
     favorites.filter(f => selectedIds.includes(f._id)),
     [favorites, selectedIds]
@@ -150,6 +160,8 @@ export default function DiscoverPage() {
         body: JSON.stringify({
           selectedFavorites,
           filters,
+          lengthFilter,
+          yearFilter,
           language,
           turkishOnly,
           excludeTitles,
@@ -293,6 +305,48 @@ export default function DiscoverPage() {
                     }`}
                   >
                     {t(type.toLowerCase() as any)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
+                {t('lengthFilter')} <span className="text-[10px] font-normal text-slate-500">({t('optional')})</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(['short', 'medium', 'long'] as const).map((length) => (
+                  <button
+                    key={length}
+                    onClick={() => toggleLength(length)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      lengthFilter === length
+                        ? 'bg-slate-700/50 border-slate-500 text-slate-100'
+                        : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'
+                    }`}
+                  >
+                    {t(length)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
+                {t('yearFilter')} <span className="text-[10px] font-normal text-slate-500">({t('optional')})</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(['classic', 'retro', 'modern', 'recent'] as const).map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => toggleYear(year)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      yearFilter === year
+                        ? 'bg-slate-700/50 border-slate-500 text-slate-100'
+                        : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'
+                    }`}
+                  >
+                    {t(year)}
                   </button>
                 ))}
               </div>

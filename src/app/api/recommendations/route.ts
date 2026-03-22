@@ -4,7 +4,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
-    const { selectedFavorites, filters, language, turkishOnly, excludeTitles } = await req.json();
+    const { selectedFavorites, filters, lengthFilter, yearFilter, language, turkishOnly, excludeTitles } = await req.json();
 
     const favoritesStr = selectedFavorites.map((fav: any) => {
       if (fav.isCreator) {
@@ -25,15 +25,19 @@ export async function POST(req: Request) {
       filtersStr += "\n      The user has filtered for 'Other' format content. Do not recommend anything that fits the standard categories of Book, Movie, TV Show, Podcast, Music, Game, Article, or YouTube. Only recommend content from alternative or niche formats such as newsletters, graphic novels, stand-up specials, audiobooks, tabletop RPGs, stage plays, short films, or interactive fiction.";
     }
 
-    const langStr = language?.toUpperCase() === 'TR' 
-  ? 'Return the response in Turkish. ALL fields (description, why, tags) must be in Turkish.' 
-  : 'Return the response in English.';
+    const langStr = language?.toUpperCase() === 'TR'
+  ? 'The user interface is in Turkish. You MUST fill both why_tr and description_tr fields in Turkish, AND why_en and description_en fields in English. The why_tr and description_tr fields are the most important — they must be complete, natural Turkish sentences.'
+  : 'The user interface is in English. You MUST fill both why_en and description_en fields in English, AND why_tr and description_tr fields in Turkish. The why_en and description_en fields are the most important.';
     const excludeStr = excludeTitles && excludeTitles.length > 0 ? `Do NOT recommend these titles: ${excludeTitles.join(', ')}` : '';
     const turkishOnlyStr = turkishOnly ? 'IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators.' : '';
 
     const diversityStr = filters.length === 0 
       ? "Your recommendations must be diverse across formats. Include at least one Book, one Movie, one TV Show, one Podcast, one Music recommendation, one Game, one Article or essay, and one YouTube channel or video. Do not cluster recommendations in a single format even if the user's favorites are all from the same format."
       : "Ensure recommendations are balanced across the selected formats.";
+
+    const lengthStr = lengthFilter ? `Prefer ${lengthFilter === 'short' ? 'short, concise content (short films, novellas, mini-series, short podcasts under 30 min, short games under 10 hours)' : lengthFilter === 'medium' ? 'medium-length content (90-150 min films, 3-5 season series, 200-400 page books, games 10-50 hours)' : 'long, epic content (films over 150 min, long-running series, books over 400 pages, games over 50 hours, extensive podcast archives)'}` : '';
+    
+    const yearStr = yearFilter ? `Prioritize content from ${yearFilter === 'classic' ? 'before 1980 (classic era)' : yearFilter === 'retro' ? '1980 to 2000 (retro era)' : yearFilter === 'modern' ? '2000 to 2015 (modern era)' : '2015 to present (recent releases)'}` : '';
 
     const prompt = `You are ContentCompass, an expert content recommendation engine.
       The user has selected the following favorites:
@@ -46,6 +50,8 @@ export async function POST(req: Request) {
       ${filtersStr}
       ${turkishOnlyStr}
       ${diversityStr}
+      ${lengthStr}
+      ${yearStr}
       ${excludeStr}
       ${langStr}
       
