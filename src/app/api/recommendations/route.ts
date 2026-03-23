@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/mongodb";
 import RateLimit from "@/models/RateLimit";
 import ContentEntry from "@/models/ContentEntry";
+import Favorite from "@/models/Favorite";
 
 function slugify(text: string): string {
   return text
@@ -59,6 +60,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     await dbConnect();
+
+    // Fetch the user's existing favorites to exclude them from recommendations
+    const userFavorites = await Favorite.find(
+      { userId: session.user.id },
+      { title: 1, wikidataId: 1 },
+    ).lean();
+    const favoriteTitles: string[] = (userFavorites as any[]).map((f) => f.title);
+    const favoriteWikidataIds: string[] = (userFavorites as any[])
+      .map((f) => f.wikidataId)
+      .filter(Boolean);
 
     // Check rate limit: 10 per 60 minutes
     // Bypass for localhost development
@@ -150,9 +161,13 @@ export async function POST(req: Request) {
       language?.toUpperCase() === "TR"
         ? "The user interface is in Turkish. You MUST fill both why_tr and description_tr fields in Turkish, AND why_en and description_en fields in English. The why_tr and description_tr fields are the most important — they must be complete, natural Turkish sentences."
         : "The user interface is in English. You MUST fill both why_en and description_en fields in English, AND why_tr and description_tr fields in Turkish. The why_en and description_en fields are the most important.";
+    const allExcludeTitles = [
+      ...(excludeTitles || []),
+      ...favoriteTitles,
+    ];
     const excludeStr =
-      excludeTitles && excludeTitles.length > 0
-        ? `Do NOT recommend these titles: ${excludeTitles.join(", ")}`
+      allExcludeTitles.length > 0
+        ? `Do NOT recommend these titles: ${allExcludeTitles.join(", ")}`
         : "";
     const turkishOnlyStr = turkishOnly
       ? "IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators."
@@ -379,12 +394,21 @@ export async function POST(req: Request) {
         }),
       );
 
+      // Post-filter: remove any recommendation that matches an existing favorite
+      const favTitlesLower = new Set(favoriteTitles.map((t) => t.toLowerCase()));
+      const favWikidataIdSet = new Set(favoriteWikidataIds);
+      const filteredRecommendations = recommendationsWithPhotos.filter((rec: any) => {
+        if (favTitlesLower.has(rec.title?.toLowerCase())) return false;
+        if (rec.wikidataId && favWikidataIdSet.has(rec.wikidataId)) return false;
+        return true;
+      });
+
       // Silently save each recommendation to the public content library
       Promise.allSettled(
-        recommendationsWithPhotos.map((rec: any) => saveToContentLibrary(rec)),
+        filteredRecommendations.map((rec: any) => saveToContentLibrary(rec)),
       ).catch(() => {});
 
-      return NextResponse.json(recommendationsWithPhotos);
+      return NextResponse.json(filteredRecommendations);
     } catch (parseError) {
       console.error("Parse error:", parseError, text);
       return NextResponse.json(
