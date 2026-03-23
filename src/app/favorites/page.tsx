@@ -5,6 +5,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
 import { Plus, X, Loader2, Sparkles, Compass } from 'lucide-react';
 import FavoriteCard from '@/components/FavoriteCard';
+import FavoriteTable from '@/components/FavoriteTable';
+import ViewToggle from '@/components/ViewToggle';
 import Pagination from '@/components/Pagination';
 
 const contentTypes: ContentType[] = [
@@ -19,6 +21,7 @@ export default function FavoritesPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { t } = useLanguage();
 
   const [editingFavorite, setEditingFavorite] = useState<any>(null);
@@ -41,7 +44,14 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     fetchFavorites();
+    const savedView = localStorage.getItem('favoritesViewMode') as 'grid' | 'list';
+    if (savedView) setViewMode(savedView);
   }, []);
+
+  const handleViewChange = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    localStorage.setItem('favoritesViewMode', mode);
+  };
 
   const fetchFavorites = async (page = 0) => {
     setLoading(true);
@@ -496,8 +506,11 @@ export default function FavoritesPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
-        <div>
-          <h1 className="text-4xl font-extrabold text-indigo-900 mb-2">{t('myCollection')}</h1>
+        <div className="flex-1">
+          <div className="flex items-end gap-4 mb-2">
+            <h1 className="text-4xl font-extrabold text-indigo-900">{t('myCollection')}</h1>
+            {favorites.length > 0 && <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />}
+          </div>
           <p className="text-indigo-900/60">{t('tagline')}</p>
         </div>
         
@@ -543,16 +556,24 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favorites.map((fav) => (
-              <FavoriteCard
-                key={fav._id}
-                favorite={fav}
-                onEdit={handleEditClick}
-                onDelete={handleDeleteFavorite}
-              />
-            ))}
-          </div>
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {favorites.map((fav) => (
+                <FavoriteCard
+                  key={fav._id}
+                  favorite={fav}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteFavorite}
+                />
+              ))}
+            </div>
+          ) : (
+            <FavoriteTable
+              favorites={favorites}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteFavorite}
+            />
+          )}
           {totalCount > 12 && (
             <Pagination
               currentPage={currentPage}
