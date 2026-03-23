@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { selectedFavorites, filters, lengthFilter, yearFilter, language, turkishOnly, excludeTitles } = await req.json();
+
+    if (!selectedFavorites || !Array.isArray(selectedFavorites) || selectedFavorites.length === 0) {
+      return NextResponse.json({ error: 'No favorites selected' }, { status: 400 });
+    }
 
     const favoritesStr = selectedFavorites.map((fav: any) => {
       if (fav.isCreator) {
