@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \":*)",
+      "Bash(py -3 -c \":*)",
+      "Bash(node claude-usage.js)"
+    ]
+  }
+}
