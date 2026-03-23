@@ -273,7 +273,7 @@ export default function DiscoverPage() {
   return (
     <div className="flex flex-col min-h-screen pb-32 md:pb-20">
       {showHint && (
-        <div className="bg-indigo-600 text-white animate-in slide-in-from-top duration-500 overflow-hidden relative">
+        <div className="bg-theme-600 text-white animate-in slide-in-from-top duration-500 overflow-hidden relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
@@ -295,21 +295,21 @@ export default function DiscoverPage() {
       )}
       {/* Hero Panel */}
       <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-theme-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 mb-12">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-2">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-theme-400 mb-2">
                 {t("discover")}
               </h2>
               <h1 className="text-2xl md:text-5xl font-extrabold flex flex-wrap items-center gap-2 md:gap-3">
                 {t("yourCustomCompassReading")}
-                <span className="text-indigo-400/30 font-light text-xl md:text-2xl hidden md:inline">
+                <span className="text-theme-400/30 font-light text-xl md:text-2xl hidden md:inline">
                   /
                 </span>
-                <span className="text-indigo-300/80 font-medium text-base md:text-lg italic w-full md:w-auto mt-1 md:mt-0">
+                <span className="text-theme-300/80 font-medium text-base md:text-lg italic w-full md:w-auto mt-1 md:mt-0">
                   {selectionText}
                 </span>
               </h1>
@@ -327,7 +327,7 @@ export default function DiscoverPage() {
                   selectedIds.length === 0 ||
                   (minutesRemaining !== null && minutesRemaining > 0)
                     ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                    : "bg-indigo-600 hover:bg-indigo-500 text-white hover:-translate-y-1 active:scale-95"
+                    : "bg-theme-600 hover:bg-theme-500 text-white hover:-translate-y-1 active:scale-95"
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -357,7 +357,7 @@ export default function DiscoverPage() {
                   onClick={toggleAll}
                   className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border flex items-center gap-2 ${
                     selectedIds.length === favorites.length
-                      ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/40"
+                      ? "bg-theme-600 border-theme-500 text-white shadow-lg shadow-theme-900/40"
                       : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500"
                   }`}
                 >
@@ -373,7 +373,7 @@ export default function DiscoverPage() {
                     onClick={() => toggleFavorite(fav._id)}
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
                       selectedIds.includes(fav._id)
-                        ? "bg-indigo-500/20 border-indigo-400 text-indigo-100 shadow-md shadow-indigo-900/20"
+                        ? "bg-theme-500/20 border-theme-400 text-theme-100 shadow-md shadow-theme-900/20"
                         : "bg-slate-900/40 border-slate-800 text-slate-500 hover:border-slate-700"
                     }`}
                   >
@@ -393,7 +393,7 @@ export default function DiscoverPage() {
               </div>
 
               {selectedIds.length === 0 && (
-                <p className="text-xs text-indigo-400/60 animate-pulse font-medium">
+                <p className="text-xs text-theme-400/60 animate-pulse font-medium">
                   {t("selectHint")}
                 </p>
               )}
@@ -425,10 +425,10 @@ export default function DiscoverPage() {
         )}
         {(recommendations.length > 0 || loading) && (
           <div className="mb-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-indigo-100 pb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-theme-100 pb-8">
               <div>
                 <div className="flex flex-wrap items-center gap-4 mb-2">
-                  <h3 className="text-3xl font-extrabold text-indigo-950">
+                  <h3 className="text-3xl font-extrabold text-theme-950">
                     {t("yourCustomCompassReading")}
                   </h3>
                   <ViewToggle
@@ -436,7 +436,7 @@ export default function DiscoverPage() {
                     onViewChange={handleViewChange}
                   />
                 </div>
-                <p className="text-indigo-900/60 font-medium italic">
+                <p className="text-theme-900/60 font-medium italic">
                   {subtitleText}
                 </p>
               </div>
@@ -450,7 +450,7 @@ export default function DiscoverPage() {
                       className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
                         refreshCount >= refreshLimit
                           ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-                          : "bg-white border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 shadow-sm"
+                          : "bg-white border-theme-200 text-theme-600 hover:bg-theme-50 hover:border-theme-300 shadow-sm"
                       }`}
                     >
                       {refreshing ? (
@@ -466,7 +466,7 @@ export default function DiscoverPage() {
                             : "Finding new matches..."}
                         </span>
                       )}
-                      <span className="text-[10px] bg-indigo-100 px-2 py-0.5 rounded-full ml-1">
+                      <span className="text-[10px] bg-theme-100 px-2 py-0.5 rounded-full ml-1">
                         {refreshCount}/{refreshLimit}
                       </span>
                     </button>
@@ -495,10 +495,10 @@ export default function DiscoverPage() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <div className="relative">
-                  <div className="w-16 h-16 border-4 border-indigo-100 rounded-full"></div>
-                  <div className="w-16 h-16 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute top-0"></div>
+                  <div className="w-16 h-16 border-4 border-theme-100 rounded-full"></div>
+                  <div className="w-16 h-16 border-4 border-theme-600 rounded-full border-t-transparent animate-spin absolute top-0"></div>
                 </div>
-                <p className="text-indigo-900/40 font-bold animate-pulse">
+                <p className="text-theme-900/40 font-bold animate-pulse">
                   {String(language) === "tr"
                     ? "Önerin hesaplanıyor..."
                     : "Calculating your trajectory..."}

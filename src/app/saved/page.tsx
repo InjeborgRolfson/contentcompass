@@ -232,7 +232,7 @@ export default function SavedPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-12">
-        <h1 className="text-4xl font-extrabold text-indigo-900 mb-6">
+        <h1 className="text-4xl font-extrabold text-theme-900 mb-6">
           {t("saved")}
         </h1>
 
@@ -243,8 +243,8 @@ export default function SavedPage() {
               onClick={() => handleTabChange("saved")}
               className={`px-4 py-2 rounded-xl font-bold transition-all border ${
                 activeTab === "saved"
-                  ? "bg-indigo-600 text-white border-indigo-600"
-                  : "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                  ? "bg-theme-600 text-white border-theme-600"
+                  : "bg-theme-50 text-theme-600 border-theme-100 hover:bg-theme-100"
               }`}
             >
               {t("savedContent")}
@@ -253,8 +253,8 @@ export default function SavedPage() {
               onClick={() => handleTabChange("seen")}
               className={`px-4 py-2 rounded-xl font-bold transition-all border ${
                 activeTab === "seen"
-                  ? "bg-indigo-600 text-white border-indigo-600"
-                  : "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                  ? "bg-theme-600 text-white border-theme-600"
+                  : "bg-theme-50 text-theme-600 border-theme-100 hover:bg-theme-100"
               }`}
             >
               {t("seenContent")}
@@ -267,7 +267,7 @@ export default function SavedPage() {
 
         {/* Subtitle for Saved tab only */}
         {activeTab === "saved" && (
-          <p className="text-indigo-900/60 font-medium mb-8">
+          <p className="text-theme-900/60 font-medium mb-8">
             {t("yourCustomCompassReading")}
           </p>
         )}
@@ -278,12 +278,12 @@ export default function SavedPage() {
         <>
           {loading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+              <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
             </div>
           ) : saved.length === 0 ? (
-            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-indigo-100 flex flex-col items-center gap-4">
-              <Bookmark className="w-12 h-12 text-indigo-100" />
-              <p className="text-indigo-900/40 text-lg font-bold">
+            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-theme-100 flex flex-col items-center gap-4">
+              <Bookmark className="w-12 h-12 text-theme-100" />
+              <p className="text-theme-900/40 text-lg font-bold">
                 {t("noneSelected")}
               </p>
             </div>
@@ -302,11 +302,11 @@ export default function SavedPage() {
                     className="animate-in fade-in slide-in-from-bottom-4 duration-500"
                   >
                     <div className="flex items-center gap-4 mb-6">
-                      <h2 className="text-2xl font-black text-indigo-950">
+                      <h2 className="text-2xl font-black text-theme-950">
                         {t(type.toLowerCase() as any) || type}
                       </h2>
-                      <div className="h-1 flex-grow bg-indigo-50 rounded-full" />
-                      <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold">
+                      <div className="h-1 flex-grow bg-theme-50 rounded-full" />
+                      <span className="bg-theme-50 text-theme-600 px-3 py-1 rounded-full text-xs font-bold">
                         {
                           saved.filter(
                             (rec) =>
@@ -366,12 +366,12 @@ export default function SavedPage() {
         <>
           {seenLoading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+              <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
             </div>
           ) : seen.length === 0 ? (
-            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-indigo-100 flex flex-col items-center gap-4">
-              <Eye className="w-12 h-12 text-indigo-100" />
-              <p className="text-indigo-900/40 text-lg font-bold">
+            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-theme-100 flex flex-col items-center gap-4">
+              <Eye className="w-12 h-12 text-theme-100" />
+              <p className="text-theme-900/40 text-lg font-bold">
                 {t("noSeenContent")}
               </p>
             </div>
@@ -380,7 +380,7 @@ export default function SavedPage() {
               {seen.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white rounded-2xl p-6 shadow-sm border border-indigo-50 hover:shadow-lg transition-shadow group"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-theme-50 hover:shadow-lg transition-shadow group"
                 >
                   <div className="flex justify-between items-start gap-4 mb-4">
                     <span
@@ -395,18 +395,18 @@ export default function SavedPage() {
                     <button
                       onClick={() => handleRemoveFromSeen(item)}
                       disabled={deletingFromSeen === item._id}
-                      className="p-2 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0 disabled:opacity-50"
+                      className="p-2 text-theme-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0 disabled:opacity-50"
                       title={t("removeFromSeen")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <h3 className="text-lg font-bold text-indigo-950 mb-4 line-clamp-2">
+                  <h3 className="text-lg font-bold text-theme-950 mb-4 line-clamp-2">
                     {item.title}
                   </h3>
 
-                  <div className="text-xs font-medium text-indigo-900/50">
+                  <div className="text-xs font-medium text-theme-900/50">
                     {new Date(item.seenAt).toLocaleDateString()}
                   </div>
                 </div>

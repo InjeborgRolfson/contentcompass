@@ -60,7 +60,7 @@ export default function DiscoveryFilters({
       <div className="relative lg:col-span-1 z-30">
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className="min-h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2 flex items-center justify-between focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition-all hover:border-slate-600 shadow-sm cursor-pointer"
+          className="min-h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2 flex items-center justify-between focus-within:ring-2 focus-within:ring-theme-500/50 focus-within:border-theme-500/50 transition-all hover:border-slate-600 shadow-sm cursor-pointer"
         >
           <div className="flex flex-wrap gap-2 items-center flex-1">
             {filters.length === 0 ? (
@@ -71,7 +71,7 @@ export default function DiscoveryFilters({
               filters.map((type) => (
                 <span
                   key={type}
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-bold text-indigo-300 animate-in fade-in zoom-in duration-200"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-theme-500/20 border border-theme-500/30 rounded-lg text-xs font-bold text-theme-300 animate-in fade-in zoom-in duration-200"
                 >
                   {t(type.toLowerCase() as any)}
                   <button
@@ -79,7 +79,7 @@ export default function DiscoveryFilters({
                       e.stopPropagation();
                       toggleType(type);
                     }}
-                    className="hover:text-indigo-100 transition-colors"
+                    className="hover:text-theme-100 transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -114,7 +114,7 @@ export default function DiscoveryFilters({
                       }}
                       className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive
-                          ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/20"
+                          ? "bg-theme-500/20 text-theme-300 border border-theme-500/20"
                           : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent"
                       }`}
                     >
@@ -130,7 +130,7 @@ export default function DiscoveryFilters({
                     e.stopPropagation();
                     setIsOpen(false);
                   }}
-                  className="text-[10px] font-bold uppercase text-indigo-400 hover:text-indigo-300"
+                  className="text-[10px] font-bold uppercase text-theme-400 hover:text-theme-300"
                 >
                   {t("close" as any) || "Close"}
                 </button>
@@ -145,7 +145,7 @@ export default function DiscoveryFilters({
         <select
           value={lengthFilter}
           onChange={(e) => setLengthFilter(e.target.value as any)}
-          className="w-full h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 text-sm font-medium text-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all cursor-pointer group-hover:border-slate-600 shadow-sm"
+          className="w-full h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 text-sm font-medium text-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-theme-500/50 focus:border-theme-500/50 transition-all cursor-pointer group-hover:border-slate-600 shadow-sm"
         >
           <option value="" className="bg-slate-900 text-slate-400">
             {t("lengthFilter")}
@@ -182,7 +182,7 @@ export default function DiscoveryFilters({
         <select
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value as any)}
-          className="w-full h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 text-sm font-medium text-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all cursor-pointer group-hover:border-slate-600 shadow-sm"
+          className="w-full h-12 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 text-sm font-medium text-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-theme-500/50 focus:border-theme-500/50 transition-all cursor-pointer group-hover:border-slate-600 shadow-sm"
         >
           <option value="" className="bg-slate-900 text-slate-400">
             {t("yearFilter")}

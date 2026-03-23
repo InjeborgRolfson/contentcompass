@@ -103,7 +103,7 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
   return (
     <div
       onClick={() => onEdit?.(favorite)}
-      className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative cursor-pointer active:scale-[0.98]"
+      className="bg-white rounded-3xl p-6 shadow-sm border border-theme-50 hover:shadow-xl hover:shadow-theme-100 transition-all group relative cursor-pointer active:scale-[0.98]"
     >
       <div className="flex gap-4 items-center mb-4">
         {favorite.photo ? (
@@ -115,20 +115,20 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
             />
           </div>
         ) : (
-          <div className="w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center shrink-0">
+          <div className="w-16 h-16 bg-theme-50 rounded-xl flex flex-col items-center justify-center shrink-0">
             <div className="text-2xl">{getContentTypeEmoji(favorite.type)}</div>
-            <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+            <div className="text-[9px] text-theme-400 font-bold mt-1 text-center px-1">
               {favorite.type.substring(0, 8)}
             </div>
           </div>
         )}
 
-        <h3 className="text-xl font-extrabold text-indigo-950 group-hover:text-indigo-600 transition-colors line-clamp-2">
+        <h3 className="text-xl font-extrabold text-theme-950 group-hover:text-theme-600 transition-colors line-clamp-2">
           {favorite.title}
         </h3>
       </div>
 
-      <div className="flex items-center gap-3 mb-6 text-sm text-indigo-900/60 font-medium">
+      <div className="flex items-center gap-3 mb-6 text-sm text-theme-900/60 font-medium">
         {favorite.creator && (
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
@@ -144,8 +144,8 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
       </div>
 
       {favorite.note && (
-        <div className="bg-indigo-50/50 p-4 rounded-2xl mb-6 relative">
-          <p className="text-sm italic text-indigo-900/80 leading-relaxed">
+        <div className="bg-theme-50/50 p-4 rounded-2xl mb-6 relative">
+          <p className="text-sm italic text-theme-900/80 leading-relaxed">
             "{favorite.note}"
           </p>
         </div>
@@ -155,7 +155,7 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
         {favorite.tags.map((tag, idx) => (
           <span
             key={idx}
-            className="px-3 py-1.5 bg-white border border-indigo-50 text-indigo-600/70 text-[10px] font-bold rounded-xl uppercase"
+            className="px-3 py-1.5 bg-white border border-theme-50 text-theme-600/70 text-[10px] font-bold rounded-xl uppercase"
           >
             # {tag}
           </span>

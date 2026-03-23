@@ -32,10 +32,10 @@ const Toast: React.FC<ToastProps> = ({ message, onUndo, onClose, duration = 5000
 
   return (
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-8 duration-300">
-      <div className="bg-indigo-950 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-indigo-200 flex items-center gap-6 border border-white/10 overflow-hidden relative min-w-[320px]">
+      <div className="bg-theme-950 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-theme-200 flex items-center gap-6 border border-white/10 overflow-hidden relative min-w-[320px]">
         {/* Progress bar */}
         <div 
-          className="absolute bottom-0 left-0 h-1 bg-indigo-500 transition-all duration-100 ease-linear"
+          className="absolute bottom-0 left-0 h-1 bg-theme-500 transition-all duration-100 ease-linear"
           style={{ width: `${progress}%` }}
         />
         
@@ -44,7 +44,7 @@ const Toast: React.FC<ToastProps> = ({ message, onUndo, onClose, duration = 5000
         {onUndo && (
           <button 
             onClick={onUndo}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-xs font-black uppercase tracking-widest text-indigo-100"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-xs font-black uppercase tracking-widest text-theme-100"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             {t('undo')}

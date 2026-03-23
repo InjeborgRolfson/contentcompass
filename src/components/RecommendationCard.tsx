@@ -208,7 +208,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       className={`rounded-[2rem] p-8 transition-all group flex flex-col h-full relative overflow-hidden ${
         isWildcard
           ? "bg-gradient-to-br from-purple-50 via-white to-purple-50/40 border-2 border-purple-400 shadow-lg shadow-purple-200/60 hover:shadow-2xl hover:shadow-purple-300/80"
-          : "bg-white border border-indigo-50 shadow-sm hover:shadow-2xl hover:shadow-indigo-100"
+          : "bg-white border border-theme-50 shadow-sm hover:shadow-2xl hover:shadow-theme-100"
       } ${
         isFaded ? "opacity-40 pointer-events-none" : "opacity-100"
       } transition-all duration-500`}
@@ -279,8 +279,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             disabled={saving || (isSaved && !isSavedPage)}
             className={`p-3 rounded-2xl transition-all ${
               isSaved
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
-                : "bg-indigo-50/50 text-indigo-200 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100"
+                ? "bg-theme-600 text-white shadow-lg shadow-theme-100"
+                : "bg-theme-50/50 text-theme-200 hover:text-theme-600 hover:bg-white border border-transparent hover:border-theme-100"
             }`}
           >
             {isSaved ? (
@@ -321,7 +321,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             className={`w-16 h-16 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all ${
               isWildcard
                 ? "bg-gradient-to-br from-purple-100 to-purple-50 ring-2 ring-purple-300"
-                : "bg-indigo-50"
+                : "bg-theme-50"
             }`}
           >
             <div className="text-2xl">
@@ -329,7 +329,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             </div>
             <div
               className={`text-[9px] font-bold mt-1 text-center px-1 ${
-                isWildcard ? "text-purple-600" : "text-indigo-400"
+                isWildcard ? "text-purple-600" : "text-theme-400"
               }`}
             >
               {recommendation.type.substring(0, 8)}
@@ -341,7 +341,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           className={`text-2xl font-black transition-colors leading-tight ${
             isWildcard
               ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800 group-hover:from-purple-700 group-hover:to-purple-900"
-              : "text-indigo-950 group-hover:text-indigo-600"
+              : "text-theme-950 group-hover:text-theme-600"
           }`}
         >
           {recommendation.title}
@@ -351,7 +351,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       <div className="mb-6 relative z-10">
         <div
           className={`flex flex-wrap gap-4 text-xs font-bold uppercase tracking-tighter ${
-            isWildcard ? "text-purple-900/60" : "text-indigo-900/40"
+            isWildcard ? "text-purple-900/60" : "text-theme-900/40"
           }`}
         >
           <div className="flex items-center gap-1.5">
@@ -369,12 +369,12 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         <div className="relative">
           <Info
             className={`w-4 h-4 absolute -left-6 top-1 ${
-              isWildcard ? "text-purple-300" : "text-indigo-200"
+              isWildcard ? "text-purple-300" : "text-theme-200"
             }`}
           />
           <p
             className={`text-sm leading-relaxed font-medium ${
-              isWildcard ? "text-purple-900/75" : "text-indigo-900/70"
+              isWildcard ? "text-purple-900/75" : "text-theme-900/70"
             }`}
           >
             {getLanguageSpecificField(
@@ -388,19 +388,19 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
             isWildcard
               ? "bg-gradient-to-br from-purple-100/60 to-purple-50/40 border-purple-300 shadow-md shadow-purple-200/40"
-              : "bg-indigo-50/40 border-indigo-100"
+              : "bg-theme-50/40 border-theme-100"
           }`}
         >
           <div
             className={`absolute top-0 right-0 p-4 opacity-15 ${
-              isWildcard ? "text-purple-600" : "text-indigo-600"
+              isWildcard ? "text-purple-600" : "text-theme-600"
             }`}
           >
             <Sparkles className="w-8 h-8" />
           </div>
           <h4
             className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${
-              isWildcard ? "text-purple-700" : "text-indigo-600"
+              isWildcard ? "text-purple-700" : "text-theme-600"
             }`}
           >
             <Sparkles
@@ -410,7 +410,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </h4>
           <p
             className={`text-sm leading-relaxed italic font-medium ${whyExpanded ? "" : "line-clamp-2"} ${
-              isWildcard ? "text-purple-900/85" : "text-indigo-900/80"
+              isWildcard ? "text-purple-900/85" : "text-theme-900/80"
             }`}
           >
             "{getLanguageSpecificField("why", recommendation.why)}"
@@ -420,7 +420,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             className={`text-[10px] font-bold mt-1 transition-colors ${
               isWildcard
                 ? "text-purple-500 hover:text-purple-700"
-                : "text-indigo-400 hover:text-indigo-600"
+                : "text-theme-400 hover:text-theme-600"
             }`}
           >
             {whyExpanded ? "↑ daha az" : "↓ devamını gör"}
@@ -435,7 +435,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             className={`px-3 py-1.5 text-[10px] font-bold rounded-xl uppercase transition-all ${
               isWildcard
                 ? "bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-300 text-purple-700 shadow-md shadow-purple-200/30"
-                : "bg-white border border-indigo-50 text-indigo-600/60 shadow-sm"
+                : "bg-white border border-theme-50 text-theme-600/60 shadow-sm"
             }`}
           >
             # {tag}

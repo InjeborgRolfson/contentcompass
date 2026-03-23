@@ -23,7 +23,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 0}
         aria-label={t('previousPage')}
-        className="w-11 h-11 flex items-center justify-center rounded-xl border border-indigo-100 bg-white text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-11 h-11 flex items-center justify-center rounded-xl border border-theme-100 bg-white text-theme-600 hover:bg-theme-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -35,8 +35,8 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           aria-current={page === currentPage ? 'page' : undefined}
           className={`w-11 h-11 flex items-center justify-center rounded-xl border font-bold text-sm transition-colors ${
             page === currentPage
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'bg-white text-indigo-600 border-indigo-100 hover:bg-indigo-50'
+              ? 'bg-theme-600 text-white border-theme-600'
+              : 'bg-white text-theme-600 border-theme-100 hover:bg-theme-50'
           }`}
         >
           {page + 1}
@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages - 1}
         aria-label={t('nextPage')}
-        className="w-11 h-11 flex items-center justify-center rounded-xl border border-indigo-100 bg-white text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-11 h-11 flex items-center justify-center rounded-xl border border-theme-100 bg-white text-theme-600 hover:bg-theme-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight className="w-5 h-5" />
       </button>

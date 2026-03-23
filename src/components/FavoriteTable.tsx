@@ -48,11 +48,11 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
   };
 
   return (
-    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-indigo-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-theme-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-indigo-50 bg-indigo-50/30 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+            <tr className="border-b border-theme-50 bg-theme-50/30 text-theme-400 text-[10px] font-black uppercase tracking-widest">
               <th className="px-8 py-6">{t('contentType')}</th>
               <th className="px-8 py-6">{t('title')}</th>
               <th className="px-8 py-6">{t('creator')}</th>
@@ -61,11 +61,11 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
               <th className="px-8 py-6 text-center w-32">{t('actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-indigo-50">
+          <tbody className="divide-y divide-theme-50">
             {favorites.map((fav, idx) => (
               <tr 
                 key={idx}
-                className="hover:bg-indigo-50/20 transition-colors group"
+                className="hover:bg-theme-50/20 transition-colors group"
               >
                 <td className="px-8 py-6 whitespace-nowrap">
                   <span 
@@ -77,24 +77,24 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
                   </span>
                 </td>
                 <td className="px-8 py-6">
-                  <span className="text-sm font-bold text-indigo-950 group-hover:text-indigo-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
+                  <span className="text-sm font-bold text-theme-950 group-hover:text-theme-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
                     {fav.title}
                   </span>
                 </td>
-                <td className="px-8 py-6 text-sm text-indigo-900/60 font-medium">
+                <td className="px-8 py-6 text-sm text-theme-900/60 font-medium">
                   {fav.creator || '—'}
                 </td>
-                <td className="px-8 py-6 text-sm text-indigo-900/40 font-bold tabular-nums">
+                <td className="px-8 py-6 text-sm text-theme-900/40 font-bold tabular-nums">
                   {fav.year || '—'}
                 </td>
-                <td className="px-8 py-6 text-sm text-indigo-900/60 font-medium max-w-xs overflow-hidden text-overflow-ellipsis whitespace-nowrap">
+                <td className="px-8 py-6 text-sm text-theme-900/60 font-medium max-w-xs overflow-hidden text-overflow-ellipsis whitespace-nowrap">
                   {fav.note || '—'}
                 </td>
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-2 justify-center">
                     <button
                       onClick={() => onEdit?.(fav)}
-                      className="p-2 rounded-xl transition-all bg-indigo-50/50 text-indigo-300 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100"
+                      className="p-2 rounded-xl transition-all bg-theme-50/50 text-theme-300 hover:text-theme-600 hover:bg-white border border-transparent hover:border-theme-100"
                       title={t('edit' as any)}
                     >
                       <Pencil className="w-4 h-4" />

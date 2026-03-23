@@ -107,11 +107,11 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   };
 
   return (
-    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-indigo-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-theme-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-indigo-50 bg-indigo-50/30 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+            <tr className="border-b border-theme-50 bg-theme-50/30 text-theme-400 text-[10px] font-black uppercase tracking-widest">
               <th className="px-8 py-6">{t("contentType")}</th>
               <th className="px-8 py-6">{t("title")}</th>
               <th className="px-8 py-6">{t("authorCreator")}</th>
@@ -119,7 +119,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
               <th className="px-8 py-6 text-center w-32"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-indigo-50">
+          <tbody className="divide-y divide-theme-50">
             {recommendations.map((rec, idx) => {
               const id = rec._id || rec.title;
               const isSaved = isSavedPage || savedIds.includes(id);
@@ -135,13 +135,13 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     className={`cursor-pointer transition-colors group relative ${
                       rec.isWildcard
                         ? "bg-purple-50/20 hover:bg-purple-50/30"
-                        : "hover:bg-indigo-50/20"
+                        : "hover:bg-theme-50/20"
                     } ${
                       isFaded ? "opacity-40 pointer-events-none" : "opacity-100"
                     } transition-opacity duration-500`}
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded-full tracking-widest border border-indigo-100">
+                      <span className="px-3 py-1 bg-theme-50 text-theme-600 text-[9px] font-black rounded-full tracking-widest border border-theme-100">
                         {formatText(
                           t(rec.type.toLowerCase() as any) || rec.type,
                           "upper",
@@ -149,7 +149,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                       </span>
                     </td>
                     <td className="px-8 py-6">
-                      <span className="text-sm font-bold text-indigo-950 group-hover:text-indigo-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
+                      <span className="text-sm font-bold text-theme-950 group-hover:text-theme-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
                         {rec.title}
                         {rec.isWildcard && (
                           <span className="text-purple-500 ml-2 text-xs">
@@ -158,10 +158,10 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                         )}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-sm text-indigo-900/60 font-medium">
+                    <td className="px-8 py-6 text-sm text-theme-900/60 font-medium">
                       {rec.creator}
                     </td>
-                    <td className="px-8 py-6 text-sm text-indigo-900/40 font-bold tabular-nums">
+                    <td className="px-8 py-6 text-sm text-theme-900/40 font-bold tabular-nums">
                       {rec.year}
                     </td>
                     <td className="px-8 py-6 text-center">
@@ -173,7 +173,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                             className={`p-2 rounded-xl transition-all ${
                               isFaded
                                 ? "bg-gray-200 text-gray-400 cursor-default"
-                                : "bg-indigo-50/50 text-indigo-300 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100"
+                                : "bg-theme-50/50 text-theme-300 hover:text-theme-600 hover:bg-white border border-transparent hover:border-theme-100"
                             }`}
                             title={t("alreadySeen")}
                           >
@@ -185,8 +185,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                           disabled={isSaving || (isSaved && !isSavedPage)}
                           className={`p-2 rounded-xl transition-all ${
                             isSaved
-                              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
-                              : "bg-indigo-50/50 text-indigo-200 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-indigo-100"
+                              ? "bg-theme-600 text-white shadow-lg shadow-theme-100"
+                              : "bg-theme-50/50 text-theme-200 hover:text-theme-600 hover:bg-white border border-transparent hover:border-theme-100"
                           }`}
                         >
                           {isSaved ? (
@@ -206,9 +206,9 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                           </button>
                         )}
                         {expandedRow === idx ? (
-                          <ChevronUp className="w-4 h-4 text-indigo-300 shrink-0" />
+                          <ChevronUp className="w-4 h-4 text-theme-300 shrink-0" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-indigo-300 shrink-0 group-hover:text-indigo-600" />
+                          <ChevronDown className="w-4 h-4 text-theme-300 shrink-0 group-hover:text-theme-600" />
                         )}
                       </div>
                     </td>
@@ -216,15 +216,15 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                   {expandedRow === idx && (
                     <tr
                       className={
-                        rec.isWildcard ? "bg-purple-50/10" : "bg-indigo-50/10"
+                        rec.isWildcard ? "bg-purple-50/10" : "bg-theme-50/10"
                       }
                     >
                       <td colSpan={5} className="px-8 py-8">
                         <div className="flex flex-col md:flex-row gap-8">
                           <div className="flex-1 space-y-4">
                             <div className="flex items-start gap-4">
-                              <Info className="w-4 h-4 text-indigo-300 mt-1 shrink-0" />
-                              <p className="text-sm text-indigo-900/70 leading-relaxed font-medium">
+                              <Info className="w-4 h-4 text-theme-300 mt-1 shrink-0" />
+                              <p className="text-sm text-theme-900/70 leading-relaxed font-medium">
                                 {rec.description}
                               </p>
                             </div>
@@ -232,7 +232,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               {rec.tags?.map((tag: string, tidx: number) => (
                                 <span
                                   key={tidx}
-                                  className="px-2 py-1 bg-white border border-indigo-50 text-indigo-600/60 text-[9px] font-bold rounded-lg uppercase"
+                                  className="px-2 py-1 bg-white border border-theme-50 text-theme-600/60 text-[9px] font-bold rounded-lg uppercase"
                                 >
                                   # {tag}
                                 </span>
@@ -243,14 +243,14 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                             className={`md:w-1/3 rounded-3xl p-6 border relative overflow-hidden shrink-0 self-start ${
                               rec.isWildcard
                                 ? "bg-purple-50/40 border-purple-100"
-                                : "bg-indigo-50/40 border-indigo-100"
+                                : "bg-theme-50/40 border-theme-100"
                             }`}
                           >
                             <div
                               className={`absolute top-0 right-0 p-4 opacity-10 ${
                                 rec.isWildcard
                                   ? "text-purple-600"
-                                  : "text-indigo-600"
+                                  : "text-theme-600"
                               }`}
                             >
                               <Sparkles className="w-8 h-8" />
@@ -259,7 +259,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${
                                 rec.isWildcard
                                   ? "text-purple-600"
-                                  : "text-indigo-600"
+                                  : "text-theme-600"
                               }`}
                             >
                               <Sparkles className="w-3 h-3" />
@@ -269,7 +269,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               className={`text-sm leading-relaxed italic font-medium ${
                                 rec.isWildcard
                                   ? "text-purple-900/80"
-                                  : "text-indigo-900/80"
+                                  : "text-theme-900/80"
                               }`}
                             >
                               "{rec.why}"

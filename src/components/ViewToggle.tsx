@@ -10,13 +10,13 @@ interface ViewToggleProps {
 
 const ViewToggle: React.FC<ViewToggleProps> = ({ viewMode, onViewChange }) => {
   return (
-    <div className="flex items-center bg-indigo-50/50 p-1 rounded-2xl border border-indigo-100">
+    <div className="flex items-center bg-theme-50/50 p-1 rounded-2xl border border-theme-100">
       <button
         onClick={() => onViewChange('grid')}
         className={`p-2 rounded-xl transition-all ${
           viewMode === 'grid'
-            ? 'bg-white text-indigo-600 shadow-sm'
-            : 'text-indigo-300 hover:text-indigo-400'
+            ? 'bg-white text-theme-600 shadow-sm'
+            : 'text-theme-300 hover:text-theme-400'
         }`}
         title="Grid View"
       >
@@ -26,8 +26,8 @@ const ViewToggle: React.FC<ViewToggleProps> = ({ viewMode, onViewChange }) => {
         onClick={() => onViewChange('list')}
         className={`p-2 rounded-xl transition-all ${
           viewMode === 'list'
-            ? 'bg-white text-indigo-600 shadow-sm'
-            : 'text-indigo-300 hover:text-indigo-400'
+            ? 'bg-white text-theme-600 shadow-sm'
+            : 'text-theme-300 hover:text-theme-400'
         }`}
         title="List View"
       >
