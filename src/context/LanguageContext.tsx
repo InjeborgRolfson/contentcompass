@@ -39,6 +39,7 @@ const translations: Translations = {
   podcast: { EN: "Podcast", TR: "Podcast" },
   music: { EN: "Music", TR: "Müzik" },
   game: { EN: "Game", TR: "Oyun" },
+  creator: { EN: "Creator", TR: "Yaratıcı" },
   article: { EN: "Article", TR: "Makale" },
   youtube: { EN: "Youtube", TR: "Youtube" },
   other: { EN: "Other", TR: "Diğer" },

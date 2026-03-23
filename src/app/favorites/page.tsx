@@ -408,7 +408,7 @@ export default function FavoritesPage() {
       } finally {
         setSearching(false);
       }
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(debounceId);
   }, [formData.title]);
