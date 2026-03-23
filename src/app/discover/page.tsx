@@ -17,6 +17,7 @@ export default function DiscoverPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [filters, setFilters] = useState<ContentType[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recommendError, setRecommendError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -145,6 +146,7 @@ export default function DiscoverPage() {
       setLoading(true);
       setRefreshCount(0);
       setRecommendations([]);
+      setRecommendError('');
     }
 
     try {
@@ -168,11 +170,20 @@ export default function DiscoverPage() {
         }),
       });
 
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(`HTTP ${res.status}: ${errorData.error || 'Unknown error'}`);
+      }
       const data = await res.json();
-      setRecommendations(Array.isArray(data) ? data : []);
+      if (Array.isArray(data)) {
+        setRecommendations(data);
+      } else {
+        throw new Error('Invalid response format from API');
+      }
     } catch (err) {
-      console.error('Failed to find matches:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Failed to find matches:', errorMsg);
+      setRecommendError(errorMsg);
       setRecommendations([]);
     } finally {
       setLoading(false);
@@ -375,6 +386,12 @@ export default function DiscoverPage() {
 
       {/* Results Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {recommendError && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <p className="font-semibold">{t('error') || 'Error'}</p>
+            <p className="text-sm mt-1">{recommendError}</p>
+          </div>
+        )}
         {(recommendations.length > 0 || loading) && (
           <div className="mb-12">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-indigo-100 pb-8">
