@@ -1,38 +1,76 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useLanguage } from '@/context/LanguageContext';
-import { Bookmark, Clock, User, Pencil, Trash2 } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import React from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import { Clock, User } from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 const contentTypeEmojis: Record<string, string> = {
-  book: '📚',
-  movie: '🎬',
-  'tv show': '📺',
-  podcast: '🎙️',
-  music: '🎵',
-  game: '🎮',
-  article: '📝',
-  youtube: '▶️',
-  other: '🌐',
+  book: "📚",
+  movie: "🎬",
+  "tv show": "📺",
+  podcast: "🎙️",
+  music: "🎵",
+  game: "🎮",
+  article: "📝",
+  youtube: "▶️",
+  other: "🌐",
 };
 const getTypeBadgeStyle = (type: string): React.CSSProperties => {
   const styles: Record<string, React.CSSProperties> = {
-    book:     { backgroundColor: '#EAF3DE', color: '#3B6D11', borderColor: '#C0DD97' },
-    movie:    { backgroundColor: '#E6F1FB', color: '#185FA5', borderColor: '#B5D4F4' },
-    'tv show':{ backgroundColor: '#EEEDFE', color: '#534AB7', borderColor: '#CECBF6' },
-    game:     { backgroundColor: '#FAEEDA', color: '#854F0B', borderColor: '#FAC775' },
-    music:    { backgroundColor: '#FBEAF0', color: '#993556', borderColor: '#F4C0D1' },
-    podcast:  { backgroundColor: '#FAECE7', color: '#993C1D', borderColor: '#F5C4B3' },
-    article:  { backgroundColor: '#E1F5EE', color: '#0F6E56', borderColor: '#9FE1CB' },
-    youtube:  { backgroundColor: '#FCEBEB', color: '#A32D2D', borderColor: '#F7C1C1' },
+    book: {
+      backgroundColor: "#EAF3DE",
+      color: "#3B6D11",
+      borderColor: "#C0DD97",
+    },
+    movie: {
+      backgroundColor: "#E6F1FB",
+      color: "#185FA5",
+      borderColor: "#B5D4F4",
+    },
+    "tv show": {
+      backgroundColor: "#EEEDFE",
+      color: "#534AB7",
+      borderColor: "#CECBF6",
+    },
+    game: {
+      backgroundColor: "#FAEEDA",
+      color: "#854F0B",
+      borderColor: "#FAC775",
+    },
+    music: {
+      backgroundColor: "#FBEAF0",
+      color: "#993556",
+      borderColor: "#F4C0D1",
+    },
+    podcast: {
+      backgroundColor: "#FAECE7",
+      color: "#993C1D",
+      borderColor: "#F5C4B3",
+    },
+    article: {
+      backgroundColor: "#E1F5EE",
+      color: "#0F6E56",
+      borderColor: "#9FE1CB",
+    },
+    youtube: {
+      backgroundColor: "#FCEBEB",
+      color: "#A32D2D",
+      borderColor: "#F7C1C1",
+    },
   };
-  return styles[type.toLowerCase()] ?? { backgroundColor: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' };
+  return (
+    styles[type.toLowerCase()] ?? {
+      backgroundColor: "#EEF2FF",
+      color: "#4338CA",
+      borderColor: "#C7D2FE",
+    }
+  );
 };
 interface FavoriteProps {
   favorite: {
@@ -47,78 +85,43 @@ interface FavoriteProps {
     isCreator?: boolean;
   };
   onEdit?: (fav: any) => void;
-  onDelete?: (id: string) => void;
 }
 
-const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) => {
+const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
   const { t, formatText } = useLanguage();
 
   const getContentTypeEmoji = (type: string): string => {
-    return contentTypeEmojis[type.toLowerCase()] || '🌐';
+    return contentTypeEmojis[type.toLowerCase()] || "🌐";
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2">
-          {favorite.isCreator && (
-            <span
-  className="px-3 py-1 text-xs font-bold rounded-full tracking-wider border"
-  style={getTypeBadgeStyle(favorite.type)}
->
-              👤 {formatText(t('creatorBadge' as any), 'upper')}
-            </span>
-          )}
-          <span
-  className="px-3 py-1 text-xs font-bold rounded-full tracking-wider border"
-  style={getTypeBadgeStyle(favorite.type)}
->
-            {favorite.type ? formatText(t(favorite.type.toLowerCase() as any), 'upper') : '—'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Action Buttons - Always visible on mobile screens, only on hover on desktop */}
-          <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => onEdit?.(favorite)}
-              className="p-2 bg-white hover:bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-50 shadow-sm transition-colors"
-              title={t('edit' as any)}
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onDelete?.(favorite._id)}
-              className="p-2 bg-white hover:bg-red-50 text-red-500 rounded-xl border border-indigo-50 shadow-sm transition-colors"
-              title={t('delete' as any)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+    <div
+      onClick={() => onEdit?.(favorite)}
+      className="bg-white rounded-3xl p-6 shadow-sm border border-indigo-50 hover:shadow-xl hover:shadow-indigo-100 transition-all group relative cursor-pointer active:scale-[0.98]"
+    >
+      <div className="flex gap-4 items-center mb-4">
+        {favorite.photo ? (
+          <div className="rounded-xl overflow-hidden shrink-0">
+            <img
+              src={favorite.photo}
+              alt={favorite.title}
+              className="w-16 h-16 object-cover rounded-xl"
+            />
           </div>
-          <Bookmark className="w-5 h-5 text-indigo-100 group-hover:text-indigo-300 transition-colors" />
-        </div>
+        ) : (
+          <div className="w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center shrink-0">
+            <div className="text-2xl">{getContentTypeEmoji(favorite.type)}</div>
+            <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
+              {favorite.type.substring(0, 8)}
+            </div>
+          </div>
+        )}
+
+        <h3 className="text-xl font-extrabold text-indigo-950 group-hover:text-indigo-600 transition-colors line-clamp-2">
+          {favorite.title}
+        </h3>
       </div>
-      
-{favorite.photo ? (
-        <div className="mb-4 rounded-xl overflow-hidden">
-          <img
-            src={favorite.photo}
-            alt={favorite.title}
-            className="w-16 h-16 object-cover rounded-xl"
-          />
-        </div>
-      ) : (
-        <div className="mb-4 w-16 h-16 bg-indigo-50 rounded-xl flex flex-col items-center justify-center">
-          <div className="text-2xl">{getContentTypeEmoji(favorite.type)}</div>
-          <div className="text-[9px] text-indigo-400 font-bold mt-1 text-center px-1">
-            {favorite.type.substring(0, 8)}
-          </div>
-        </div>
-      )}
-      
-      <h3 className="text-xl font-extrabold text-indigo-950 mb-3 group-hover:text-indigo-600 transition-colors">
-        {favorite.title}
-      </h3>
-      
+
       <div className="space-y-2 mb-6 text-sm text-indigo-900/60 font-medium">
         {favorite.creator && (
           <div className="flex items-center gap-2">
@@ -134,15 +137,17 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit, onDelete }) =
         )}
       </div>
 
-      <div className="bg-indigo-50/50 p-4 rounded-2xl mb-6 relative">
-        <p className="text-sm italic text-indigo-900/80 leading-relaxed">
-          "{favorite.note}"
-        </p>
-      </div>
+      {favorite.note && (
+        <div className="bg-indigo-50/50 p-4 rounded-2xl mb-6 relative">
+          <p className="text-sm italic text-indigo-900/80 leading-relaxed">
+            "{favorite.note}"
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {favorite.tags.map((tag, idx) => (
-          <span 
+          <span
             key={idx}
             className="px-3 py-1.5 bg-white border border-indigo-50 text-indigo-600/70 text-[10px] font-bold rounded-xl uppercase"
           >
