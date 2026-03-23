@@ -22,6 +22,7 @@ const contentTypes: ContentType[] = [
   "Creator",
   "Article",
   "Youtube",
+  "Painting",
   "Other",
 ];
 
@@ -78,6 +79,11 @@ const getTypeBadgeStyle = (type: string): React.CSSProperties => {
       backgroundColor: "#F5F3FF",
       color: "#5B21B6",
       borderColor: "#DDD6FE",
+    },
+    painting: {
+      backgroundColor: "#FEF9C3",
+      color: "#854D0E",
+      borderColor: "#FDE047",
     },
   };
   return (

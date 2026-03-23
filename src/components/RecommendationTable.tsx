@@ -114,7 +114,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
             <tr className="border-b border-indigo-50 bg-indigo-50/30 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
               <th className="px-8 py-6">{t("contentType")}</th>
               <th className="px-8 py-6">{t("title")}</th>
-              <th className="px-8 py-6">{t("creator")}</th>
+              <th className="px-8 py-6">{t("authorCreator")}</th>
               <th className="px-8 py-6">{t("year")}</th>
               <th className="px-8 py-6 text-center w-32"></th>
             </tr>

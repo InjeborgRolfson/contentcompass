@@ -26,6 +26,7 @@ const contentTypes: ContentType[] = [
   "Creator",
   "Article",
   "Youtube",
+  "Painting",
   "Other",
 ];
 

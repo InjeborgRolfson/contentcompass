@@ -22,11 +22,11 @@ const RecommendationSchema = new Schema({
   },
   year: {
     type: String,
-    required: true,
+    required: false,
   },
   description: {
     type: String,
-    required: true,
+    required: false,
   },
   description_en: {
     type: String,
@@ -38,7 +38,7 @@ const RecommendationSchema = new Schema({
   },
   why: {
     type: String,
-    required: true,
+    required: false,
   },
   why_en: {
     type: String,

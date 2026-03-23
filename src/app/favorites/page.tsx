@@ -19,6 +19,7 @@ const contentTypes: ContentType[] = [
   "Creator",
   "Article",
   "Youtube",
+  "Painting",
   "Other",
 ];
 
@@ -805,7 +806,7 @@ export default function FavoritesPage() {
                 {!formData.creatorMode && (
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-indigo-900/70 ml-1">
-                      {t("creator")}
+                      {t("authorCreator")}
                     </label>
                     <input
                       className="w-full px-4 py-3 rounded-2xl border border-indigo-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"

@@ -63,13 +63,17 @@ export async function POST(req: Request) {
 
     const saved = await Recommendation.create({
       ...data,
+      description: data.description || data.description_en || data.description_tr || "",
+      why: data.why || data.why_en || data.why_tr || "",
+      year: data.year || "unknown",
       userId: session.user.id,
     });
 
     return NextResponse.json(saved, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error saving recommendation:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error?.message || "Internal Server Error" },
       { status: 500 },
     );
   }
