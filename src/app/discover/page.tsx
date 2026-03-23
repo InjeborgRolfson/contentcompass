@@ -61,7 +61,7 @@ export default function DiscoverPage() {
       const res = await fetch('/api/favorites');
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setFavorites(Array.isArray(data) ? data : []);
+      setFavorites(Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
       console.error('Failed to fetch favorites:', err);
       setFavorites([]);
@@ -87,7 +87,7 @@ export default function DiscoverPage() {
       const res = await fetch('/api/recommendations/save');
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      const titles = (Array.isArray(data) ? data : []).map((item: any) => item.title);
+      const titles = (Array.isArray(data?.data) ? data.data : []).map((item: any) => item.title);
       setSavedTitles(titles);
     } catch (err) {
       console.error('Failed to fetch saved recommendations:', err);
