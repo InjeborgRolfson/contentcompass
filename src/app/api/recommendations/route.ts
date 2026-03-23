@@ -1,51 +1,128 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import dbConnect from "@/lib/mongodb";
+import RateLimit from "@/models/RateLimit";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user?.id)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { selectedFavorites, filters, lengthFilter, yearFilter, language, turkishOnly, excludeTitles } = await req.json();
+    await dbConnect();
 
-    if (!selectedFavorites || !Array.isArray(selectedFavorites) || selectedFavorites.length === 0) {
-      return NextResponse.json({ error: 'No favorites selected' }, { status: 400 });
-    }
+    // Check rate limit: 10 per 60 minutes
+    // Bypass for localhost development
+    const isLocalhost = req.headers.get("host")?.includes("localhost");
+    const now = new Date();
+    const SIXTY_MINUTES = 60 * 60 * 1000;
+    const LIMIT = 10;
 
-    const favoritesStr = selectedFavorites.map((fav: any) => {
-      if (fav.isCreator) {
-        // Format creator entries specially
-        const typeStr = fav.type ? ` (${fav.type})` : '';
-        const noteStr = fav.note ? ` — Note: ${fav.note}` : '';
-        return `[Creator] ${fav.title}${typeStr}${noteStr}`;
+    if (!isLocalhost) {
+      let rateLimit = await RateLimit.findOne({ userId: session.user.id });
+
+      if (!rateLimit) {
+        // First time user, create entry
+        rateLimit = await RateLimit.create({
+          userId: session.user.id,
+          count: 1,
+          resetAt: new Date(now.getTime() + SIXTY_MINUTES),
+        });
+      } else if (now > rateLimit.resetAt) {
+        // Limit expired, reset count and window
+        rateLimit.count = 1;
+        rateLimit.resetAt = new Date(now.getTime() + SIXTY_MINUTES);
+        await rateLimit.save();
+      } else if (rateLimit.count >= LIMIT) {
+        // In-window and count exceeded
+        const diffMs = rateLimit.resetAt.getTime() - now.getTime();
+        const diffMins = Math.ceil(diffMs / 60000);
+        return NextResponse.json(
+          {
+            error: "Too many requests. Please try again later.",
+            minutesLeft: diffMins,
+          },
+          { status: 429 },
+        );
       } else {
-        // Format regular title-based entries
-        return `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(', ')}`;
+        // In-window and count not exceeded
+        rateLimit.count += 1;
+        await rateLimit.save();
       }
-    }).join('\n');
-
-    const isOtherSelected = filters.includes('Other');
-    let filtersStr = filters.length > 0 ? `Limit recommendations to these formats: ${filters.join(', ')}` : 'Any format is okay.';
-    
-    if (isOtherSelected) {
-      filtersStr += "\n      The user has filtered for 'Other' format content. Do not recommend anything that fits the standard categories of Book, Movie, TV Show, Podcast, Music, Game, Article, or YouTube. Only recommend content from alternative or niche formats such as newsletters, graphic novels, stand-up specials, audiobooks, tabletop RPGs, stage plays, short films, or interactive fiction.";
     }
 
-    const langStr = language?.toUpperCase() === 'TR'
-  ? 'The user interface is in Turkish. You MUST fill both why_tr and description_tr fields in Turkish, AND why_en and description_en fields in English. The why_tr and description_tr fields are the most important — they must be complete, natural Turkish sentences.'
-  : 'The user interface is in English. You MUST fill both why_en and description_en fields in English, AND why_tr and description_tr fields in Turkish. The why_en and description_en fields are the most important.';
-    const excludeStr = excludeTitles && excludeTitles.length > 0 ? `Do NOT recommend these titles: ${excludeTitles.join(', ')}` : '';
-    const turkishOnlyStr = turkishOnly ? 'IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators.' : '';
+    const {
+      selectedFavorites,
+      filters,
+      lengthFilter,
+      yearFilter,
+      language,
+      turkishOnly,
+      excludeTitles,
+    } = await req.json();
 
-    const diversityStr = filters.length === 0 
-      ? "Your recommendations must be diverse across formats. Include at least one Book, one Movie, one TV Show, one Podcast, one Music recommendation, one Game, one Article or essay, and one YouTube channel or video. Do not cluster recommendations in a single format even if the user's favorites are all from the same format."
-      : "Ensure recommendations are balanced across the selected formats.";
+    if (
+      !selectedFavorites ||
+      !Array.isArray(selectedFavorites) ||
+      selectedFavorites.length === 0
+    ) {
+      return NextResponse.json(
+        { error: "No favorites selected" },
+        { status: 400 },
+      );
+    }
 
-    const lengthStr = lengthFilter ? `Prefer ${lengthFilter === 'short' ? 'short, concise content (short films, novellas, mini-series, short podcasts under 30 min, short games under 10 hours)' : lengthFilter === 'medium' ? 'medium-length content (90-150 min films, 3-5 season series, 200-400 page books, games 10-50 hours)' : 'long, epic content (films over 150 min, long-running series, books over 400 pages, games over 50 hours, extensive podcast archives)'}` : '';
-    
-    const yearStr = yearFilter ? `Prioritize content from ${yearFilter === 'classic' ? 'before 1980 (classic era)' : yearFilter === 'retro' ? '1980 to 2000 (retro era)' : yearFilter === 'modern' ? '2000 to 2015 (modern era)' : '2015 to present (recent releases)'}` : '';
+    const favoritesStr = selectedFavorites
+      .map((fav: any) => {
+        if (fav.isCreator) {
+          // Format creator entries specially
+          const typeStr = fav.type ? ` (${fav.type})` : "";
+          const noteStr = fav.note ? ` — Note: ${fav.note}` : "";
+          return `[Creator] ${fav.title}${typeStr}${noteStr}`;
+        } else {
+          // Format regular title-based entries
+          return `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(", ")}`;
+        }
+      })
+      .join("\n");
+
+    const isOtherSelected = filters.includes("Other");
+    let filtersStr =
+      filters.length > 0
+        ? `Limit recommendations to these formats: ${filters.join(", ")}`
+        : "Any format is okay.";
+
+    if (isOtherSelected) {
+      filtersStr +=
+        "\n      The user has filtered for 'Other' format content. Do not recommend anything that fits the standard categories of Book, Movie, TV Show, Podcast, Music, Game, Article, or YouTube. Only recommend content from alternative or niche formats such as newsletters, graphic novels, stand-up specials, audiobooks, tabletop RPGs, stage plays, short films, or interactive fiction.";
+    }
+
+    const langStr =
+      language?.toUpperCase() === "TR"
+        ? "The user interface is in Turkish. You MUST fill both why_tr and description_tr fields in Turkish, AND why_en and description_en fields in English. The why_tr and description_tr fields are the most important — they must be complete, natural Turkish sentences."
+        : "The user interface is in English. You MUST fill both why_en and description_en fields in English, AND why_tr and description_tr fields in Turkish. The why_en and description_en fields are the most important.";
+    const excludeStr =
+      excludeTitles && excludeTitles.length > 0
+        ? `Do NOT recommend these titles: ${excludeTitles.join(", ")}`
+        : "";
+    const turkishOnlyStr = turkishOnly
+      ? "IMPORTANT: Recommend ONLY Turkish content created by Turkish creators. All recommended items must be in Turkish or from Turkish artists/creators/authors. Do not recommend international content, content in other languages, or content from non-Turkish creators."
+      : "";
+
+    const diversityStr =
+      filters.length === 0
+        ? "Your recommendations must be diverse across formats. Include at least one Book, one Movie, one TV Show, one Podcast, one Music recommendation, one Game, one Article or essay, and one YouTube channel or video. Do not cluster recommendations in a single format even if the user's favorites are all from the same format."
+        : "Ensure recommendations are balanced across the selected formats.";
+
+    const lengthStr = lengthFilter
+      ? `Prefer ${lengthFilter === "short" ? "short, concise content (short films, novellas, mini-series, short podcasts under 30 min, short games under 10 hours)" : lengthFilter === "medium" ? "medium-length content (90-150 min films, 3-5 season series, 200-400 page books, games 10-50 hours)" : "long, epic content (films over 150 min, long-running series, books over 400 pages, games over 50 hours, extensive podcast archives)"}`
+      : "";
+
+    const yearStr = yearFilter
+      ? `Prioritize content from ${yearFilter === "classic" ? "before 1980 (classic era)" : yearFilter === "retro" ? "1980 to 2000 (retro era)" : yearFilter === "modern" ? "2000 to 2015 (modern era)" : "2015 to present (recent releases)"}`
+      : "";
 
     const prompt = `You are ContentCompass, an expert content recommendation engine.
       The user has selected the following favorites:
@@ -87,71 +164,85 @@ export async function POST(req: Request) {
       
       For your wildcard recommendation, set "isWildcard": true instead of false.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}`, 
-        "X-Title": "ContentCompass",
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}`,
+          "X-Title": "ContentCompass",
+        },
+        body: JSON.stringify({
+          model: process.env.OPENROUTER_MODEL,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a professional content recommendation engine. Respond only with JSON.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          response_format: { type: "json_object" },
+        }),
       },
-      body: JSON.stringify({
-        "model": process.env.OPENROUTER_MODEL,
-        "messages": [
-          {
-            "role": "system",
-            "content": "You are a professional content recommendation engine. Respond only with JSON."
-          },
-          {
-            "role": "user",
-            "content": prompt
-          }
-        ],
-        "response_format": { "type": "json_object" }
-      })
-    });
+    );
 
     let data;
     try {
       data = await response.json();
     } catch (e) {
-      console.error('Failed to parse OpenRouter response:', e);
-      return NextResponse.json({ error: 'AI service returned invalid JSON' }, { status: 500 });
+      console.error("Failed to parse OpenRouter response:", e);
+      return NextResponse.json(
+        { error: "AI service returned invalid JSON" },
+        { status: 500 },
+      );
     }
 
     if (!response.ok || !data.choices) {
-      console.error('OpenRouter API error:', JSON.stringify(data));
-      return NextResponse.json({ error: 'AI service error', details: data }, { status: 500 });
+      console.error("OpenRouter API error:", JSON.stringify(data));
+      return NextResponse.json(
+        { error: "AI service error", details: data },
+        { status: 500 },
+      );
     }
 
     const text = data.choices[0]?.message?.content?.trim() || "[]";
     try {
       // OpenRouter sometimes returns the array directly or wrapped in an object
       let parsed = JSON.parse(text);
-      
+
       // Handle the case where the LLM might have wrapped the array in a "recommendations" field
       if (!Array.isArray(parsed) && parsed.recommendations) {
         parsed = parsed.recommendations;
       }
-      
+
       const recommendations = Array.isArray(parsed) ? parsed : [];
-      
+
       // Ensure all recommendations have isWildcard field (default: false)
       // Find the one marked as wildcard, or if none, designate a random one
       const recommendationsWithWildcard = recommendations.map((rec: any) => ({
         ...rec,
         isWildcard: rec.isWildcard === true ? true : false,
       }));
-      
+
       // Count how many wildcards we have
-      const wildcardCount = recommendationsWithWildcard.filter((rec: any) => rec.isWildcard).length;
-      
+      const wildcardCount = recommendationsWithWildcard.filter(
+        (rec: any) => rec.isWildcard,
+      ).length;
+
       // If no wildcard was marked by the AI, pick one at random to be the wildcard
       if (wildcardCount === 0 && recommendationsWithWildcard.length > 0) {
-        const randomIndex = Math.floor(Math.random() * recommendationsWithWildcard.length);
+        const randomIndex = Math.floor(
+          Math.random() * recommendationsWithWildcard.length,
+        );
         recommendationsWithWildcard[randomIndex].isWildcard = true;
       }
-      
+
       // Ensure only one wildcard (if somehow multiple were marked)
       let foundWildcard = false;
       for (let i = 0; i < recommendationsWithWildcard.length; i++) {
@@ -163,83 +254,97 @@ export async function POST(req: Request) {
           }
         }
       }
-      
+
       // Fetch photos for each recommendation
       const recommendationsWithPhotos = await Promise.all(
         recommendationsWithWildcard.map(async (rec: any) => {
-          let photoUrl = '';
+          let photoUrl = "";
           try {
             // Search for the content in Wikidata
             const searchRes = await fetch(
               `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
-                rec.title
-              )}&language=en&format=json&origin=*&limit=1`
+                rec.title,
+              )}&language=en&format=json&origin=*&limit=1`,
             );
             const searchData = await searchRes.json();
             const result = searchData.search?.[0];
-            
+
             if (result) {
               // Get Wikipedia title
               const entityRes = await fetch(
-                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${result.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`
+                `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${result.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`,
               );
               const entityData = await entityRes.json();
-              const wikiTitle = entityData.entities?.[result.id]?.sitelinks?.enwiki?.title;
+              const wikiTitle =
+                entityData.entities?.[result.id]?.sitelinks?.enwiki?.title;
 
               if (wikiTitle) {
                 // Get all images from the page
                 const imagesRes = await fetch(
                   `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
-                    wikiTitle
-                  )}&prop=images&imlimit=50&format=json&origin=*`
+                    wikiTitle,
+                  )}&prop=images&imlimit=50&format=json&origin=*`,
                 );
                 const imagesData = await imagesRes.json();
                 const pages = imagesData.query?.pages || {};
                 const pageId = Object.keys(pages)[0];
                 const images = pages[pageId]?.images || [];
-                
+
                 // Filter out common non-infobox images
                 const infoboxImage = images.find((img: any) => {
                   const title = img.title.toLowerCase();
-                  const isMediaFile = title.endsWith('.jpg') || title.endsWith('.jpeg') || title.endsWith('.png');
-                  return !title.includes('icon') && 
-                         !title.includes('logo') && 
-                         !title.includes('stamp') && 
-                         !title.includes('flag') &&
-                         !title.includes('commons') &&
-                         isMediaFile;
+                  const isMediaFile =
+                    title.endsWith(".jpg") ||
+                    title.endsWith(".jpeg") ||
+                    title.endsWith(".png");
+                  return (
+                    !title.includes("icon") &&
+                    !title.includes("logo") &&
+                    !title.includes("stamp") &&
+                    !title.includes("flag") &&
+                    !title.includes("commons") &&
+                    isMediaFile
+                  );
                 });
 
                 if (infoboxImage) {
                   // Get the image info to get the URL
                   const imageInfoRes = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
-                      infoboxImage.title
-                    )}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`
+                      infoboxImage.title,
+                    )}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`,
                   );
                   const imageInfoData = await imageInfoRes.json();
                   const imagePages = imageInfoData.query?.pages || {};
                   const imagePageId = Object.keys(imagePages)[0];
-                  photoUrl = imagePages[imagePageId]?.imageinfo?.[0]?.thumburl || 
-                            imagePages[imagePageId]?.imageinfo?.[0]?.url || '';
+                  photoUrl =
+                    imagePages[imagePageId]?.imageinfo?.[0]?.thumburl ||
+                    imagePages[imagePageId]?.imageinfo?.[0]?.url ||
+                    "";
                 }
               }
             }
           } catch (err) {
-            console.error('Failed to fetch photo for recommendation:', err);
+            console.error("Failed to fetch photo for recommendation:", err);
           }
-          
+
           return { ...rec, photo: photoUrl || null };
-        })
+        }),
       );
-      
+
       return NextResponse.json(recommendationsWithPhotos);
     } catch (parseError) {
-      console.error('Parse error:', parseError, text);
-      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+      console.error("Parse error:", parseError, text);
+      return NextResponse.json(
+        { error: "Failed to parse AI response" },
+        { status: 500 },
+      );
     }
   } catch (error) {
-    console.error('AI recommendation error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("AI recommendation error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

@@ -128,6 +128,10 @@ const translations: Translations = {
     EN: "Select one or more favorites below, choose your preferred formats, and hit Find Matches to discover new content.",
     TR: "Aşağıdan bir veya daha fazla favori seç, format filtrele ve eşleşmelerini bulmak için Eşleşmeleri Bul'a bas.",
   },
+  rateLimitExceeded: {
+    EN: "Too many requests. Please try again in {minutes} minutes.",
+    TR: "Çok fazla istek. Lütfen {minutes} dakika sonra tekrar deneyin.",
+  },
   turkishContent: { EN: "Turkish Content Only", TR: "Türkçe İçerik" },
   turkishContentDesc: {
     EN: "Recommend only Turkish content from Turkish creators",
