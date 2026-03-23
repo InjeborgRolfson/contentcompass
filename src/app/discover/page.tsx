@@ -50,6 +50,15 @@ export default function DiscoverPage() {
     fetchSavedRecommendations();
     const savedView = localStorage.getItem('viewMode') as 'grid' | 'list';
     if (savedView) setViewMode(savedView);
+
+    const cached = localStorage.getItem('latestRecommendations');
+    if (cached) {
+      try {
+        setRecommendations(JSON.parse(cached));
+      } catch (e) {
+        console.error('Failed to parse cached recommendations', e);
+      }
+    }
   }, []);
 
   const handleViewChange = (mode: 'grid' | 'list') => {
@@ -177,6 +186,7 @@ export default function DiscoverPage() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setRecommendations(data);
+        localStorage.setItem('latestRecommendations', JSON.stringify(data));
       } else {
         throw new Error('Invalid response format from API');
       }
