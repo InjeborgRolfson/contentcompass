@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Loader2, Bookmark, Trash2, Eye } from 'lucide-react';
+import { ContentType } from '@/types/content';
 import RecommendationCard from '@/components/RecommendationCard';
 import ViewToggle from '@/components/ViewToggle';
 import RecommendationTable from '@/components/RecommendationTable';
@@ -10,6 +11,18 @@ import Pagination from '@/components/Pagination';
 import Toast from '@/components/ui/Toast';
 
 type TabType = 'saved' | 'seen';
+
+const contentTypes: ContentType[] = [
+  'Book',
+  'Movie',
+  'Tv Show',
+  'Podcast',
+  'Music',
+  'Game',
+  'Article',
+  'Youtube',
+  'Other',
+];
 
 interface SeenItem {
   _id: string;
@@ -214,17 +227,42 @@ export default function SavedPage() {
               <p className="text-indigo-900/40 text-lg font-bold">{t('noneSelected')}</p>
             </div>
           ) : viewMode === 'grid' ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {saved.map((rec) => (
-                  <RecommendationCard
-                    key={rec._id}
-                    recommendation={rec}
-                    isSavedPage={true}
-                    onRemove={handleRemove}
-                  />
+            <div className="space-y-12">
+              {contentTypes
+                .filter((type) =>
+                  saved.some(
+                    (rec) =>
+                      (rec.type || '').toLowerCase() === type.toLowerCase()
+                  )
+                )
+                .map((type) => (
+                  <div key={type} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-4 mb-6">
+                      <h2 className="text-2xl font-black text-indigo-950">
+                        {t(type.toLowerCase() as any) || type}
+                      </h2>
+                      <div className="h-1 flex-grow bg-indigo-50 rounded-full" />
+                      <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold">
+                        {saved.filter(rec => (rec.type || '').toLowerCase() === type.toLowerCase()).length}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {saved
+                        .filter(
+                          (rec) =>
+                            (rec.type || '').toLowerCase() === type.toLowerCase()
+                        )
+                        .map((rec) => (
+                          <RecommendationCard
+                            key={rec._id}
+                            recommendation={rec}
+                            isSavedPage={true}
+                            onRemove={handleRemove}
+                          />
+                        ))}
+                    </div>
+                  </div>
                 ))}
-              </div>
               {totalCount > 12 && (
                 <Pagination
                   currentPage={currentPage}
@@ -232,7 +270,7 @@ export default function SavedPage() {
                   onPageChange={handlePageChange}
                 />
               )}
-            </>
+            </div>
           ) : (
             <>
               <RecommendationTable

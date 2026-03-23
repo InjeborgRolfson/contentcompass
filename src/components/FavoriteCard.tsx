@@ -122,7 +122,7 @@ const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, onEdit }) => {
         </h3>
       </div>
 
-      <div className="space-y-2 mb-6 text-sm text-indigo-900/60 font-medium">
+      <div className="flex items-center gap-3 mb-6 text-sm text-indigo-900/60 font-medium">
         {favorite.creator && (
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />

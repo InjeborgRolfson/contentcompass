@@ -19,6 +19,7 @@ import {
 import RecommendationCard from "@/components/RecommendationCard";
 import ViewToggle from "@/components/ViewToggle";
 import RecommendationTable from "@/components/RecommendationTable";
+import DiscoveryFilters from "@/components/DiscoveryFilters";
 
 const contentTypes: ContentType[] = [
   "Book",
@@ -293,9 +294,9 @@ export default function DiscoverPage() {
         </div>
       )}
       {/* Hero Panel */}
-      <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
+      <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 mb-12">
@@ -399,89 +400,16 @@ export default function DiscoverPage() {
             </div>
 
             <div className="pt-4 border-t border-slate-800">
-              <div className="flex flex-wrap gap-2">
-                {contentTypes.map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => toggleFilter(type)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      filters.includes(type)
-                        ? "bg-purple-600/30 border-purple-400 text-purple-100"
-                        : "bg-transparent border-slate-800 text-slate-500 hover:border-slate-700"
-                    }`}
-                  >
-                    {t(type.toLowerCase() as any)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
-                {t("lengthFilter")}{" "}
-                <span className="text-[10px] font-normal text-slate-500">
-                  ({t("optional")})
-                </span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {(["short", "medium", "long"] as const).map((length) => (
-                  <button
-                    key={length}
-                    onClick={() => toggleLength(length)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      lengthFilter === length
-                        ? "bg-slate-700/50 border-slate-500 text-slate-100"
-                        : "bg-transparent border-slate-800 text-slate-500 hover:border-slate-700"
-                    }`}
-                  >
-                    {t(length)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
-                {t("yearFilter")}{" "}
-                <span className="text-[10px] font-normal text-slate-500">
-                  ({t("optional")})
-                </span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {(["classic", "retro", "modern", "recent"] as const).map(
-                  (year) => (
-                    <button
-                      key={year}
-                      onClick={() => toggleYear(year)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                        yearFilter === year
-                          ? "bg-slate-700/50 border-slate-500 text-slate-100"
-                          : "bg-transparent border-slate-800 text-slate-500 hover:border-slate-700"
-                      }`}
-                    >
-                      {t(year)}
-                    </button>
-                  ),
-                )}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-3 block">
-                {t("turkishContent")}
-              </label>
-              <button
-                onClick={() => setTurkishOnly(!turkishOnly)}
-                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border flex items-center gap-2 min-h-[44px] justify-center flex-shrink-0 ${
-                  turkishOnly
-                    ? "bg-red-600/30 border-red-400 text-red-100 shadow-lg shadow-red-900/20"
-                    : "bg-transparent border-slate-800 text-slate-500 hover:border-slate-700"
-                }`}
-                title={t("turkishContentDesc")}
-              >
-                <span className="text-sm sm:text-base">🇹🇷</span>
-                <span className="whitespace-nowrap">Türkçe</span>
-              </button>
+              <DiscoveryFilters
+                filters={filters}
+                setFilters={setFilters}
+                lengthFilter={lengthFilter}
+                setLengthFilter={(val) => setLengthFilter(val)}
+                yearFilter={yearFilter}
+                setYearFilter={(val) => setYearFilter(val)}
+                turkishOnly={turkishOnly}
+                setTurkishOnly={setTurkishOnly}
+              />
             </div>
           </div>
         </div>
