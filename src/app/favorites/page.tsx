@@ -199,10 +199,10 @@ export default function FavoritesPage() {
       } finally {
         setSearching(false);
       }
-    }, 300);
+    }, 2500);
 
     return () => clearTimeout(debounceId);
-  }, [formData.title, formData.creatorMode, formData.type]);
+  }, [formData.title]);
 
   const handleSelectSuggestion = async (suggestion: any) => {
     skipSearchRef.current = true;
@@ -408,10 +408,10 @@ export default function FavoritesPage() {
       } finally {
         setSearching(false);
       }
-    }, 300);
+    }, 3000);
 
     return () => clearTimeout(debounceId);
-  }, [formData.title, formData.creatorMode, formData.type]);
+  }, [formData.title]);
 
   const handleSelectCreatorSuggestion = async (suggestion: any) => {
     skipSearchRef.current = true;
@@ -648,14 +648,12 @@ export default function FavoritesPage() {
           {contentTypes
             .filter((type) =>
               favorites.some(
-                (fav) =>
-                  (fav.type || "").toLowerCase() === type.toLowerCase(),
+                (fav) => (fav.type || "").toLowerCase() === type.toLowerCase(),
               ),
             )
             .map((type) => {
               const typeFavorites = favorites.filter(
-                (fav) =>
-                  (fav.type || "").toLowerCase() === type.toLowerCase(),
+                (fav) => (fav.type || "").toLowerCase() === type.toLowerCase(),
               );
               return (
                 <div
