@@ -6,6 +6,7 @@ import { Loader2, Bookmark, Trash2, Eye } from 'lucide-react';
 import RecommendationCard from '@/components/RecommendationCard';
 import ViewToggle from '@/components/ViewToggle';
 import RecommendationTable from '@/components/RecommendationTable';
+import Pagination from '@/components/Pagination';
 import Toast from '@/components/ui/Toast';
 
 type TabType = 'saved' | 'seen';
@@ -36,6 +37,9 @@ export default function SavedPage() {
   const [saved, setSaved] = useState<any[]>([]);
   const [seen, setSeen] = useState<SeenItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [seenLoading, setSeenLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [toast, setToast] = useState<{ message: string, onUndo?: () => void } | null>(null);
@@ -53,18 +57,31 @@ export default function SavedPage() {
     localStorage.setItem('viewMode', mode);
   };
 
-  const fetchSaved = async () => {
+  const fetchSaved = async (page = 0) => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/recommendations/save');
+      const res = await fetch(`/api/recommendations/save?page=${page}`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setSaved(Array.isArray(data) ? data : []);
+      if (data.success) {
+        setSaved(data.data ?? []);
+        setTotalCount(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setCurrentPage(data.page ?? 0);
+      } else {
+        setSaved([]);
+      }
     } catch (err) {
       console.error('Failed to fetch saved items:', err);
       setSaved([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchSaved(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const fetchSeen = async () => {
@@ -94,7 +111,16 @@ export default function SavedPage() {
     if (!itemToRemove) return;
 
     // Optimistic UI update
-    setSaved(prev => prev.filter(s => s._id !== id));
+    const newSavedPage = saved.filter(s => s._id !== id);
+    setSaved(newSavedPage);
+    const newTotal = totalCount - 1;
+    setTotalCount(newTotal);
+    setTotalPages(Math.ceil(newTotal / 12));
+
+    // If current page is now empty and there's a previous page, go back
+    if (newSavedPage.length === 0 && currentPage > 0) {
+      fetchSaved(currentPage - 1);
+    }
 
     // Show toast with Undo
     setToast({
@@ -107,8 +133,7 @@ export default function SavedPage() {
             body: JSON.stringify(itemToRemove),
           });
           if (res.ok) {
-            const restoredItem = await res.json();
-            setSaved(prev => [restoredItem, ...prev]);
+            await fetchSaved(currentPage);
             setToast(null);
           }
         } catch (err) {
@@ -189,22 +214,40 @@ export default function SavedPage() {
               <p className="text-indigo-900/40 text-lg font-bold">{t('noneSelected')}</p>
             </div>
           ) : viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {saved.map((rec) => (
-                <RecommendationCard
-                  key={rec._id}
-                  recommendation={rec}
-                  isSavedPage={true}
-                  onRemove={handleRemove}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {saved.map((rec) => (
+                  <RecommendationCard
+                    key={rec._id}
+                    recommendation={rec}
+                    isSavedPage={true}
+                    onRemove={handleRemove}
+                  />
+                ))}
+              </div>
+              {totalCount > 12 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
                 />
-              ))}
-            </div>
+              )}
+            </>
           ) : (
-            <RecommendationTable
-              recommendations={saved}
-              isSavedPage={true}
-              onRemove={handleRemove}
-            />
+            <>
+              <RecommendationTable
+                recommendations={saved}
+                isSavedPage={true}
+                onRemove={handleRemove}
+              />
+              {totalCount > 12 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
           )}
         </>
       )}

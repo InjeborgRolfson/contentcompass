@@ -5,19 +5,37 @@ import Favorite from '@/models/Favorite';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+const PAGE_SIZE = 12;
+
+export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10));
+
     await dbConnect();
-    const favorites = await Favorite.find({ userId: session.user.id }).sort({ createdAt: -1 });
-    return NextResponse.json(favorites || []);
+    const [items, total] = await Promise.all([
+      Favorite.find({ userId: session.user.id })
+        .sort({ _id: -1 })
+        .skip(page * PAGE_SIZE)
+        .limit(PAGE_SIZE),
+      Favorite.countDocuments({ userId: session.user.id }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: items,
+      total,
+      page,
+      totalPages: Math.ceil(total / PAGE_SIZE),
+    });
   } catch (error) {
     console.error('Full error in GET favorites:', error);
-    return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+    return NextResponse.json({
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

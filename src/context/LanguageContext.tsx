@@ -105,6 +105,8 @@ const translations: Translations = {
   removeFromSeen: { EN: 'Remove', TR: 'Listeden çıkar' },
   noSeenContent: { EN: "You haven't marked any content as seen yet.", TR: 'Henüz görülmüş olarak işaretlediğin içerik yok.' },
   wildcard: { EN: 'Surprise', TR: 'Sürpriz' },
+  previousPage: { EN: 'Previous', TR: 'Önceki' },
+  nextPage: { EN: 'Next', TR: 'Sonraki' },
 };
 
 interface LanguageContextType {

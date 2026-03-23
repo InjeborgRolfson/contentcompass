@@ -5,14 +5,32 @@ import Recommendation from '@/models/Recommendation';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+const PAGE_SIZE = 12;
+
+export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10));
+
     await dbConnect();
-    const saved = await Recommendation.find({ userId: session.user.id }).sort({ createdAt: -1 });
-    return NextResponse.json(saved || []);
+    const [items, total] = await Promise.all([
+      Recommendation.find({ userId: session.user.id })
+        .sort({ _id: -1 })
+        .skip(page * PAGE_SIZE)
+        .limit(PAGE_SIZE),
+      Recommendation.countDocuments({ userId: session.user.id }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: items,
+      total,
+      page,
+      totalPages: Math.ceil(total / PAGE_SIZE),
+    });
   } catch (error) {
     console.error('Error fetching saved recommendations:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

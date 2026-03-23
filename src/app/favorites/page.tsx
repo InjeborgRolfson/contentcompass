@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ContentType } from '@/types/content';
 import { Plus, X, Loader2, Sparkles, Compass } from 'lucide-react';
 import FavoriteCard from '@/components/FavoriteCard';
+import Pagination from '@/components/Pagination';
 
 const contentTypes: ContentType[] = [
   'Book', 'Movie', 'Tv Show', 'Podcast', 'Music', 'Game', 'Article', 'Youtube', 'Other'
@@ -15,6 +16,9 @@ export default function FavoritesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const { t } = useLanguage();
 
   const [editingFavorite, setEditingFavorite] = useState<any>(null);
@@ -39,20 +43,31 @@ export default function FavoritesPage() {
     fetchFavorites();
   }, []);
 
-  const fetchFavorites = async () => {
+  const fetchFavorites = async (page = 0) => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/favorites');
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+      const res = await fetch(`/api/favorites?page=${page}`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      setFavorites(Array.isArray(data) ? data : []);
+      if (data.success) {
+        setFavorites(data.data ?? []);
+        setTotalCount(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setCurrentPage(data.page ?? 0);
+      } else {
+        setFavorites([]);
+      }
     } catch (err) {
       console.error('Failed to fetch favorites:', err);
       setFavorites([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchFavorites(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEditClick = (fav: any) => {
@@ -78,7 +93,8 @@ export default function FavoritesPage() {
       });
 
       if (res.ok) {
-        fetchFavorites();
+        const isLastOnPage = favorites.length === 1 && currentPage > 0;
+        fetchFavorites(isLastOnPage ? currentPage - 1 : currentPage);
       } else {
         console.error('Failed to delete favorite');
       }
@@ -465,7 +481,7 @@ export default function FavoritesPage() {
         setIsModalOpen(false);
         setEditingFavorite(null);
         setFormData({ title: '', creator: '', year: '', type: 'Book', note: '', photo: '', creatorMode: false });
-        fetchFavorites();
+        fetchFavorites(editingFavorite ? currentPage : 0);
       } else {
         const errorData = await res.json().catch(() => ({}));
         console.error('Failed to save favorite:', errorData);
@@ -526,16 +542,25 @@ export default function FavoritesPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((fav) => (
-            <FavoriteCard 
-              key={fav._id} 
-              favorite={fav} 
-              onEdit={handleEditClick}
-              onDelete={handleDeleteFavorite}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {favorites.map((fav) => (
+              <FavoriteCard
+                key={fav._id}
+                favorite={fav}
+                onEdit={handleEditClick}
+                onDelete={handleDeleteFavorite}
+              />
+            ))}
+          </div>
+          {totalCount > 12 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {isModalOpen && (
