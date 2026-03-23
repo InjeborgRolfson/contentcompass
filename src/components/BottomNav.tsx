@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Heart, Compass, Bookmark } from 'lucide-react';
+import { Heart, Compass, Bookmark, Library } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -35,6 +35,11 @@ const BottomNav = () => {
       href: '/saved',
       label: t('saved'),
       icon: Bookmark,
+    },
+    {
+      href: '/library',
+      label: t('library'),
+      icon: Library,
     },
   ];
 

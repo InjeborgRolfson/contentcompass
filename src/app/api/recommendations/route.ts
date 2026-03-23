@@ -2,6 +2,53 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/mongodb";
 import RateLimit from "@/models/RateLimit";
+import ContentEntry from "@/models/ContentEntry";
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+async function saveToContentLibrary(rec: any): Promise<void> {
+  try {
+    const baseSlug = slugify(rec.title);
+    // Check if this slug belongs to a different entry
+    const existingBySlug = await ContentEntry.findOne({ slug: baseSlug });
+    const slug =
+      existingBySlug &&
+      !(
+        existingBySlug.title.toLowerCase() === rec.title.toLowerCase() &&
+        existingBySlug.type.toLowerCase() === rec.type.toLowerCase()
+      )
+        ? `${baseSlug}-${slugify(rec.type)}`
+        : baseSlug;
+
+    await ContentEntry.findOneAndUpdate(
+      { title: rec.title, type: rec.type },
+      {
+        $setOnInsert: { slug },
+        $set: {
+          creator: rec.creator || "",
+          year: rec.year || "",
+          description_en: rec.description_en || rec.description || "",
+          description_tr: rec.description_tr || "",
+          tags: rec.tags || [],
+          ...(rec.photo ? { photo: rec.photo } : {}),
+        },
+      },
+      { upsert: true },
+    );
+  } catch (err: any) {
+    // Duplicate key errors are expected (race conditions) — log others
+    if (err?.code !== 11000) {
+      console.error("ContentLibrary save error:", err);
+    }
+  }
+}
 
 export const runtime = "nodejs";
 
@@ -331,6 +378,11 @@ export async function POST(req: Request) {
           return { ...rec, photo: photoUrl || null };
         }),
       );
+
+      // Silently save each recommendation to the public content library
+      Promise.allSettled(
+        recommendationsWithPhotos.map((rec: any) => saveToContentLibrary(rec)),
+      ).catch(() => {});
 
       return NextResponse.json(recommendationsWithPhotos);
     } catch (parseError) {

@@ -1,0 +1,276 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
+import { Loader2, Library, User, Calendar } from "lucide-react";
+import { ContentType } from "@/types/content";
+import Pagination from "@/components/Pagination";
+
+const ALL_TYPES: ContentType[] = [
+  "Book",
+  "Movie",
+  "Tv Show",
+  "Podcast",
+  "Music",
+  "Game",
+  "Creator",
+  "Article",
+  "Youtube",
+  "Painting",
+  "Other",
+];
+
+const contentTypeEmojis: Record<string, string> = {
+  book: "📚",
+  movie: "🎬",
+  "tv show": "📺",
+  podcast: "🎙️",
+  music: "🎵",
+  game: "🎮",
+  creator: "👤",
+  article: "📝",
+  youtube: "▶️",
+  painting: "🎨",
+  other: "🌐",
+};
+
+const getTypeBadgeStyle = (type: string): React.CSSProperties => {
+  const styles: Record<string, React.CSSProperties> = {
+    book: { backgroundColor: "#EAF3DE", color: "#3B6D11", borderColor: "#C0DD97" },
+    movie: { backgroundColor: "#E6F1FB", color: "#185FA5", borderColor: "#B5D4F4" },
+    "tv show": { backgroundColor: "#EEEDFE", color: "#534AB7", borderColor: "#CECBF6" },
+    game: { backgroundColor: "#FAEEDA", color: "#854F0B", borderColor: "#FAC775" },
+    music: { backgroundColor: "#FBEAF0", color: "#993556", borderColor: "#F4C0D1" },
+    podcast: { backgroundColor: "#FAECE7", color: "#993C1D", borderColor: "#F5C4B3" },
+    creator: { backgroundColor: "#E0E7FF", color: "#3730A3", borderColor: "#C7D2FE" },
+    article: { backgroundColor: "#E1F5EE", color: "#0F6E56", borderColor: "#9FE1CB" },
+    youtube: { backgroundColor: "#FCEBEB", color: "#A32D2D", borderColor: "#F7C1C1" },
+    painting: { backgroundColor: "#FEF9C3", color: "#854D0E", borderColor: "#FDE047" },
+  };
+  return (
+    styles[type.toLowerCase()] ?? {
+      backgroundColor: "#EEF2FF",
+      color: "#4338CA",
+      borderColor: "#C7D2FE",
+    }
+  );
+};
+
+interface ContentItem {
+  _id: string;
+  type: string;
+  title: string;
+  creator: string;
+  year: string;
+  description_en: string;
+  description_tr: string;
+  photo: string | null;
+  tags: string[];
+  slug: string;
+}
+
+export default function LibraryPage() {
+  const { t, formatText, language } = useLanguage();
+  const [items, setItems] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeType, setActiveType] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  const fetchLibrary = useCallback(async (type: string, page: number) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page) });
+      if (type !== "all") params.set("type", type);
+      const res = await fetch(`/api/library?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        setItems(data.data ?? []);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setCurrentPage(data.page ?? 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch library:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLibrary(activeType, 0);
+  }, [activeType, fetchLibrary]);
+
+  const handleTypeChange = (type: string) => {
+    setActiveType(type);
+    setCurrentPage(0);
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchLibrary(activeType, page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const getDescription = (item: ContentItem) => {
+    if (language === "TR" && item.description_tr) return item.description_tr;
+    return item.description_en || item.description_tr || "";
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Header */}
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="bg-theme-600 p-2.5 rounded-2xl">
+            <Library className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-4xl font-extrabold text-theme-900">
+            {t("publicLibrary")}
+          </h1>
+        </div>
+        <p className="text-theme-900/50 font-medium ml-14">
+          {t("librarySubtitle")}
+          {total > 0 && (
+            <span className="ml-2 bg-theme-50 text-theme-600 px-3 py-0.5 rounded-full text-xs font-bold border border-theme-100">
+              {total}
+            </span>
+          )}
+        </p>
+      </div>
+
+      {/* Type filter chips */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <button
+          onClick={() => handleTypeChange("all")}
+          className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border ${
+            activeType === "all"
+              ? "bg-theme-600 text-white border-theme-600 shadow-md"
+              : "bg-white text-theme-600 border-theme-100 hover:bg-theme-50"
+          }`}
+        >
+          {t("allTypes")}
+        </button>
+        {ALL_TYPES.map((type) => (
+          <button
+            key={type}
+            onClick={() => handleTypeChange(type)}
+            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border ${
+              activeType === type
+                ? "border-2 shadow-md"
+                : "bg-white hover:opacity-80"
+            }`}
+            style={
+              activeType === type
+                ? {
+                    ...getTypeBadgeStyle(type),
+                    borderWidth: "2px",
+                  }
+                : {
+                    ...getTypeBadgeStyle(type),
+                    opacity: 0.75,
+                  }
+            }
+          >
+            {contentTypeEmojis[type.toLowerCase()] ?? "🌐"}{" "}
+            {t(type.toLowerCase() as any) || type}
+          </button>
+        ))}
+      </div>
+
+      {/* Content grid */}
+      {loading ? (
+        <div className="flex justify-center py-24">
+          <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-theme-100 flex flex-col items-center gap-4">
+          <Library className="w-12 h-12 text-theme-100" />
+          <p className="text-theme-900/40 text-lg font-bold">
+            {t("noLibraryResults")}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {items.map((item) => (
+              <Link
+                key={item._id}
+                href={`/content/${item.slug}`}
+                className="group bg-white rounded-3xl overflow-hidden border border-theme-50 shadow-sm hover:shadow-xl hover:shadow-theme-100 transition-all duration-300 flex flex-col"
+              >
+                {/* Image */}
+                <div className="relative aspect-[3/4] overflow-hidden bg-theme-50">
+                  {item.photo ? (
+                    <img
+                      src={item.photo}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <span className="text-5xl">
+                        {contentTypeEmojis[item.type.toLowerCase()] ?? "🌐"}
+                      </span>
+                      <span className="text-xs font-bold text-theme-300 uppercase tracking-widest">
+                        {item.type}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3">
+                    <span
+                      className="px-3 py-1 text-[9px] font-black rounded-full tracking-widest border"
+                      style={getTypeBadgeStyle(item.type)}
+                    >
+                      {formatText(
+                        t(item.type.toLowerCase() as any) || item.type,
+                        "upper",
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-4 flex flex-col flex-grow">
+                  <h2 className="text-base font-black text-theme-950 group-hover:text-theme-600 transition-colors leading-tight mb-2 line-clamp-2">
+                    {item.title}
+                  </h2>
+                  <div className="flex flex-col gap-1 text-[11px] font-bold text-theme-900/40 uppercase tracking-tight mt-auto">
+                    {item.creator && (
+                      <div className="flex items-center gap-1.5">
+                        <User className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{item.creator}</span>
+                      </div>
+                    )}
+                    {item.year && (
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span>{item.year}</span>
+                      </div>
+                    )}
+                  </div>
+                  {getDescription(item) && (
+                    <p className="text-xs text-theme-900/55 mt-3 line-clamp-2 leading-relaxed">
+                      {getDescription(item)}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-10">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

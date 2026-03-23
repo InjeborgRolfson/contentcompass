@@ -186,6 +186,19 @@ const translations: Translations = {
   previousPage: { EN: "Previous", TR: "Önceki" },
   nextPage: { EN: "Next", TR: "Sonraki" },
   deleteFavorite: { EN: "Delete Favorite", TR: "Favoriyi Sil" },
+  library: { EN: "Library", TR: "Kütüphane" },
+  publicLibrary: { EN: "Public Library", TR: "Genel Kütüphane" },
+  librarySubtitle: {
+    EN: "Every title discovered by the community",
+    TR: "Topluluk tarafından keşfedilen her içerik",
+  },
+  allTypes: { EN: "All", TR: "Tümü" },
+  noLibraryResults: {
+    EN: "No content found for this filter.",
+    TR: "Bu filtre için içerik bulunamadı.",
+  },
+  viewDetails: { EN: "View Details", TR: "Detayları Gör" },
+  backToLibrary: { EN: "Back to Library", TR: "Kütüphaneye Dön" },
 };
 
 interface LanguageContextType {

@@ -55,6 +55,7 @@ const Navbar = () => {
               <NavItem href="/favorites" label={t("favorites")} />
               <NavItem href="/discover" label={t("discover")} />
               <NavItem href="/saved" label={t("saved")} />
+              <NavItem href="/library" label={t("library")} />
             </div>
           </div>
 
