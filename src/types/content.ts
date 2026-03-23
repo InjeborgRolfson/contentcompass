@@ -5,6 +5,7 @@ export type ContentType =
   | 'Podcast' 
   | 'Music' 
   | 'Game' 
+  | 'Creator'
   | 'Article' 
   | 'Youtube' 
   | 'Other';

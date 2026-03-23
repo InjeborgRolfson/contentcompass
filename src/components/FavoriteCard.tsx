@@ -17,6 +17,7 @@ const contentTypeEmojis: Record<string, string> = {
   podcast: "🎙️",
   music: "🎵",
   game: "🎮",
+  creator: "👤",
   article: "📝",
   youtube: "▶️",
   other: "🌐",
@@ -52,6 +53,11 @@ const getTypeBadgeStyle = (type: string): React.CSSProperties => {
       backgroundColor: "#FAECE7",
       color: "#993C1D",
       borderColor: "#F5C4B3",
+    },
+    creator: {
+      backgroundColor: "#E0E7FF",
+      color: "#3730A3",
+      borderColor: "#C7D2FE",
     },
     article: {
       backgroundColor: "#E1F5EE",

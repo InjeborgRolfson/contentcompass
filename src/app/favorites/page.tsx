@@ -16,6 +16,7 @@ const contentTypes: ContentType[] = [
   "Podcast",
   "Music",
   "Game",
+  "Creator",
   "Article",
   "Youtube",
   "Other",
@@ -135,6 +136,7 @@ export default function FavoritesPage() {
   useEffect(() => {
     if (
       formData.creatorMode ||
+      formData.type === "Creator" ||
       formData.title.length < 2 ||
       isSelectionInProgress ||
       skipSearchRef.current
@@ -200,7 +202,7 @@ export default function FavoritesPage() {
     }, 300);
 
     return () => clearTimeout(debounceId);
-  }, [formData.title]);
+  }, [formData.title, formData.creatorMode, formData.type]);
 
   const handleSelectSuggestion = async (suggestion: any) => {
     skipSearchRef.current = true;
@@ -319,7 +321,7 @@ export default function FavoritesPage() {
   // Wikidata Creator Search (filtered for people)
   useEffect(() => {
     if (
-      !formData.creatorMode ||
+      !(formData.creatorMode || formData.type === "Creator") ||
       formData.title.length < 2 ||
       isSelectionInProgress ||
       skipSearchRef.current
@@ -409,7 +411,7 @@ export default function FavoritesPage() {
     }, 300);
 
     return () => clearTimeout(debounceId);
-  }, [formData.title, formData.creatorMode]);
+  }, [formData.title, formData.creatorMode, formData.type]);
 
   const handleSelectCreatorSuggestion = async (suggestion: any) => {
     skipSearchRef.current = true;
@@ -642,54 +644,17 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="space-y-12">
-          {/* Creator Section */}
-          {favorites.some((fav) => fav.isCreator) && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-1.5 bg-indigo-600 rounded-full" />
-                <h2 className="text-2xl font-extrabold text-indigo-950 tracking-tight">
-                  {t("creatorBadge" as any)}
-                </h2>
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full border border-indigo-100 uppercase tracking-wider">
-                  {favorites.filter((fav) => fav.isCreator).length}
-                </span>
-              </div>
-
-              {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favorites
-                    .filter((fav) => fav.isCreator)
-                    .map((fav) => (
-                      <FavoriteCard
-                        key={fav._id}
-                        favorite={fav}
-                        onEdit={handleEditClick}
-                      />
-                    ))}
-                </div>
-              ) : (
-                <FavoriteTable
-                  favorites={favorites.filter((fav) => fav.isCreator)}
-                  onEdit={handleEditClick}
-                  onDelete={handleDeleteFavorite}
-                />
-              )}
-            </div>
-          )}
-
           {/* Content Type Sections */}
           {contentTypes
             .filter((type) =>
               favorites.some(
                 (fav) =>
-                  !fav.isCreator &&
                   (fav.type || "").toLowerCase() === type.toLowerCase(),
               ),
             )
             .map((type) => {
               const typeFavorites = favorites.filter(
                 (fav) =>
-                  !fav.isCreator &&
                   (fav.type || "").toLowerCase() === type.toLowerCase(),
               );
               return (
@@ -758,33 +723,6 @@ export default function FavoritesPage() {
               </button>
             </div>
 
-            <div className="px-8 pt-4 pb-2 border-b border-indigo-50">
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    creatorMode: !prev.creatorMode,
-                    title: "",
-                    creator: "",
-                    year: "",
-                    photo: "",
-                  }));
-                  setSuggestions([]);
-                  setShowSuggestions(false);
-                }}
-                className={`px-3 py-1 rounded-full text-sm font-medium border transition-all ${
-                  formData.creatorMode
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-indigo-50 text-indigo-600 border-indigo-200 hover:border-indigo-300"
-                }`}
-              >
-                {formData.creatorMode
-                  ? `📚 ${t("addTitleInstead" as any)}`
-                  : `👤 ${t("addCreatorInstead" as any)}`}
-              </button>
-            </div>
-
             <form
               onSubmit={handleSubmit}
               className="p-8 space-y-5 overflow-y-auto flex-1 pb-32 sm:pb-8"
@@ -834,7 +772,7 @@ export default function FavoritesPage() {
                           type="button"
                           onMouseDown={(e) => {
                             e.preventDefault();
-                            formData.creatorMode
+                            formData.creatorMode || formData.type === "Creator"
                               ? handleSelectCreatorSuggestion(item)
                               : handleSelectSuggestion(item);
                           }}
@@ -921,6 +859,7 @@ export default function FavoritesPage() {
                               formData.type === type
                                 ? ("Book" as ContentType)
                                 : type,
+                            creatorMode: type === "Creator",
                           })
                         }
                         className={`px-2 py-2 text-xs font-bold rounded-xl transition-all border ${

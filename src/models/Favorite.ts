@@ -11,7 +11,7 @@ const FavoriteSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ['Book', 'Movie', 'Tv Show', 'Podcast', 'Music', 'Game', 'Article', 'Youtube', 'Other'],
+    enum: ['Book', 'Movie', 'Tv Show', 'Podcast', 'Music', 'Game', 'Creator', 'Article', 'Youtube', 'Other'],
     required: false,
   },
   title: {
