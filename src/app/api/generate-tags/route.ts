@@ -15,7 +15,7 @@ export async function POST(req: Request) {
         "X-Title": "ContentCompass",
       },
       body: JSON.stringify({
-        "model": "google/gemini-2.0-flash-001",
+        "model": process.env.OPENROUTER_MODEL,
         "messages": [
           {
             "role": "user",
