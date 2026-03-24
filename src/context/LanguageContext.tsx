@@ -90,6 +90,7 @@ const translations: Translations = {
   edit: { EN: "Edit", TR: "Düzenle" },
   editFavorite: { EN: "Edit Favorite", TR: "Favoriyi Düzenle" },
   saveChanges: { EN: "Save Changes", TR: "Değişiklikleri Kaydet" },
+  saveItem: { EN: "Save", TR: "Kaydet" },
   confirmDelete: {
     EN: "Are you sure you want to delete this favorite?",
     TR: "Bu favoriyi silmek istediğinizden emin misiniz?",

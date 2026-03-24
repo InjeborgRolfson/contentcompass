@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { User, Calendar, ArrowLeft, Tag } from "lucide-react";
+import { User, Calendar, ArrowLeft, Tag, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 
 const getTypeBadgeStyle = (type: string): React.CSSProperties => {
   const styles: Record<string, React.CSSProperties> = {
@@ -56,6 +56,53 @@ interface ContentEntry {
 
 export default function ContentDetailClient({ entry }: { entry: ContentEntry }) {
   const { t, formatText, language } = useLanguage();
+  const [isSaved, setIsSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const checkIfSaved = async () => {
+      try {
+        const res = await fetch("/api/recommendations/save");
+        if (!res.ok) return;
+        const data = await res.json();
+        const saved = (Array.isArray(data?.data) ? data.data : []).some(
+          (item: any) => item.title === entry.title,
+        );
+        setIsSaved(saved);
+      } catch (err) {
+        console.error("Failed to check saved state:", err);
+      }
+    };
+    checkIfSaved();
+  }, [entry.title]);
+
+  const handleSave = async () => {
+    if (isSaved || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/recommendations/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: entry.type,
+          title: entry.title,
+          creator: entry.creator,
+          year: entry.year,
+          description: entry.description_en || entry.description_tr || "",
+          description_en: entry.description_en,
+          description_tr: entry.description_tr,
+          why: "",
+          tags: entry.tags,
+          photo: entry.photo,
+        }),
+      });
+      if (res.ok) setIsSaved(true);
+    } catch (err) {
+      console.error("Failed to save:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const description =
     language === "TR" && entry.description_tr
@@ -106,6 +153,28 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
             {t("backToLibrary")}
           </Link>
         </div>
+
+        {/* Save button overlay */}
+        <div className="absolute top-4 right-4 z-20">
+          <button
+            onClick={handleSave}
+            disabled={saving || isSaved}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+              isSaved
+                ? "bg-theme-600 text-white border-theme-500 shadow-lg shadow-theme-900/40"
+                : "bg-white/10 backdrop-blur-md text-white border-white/20 hover:bg-white/20"
+            }`}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isSaved ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
+            )}
+            {isSaved ? t("saved") : t("saveItem")}
+          </button>
+        </div>
       </div>
 
       {/* Content section */}
@@ -139,6 +208,28 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
               <span>{entry.year}</span>
             </div>
           )}
+        </div>
+
+        {/* Save button */}
+        <div className="mb-8">
+          <button
+            onClick={handleSave}
+            disabled={saving || isSaved}
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-sm transition-all border shadow-sm ${
+              isSaved
+                ? "bg-theme-600 text-white border-theme-500 shadow-theme-100 cursor-default"
+                : "bg-white text-theme-600 border-theme-200 hover:bg-theme-50 hover:border-theme-300 hover:shadow-md"
+            }`}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isSaved ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
+            )}
+            {isSaved ? t("saved") : t("saveItem")}
+          </button>
         </div>
 
         {/* Divider */}
