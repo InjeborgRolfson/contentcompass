@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/mongodb";
 import Recommendation from "@/models/Recommendation";
+import { normalizeContentType } from "@/utils/content-type";
 
 export const runtime = "nodejs";
 
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
 
     const saved = await Recommendation.create({
       ...data,
+      type: normalizeContentType(data.type || "Other"),
       description: data.description || data.description_en || data.description_tr || "",
       why: data.why || data.why_en || data.why_tr || "",
       year: data.year || "unknown",

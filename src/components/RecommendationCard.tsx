@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { normalizeContentType } from "@/utils/content-type";
 import {
   Bookmark,
   BookmarkCheck,
@@ -203,6 +204,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 
   const isFaded = isSeenInDB || userMarkedAsSeenThisSession;
   const isWildcard = recommendation.isWildcard === true;
+  const displayType = normalizeContentType(recommendation.type || "Other");
 
   return (
     <div
@@ -244,11 +246,10 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         <div className="flex items-center gap-2">
           <span
             className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
-            style={getTypeBadgeStyle(recommendation.type)}
+            style={getTypeBadgeStyle(displayType)}
           >
             {formatText(
-              t(recommendation.type.toLowerCase() as any) ||
-                recommendation.type,
+              t(displayType.toLowerCase() as any) || displayType,
               "upper",
             )}
           </span>
@@ -257,17 +258,9 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
               <span className="text-sm">✦</span> {t("wildcard")}
             </span>
           )}
-          {isSavedPage && recommendation.savedFrom && (
-            <span
-              className={`px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border ${
-                recommendation.savedFrom === "library"
-                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                  : "bg-sky-50 text-sky-700 border-sky-200"
-              }`}
-            >
-              {recommendation.savedFrom === "library"
-                ? t("library")
-                : t("discover")}
+          {isSavedPage && recommendation.savedFrom === "library" && (
+            <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-amber-50 text-amber-700 border-amber-200">
+              {t("library")}
             </span>
           )}
         </div>
@@ -339,14 +332,14 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             }`}
           >
             <div className="text-2xl">
-              {getContentTypeEmoji(recommendation.type)}
+              {getContentTypeEmoji(displayType)}
             </div>
             <div
               className={`text-[9px] font-bold mt-1 text-center px-1 ${
                 isWildcard ? "text-purple-600" : "text-theme-400"
               }`}
             >
-              {recommendation.type.substring(0, 8)}
+              {displayType.substring(0, 8)}
             </div>
           </div>
         )}
@@ -398,7 +391,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </p>
         </div>
 
-        {getLanguageSpecificField("why", recommendation.why).trim() && <div
+        {(getLanguageSpecificField("why", recommendation.why) || "").trim() && recommendation.savedFrom === "discover" && <div
           className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
             isWildcard
               ? "bg-gradient-to-br from-purple-100/60 to-purple-50/40 border-purple-300 shadow-md shadow-purple-200/40"
@@ -443,7 +436,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2 relative z-10">
-        {recommendation.tags.map((tag, idx) => (
+        {(recommendation.tags || []).map((tag, idx) => (
           <span
             key={idx}
             className={`px-3 py-1.5 text-[10px] font-bold rounded-xl uppercase transition-all ${

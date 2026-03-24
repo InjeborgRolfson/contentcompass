@@ -6,6 +6,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Loader2, Library, User, Calendar, Bookmark, BookmarkCheck } from "lucide-react";
 import { ContentType } from "@/types/content";
 import Pagination from "@/components/Pagination";
+import { normalizeContentType } from "@/utils/content-type";
 
 const ALL_TYPES: ContentType[] = [
   "Book",
@@ -269,7 +270,7 @@ export default function LibraryPage() {
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                       <span className="text-5xl">
-                        {contentTypeEmojis[item.type.toLowerCase()] ?? "🌐"}
+                        {contentTypeEmojis[normalizeContentType(item.type).toLowerCase()] ?? "🌐"}
                       </span>
                       <span className="text-xs font-bold text-theme-300 uppercase tracking-widest">
                         {item.type}
@@ -279,10 +280,10 @@ export default function LibraryPage() {
                   <div className="absolute top-3 left-3">
                     <span
                       className="px-3 py-1 text-[9px] font-black rounded-full tracking-widest border"
-                      style={getTypeBadgeStyle(item.type)}
+                      style={getTypeBadgeStyle(normalizeContentType(item.type).toLowerCase())}
                     >
                       {formatText(
-                        t(item.type.toLowerCase() as any) || item.type,
+                        t(normalizeContentType(item.type).toLowerCase() as any) || item.type,
                         "upper",
                       )}
                     </span>

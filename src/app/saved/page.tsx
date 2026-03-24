@@ -9,6 +9,7 @@ import ViewToggle from "@/components/ViewToggle";
 import RecommendationTable from "@/components/RecommendationTable";
 import Pagination from "@/components/Pagination";
 import Toast from "@/components/ui/Toast";
+import { normalizeContentType } from "@/utils/content-type";
 
 type TabType = "saved" | "seen";
 
@@ -293,7 +294,7 @@ export default function SavedPage() {
                 .filter((type) =>
                   saved.some(
                     (rec) =>
-                      (rec.type || "").toLowerCase() === type.toLowerCase(),
+                      normalizeContentType(rec.type || "Other").toLowerCase() === type.toLowerCase(),
                   ),
                 )
                 .map((type) => (
@@ -310,7 +311,7 @@ export default function SavedPage() {
                         {
                           saved.filter(
                             (rec) =>
-                              (rec.type || "").toLowerCase() ===
+                              normalizeContentType(rec.type || "Other").toLowerCase() ===
                               type.toLowerCase(),
                           ).length
                         }
@@ -320,7 +321,7 @@ export default function SavedPage() {
                       {saved
                         .filter(
                           (rec) =>
-                            (rec.type || "").toLowerCase() ===
+                            normalizeContentType(rec.type || "Other").toLowerCase() ===
                             type.toLowerCase(),
                         )
                         .map((rec) => (

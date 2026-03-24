@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { normalizeContentType } from "@/utils/content-type";
 import {
   Sparkles,
   Info,
@@ -144,21 +145,14 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                       <div className="flex items-center gap-2">
                         <span className="px-3 py-1 bg-theme-50 text-theme-600 text-[9px] font-black rounded-full tracking-widest border border-theme-100">
                           {formatText(
-                            t(rec.type.toLowerCase() as any) || rec.type,
+                            t(normalizeContentType(rec.type || "Other").toLowerCase() as any) ||
+                              normalizeContentType(rec.type || "Other"),
                             "upper",
                           )}
                         </span>
-                        {isSavedPage && rec.savedFrom && (
-                          <span
-                            className={`px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border ${
-                              rec.savedFrom === "library"
-                                ? "bg-amber-50 text-amber-700 border-amber-200"
-                                : "bg-sky-50 text-sky-700 border-sky-200"
-                            }`}
-                          >
-                            {rec.savedFrom === "library"
-                              ? t("library")
-                              : t("discover")}
+                        {isSavedPage && rec.savedFrom === "library" && (
+                          <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-amber-50 text-amber-700 border-amber-200">
+                            {t("library")}
                           </span>
                         )}
                       </div>
@@ -254,6 +248,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               ))}
                             </div>
                           </div>
+                          {rec.savedFrom === "discover" && rec.why?.trim() && (
                           <div
                             className={`md:w-1/3 rounded-3xl p-6 border relative overflow-hidden shrink-0 self-start ${
                               rec.isWildcard
@@ -290,6 +285,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               "{rec.why}"
                             </p>
                           </div>
+                          )}
                         </div>
                       </td>
                     </tr>

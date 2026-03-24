@@ -16,7 +16,10 @@ export async function GET(req: Request) {
 
     const filter: Record<string, any> = {};
     if (type && type !== "all") {
-      filter.type = { $regex: new RegExp(`^${type}$`, "i") };
+      filter.type =
+        type.toLowerCase() === "youtube"
+          ? { $regex: /^youtube/i }
+          : { $regex: new RegExp(`^${type}$`, "i") };
     }
 
     const [items, total] = await Promise.all([

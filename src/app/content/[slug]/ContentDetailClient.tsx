@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { User, Calendar, ArrowLeft, Tag, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { normalizeContentType } from "@/utils/content-type";
 
 const getTypeBadgeStyle = (type: string): React.CSSProperties => {
   const styles: Record<string, React.CSSProperties> = {
@@ -110,8 +111,9 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
       ? entry.description_tr
       : entry.description_en || entry.description_tr || "";
 
-  const badgeStyle = getTypeBadgeStyle(entry.type);
-  const emoji = contentTypeEmojis[entry.type.toLowerCase()] ?? "🌐";
+  const displayType = normalizeContentType(entry.type || "Other");
+  const badgeStyle = getTypeBadgeStyle(displayType);
+  const emoji = contentTypeEmojis[displayType.toLowerCase()] ?? "🌐";
 
   return (
     <div className="min-h-screen">
@@ -139,7 +141,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
           <div className="flex flex-col items-center justify-center gap-4 py-24" style={{ minHeight: "40vh" }}>
             <span className="text-8xl">{emoji}</span>
             <span className="text-white/30 text-lg font-bold uppercase tracking-widest">
-              {entry.type}
+              {displayType}
             </span>
           </div>
         )}
@@ -186,7 +188,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
             className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
             style={badgeStyle}
           >
-            {formatText(t(entry.type.toLowerCase() as any) || entry.type, "upper")}
+            {formatText(t(displayType.toLowerCase() as any) || displayType, "upper")}
           </span>
         </div>
 
