@@ -12,7 +12,9 @@ export default auth((req) => {
     return null;
   }
 
-  if (!isLoggedIn && req.nextUrl.pathname !== "/") {
+  const isPublicPage = req.nextUrl.pathname === "/" || req.nextUrl.pathname.startsWith("/odilon");
+
+  if (!isLoggedIn && !isPublicPage) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
@@ -20,5 +22,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:jpg|jpeg|png|gif|svg|webp|ico|woff2?|ttf|otf)).*)"],
 };
