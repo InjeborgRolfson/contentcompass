@@ -60,6 +60,11 @@ const RecommendationSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  savedFrom: {
+    type: String,
+    enum: ['library', 'discover'],
+    default: 'discover',
+  },
 }, { timestamps: true });
 
 const Recommendation = models.Recommendation || model('Recommendation', RecommendationSchema);

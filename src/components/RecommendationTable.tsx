@@ -66,7 +66,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
       const res = await fetch("/api/recommendations/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rec),
+        body: JSON.stringify({ ...rec, savedFrom: "discover" }),
       });
 
       if (res.ok) {
@@ -141,12 +141,27 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     } transition-opacity duration-500`}
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <span className="px-3 py-1 bg-theme-50 text-theme-600 text-[9px] font-black rounded-full tracking-widest border border-theme-100">
-                        {formatText(
-                          t(rec.type.toLowerCase() as any) || rec.type,
-                          "upper",
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-theme-50 text-theme-600 text-[9px] font-black rounded-full tracking-widest border border-theme-100">
+                          {formatText(
+                            t(rec.type.toLowerCase() as any) || rec.type,
+                            "upper",
+                          )}
+                        </span>
+                        {isSavedPage && rec.savedFrom && (
+                          <span
+                            className={`px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border ${
+                              rec.savedFrom === "library"
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : "bg-sky-50 text-sky-700 border-sky-200"
+                            }`}
+                          >
+                            {rec.savedFrom === "library"
+                              ? t("library")
+                              : t("discover")}
+                          </span>
                         )}
-                      </span>
+                      </div>
                     </td>
                     <td className="px-8 py-6">
                       <span className="text-sm font-bold text-theme-950 group-hover:text-theme-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">

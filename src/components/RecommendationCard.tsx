@@ -97,6 +97,7 @@ interface RecommendationProps {
     tags: string[];
     photo?: string;
     isWildcard?: boolean;
+    savedFrom?: "library" | "discover";
   };
   isSavedPage?: boolean;
   onRemove?: (id: string) => void;
@@ -162,7 +163,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       const res = await fetch("/api/recommendations/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(recommendation),
+        body: JSON.stringify({ ...recommendation, savedFrom: "discover" }),
       });
 
       if (res.ok) {
@@ -254,6 +255,19 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           {isWildcard && (
             <span className="px-3 py-1 bg-gradient-to-r from-purple-200 to-purple-100 text-purple-800 text-[10px] font-black rounded-full tracking-widest border-2 border-purple-400 flex items-center gap-1.5 shadow-md">
               <span className="text-sm">✦</span> {t("wildcard")}
+            </span>
+          )}
+          {isSavedPage && recommendation.savedFrom && (
+            <span
+              className={`px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border ${
+                recommendation.savedFrom === "library"
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : "bg-sky-50 text-sky-700 border-sky-200"
+              }`}
+            >
+              {recommendation.savedFrom === "library"
+                ? t("library")
+                : t("discover")}
             </span>
           )}
         </div>

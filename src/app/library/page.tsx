@@ -154,6 +154,7 @@ export default function LibraryPage() {
           why: "",
           tags: item.tags,
           photo: item.photo,
+          savedFrom: "library",
         }),
       });
       if (res.ok) {

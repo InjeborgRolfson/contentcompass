@@ -94,6 +94,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
           why: "",
           tags: entry.tags,
           photo: entry.photo,
+          savedFrom: "library",
         }),
       });
       if (res.ok) setIsSaved(true);
