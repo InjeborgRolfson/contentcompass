@@ -18,7 +18,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const { language, changeLanguage, t } = useLanguage();
 
-  if (!session || pathname.startsWith('/odilon')) return null;
+  if (!session || pathname === '/' || pathname.startsWith('/odilon')) return null;
 
   const NavItem = ({ href, label }: { href: string; label: string }) => {
     const isActive = pathname === href;

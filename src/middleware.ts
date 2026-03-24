@@ -13,6 +13,7 @@ export default auth((req) => {
   }
 
   const isPublicPage = req.nextUrl.pathname === "/" || req.nextUrl.pathname.startsWith("/odilon");
+  // Note: authenticated users hitting "/" are redirected to /home by page.tsx before rendering
 
   if (!isLoggedIn && !isPublicPage) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
