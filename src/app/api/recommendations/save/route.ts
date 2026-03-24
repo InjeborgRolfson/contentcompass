@@ -58,6 +58,12 @@ export async function POST(req: Request) {
     });
 
     if (existing) {
+      if (data.savedFrom && existing.savedFrom !== data.savedFrom) {
+        await Recommendation.updateOne(
+          { _id: existing._id },
+          { $set: { savedFrom: data.savedFrom } },
+        );
+      }
       return NextResponse.json({ message: "Already saved" }, { status: 200 });
     }
 

@@ -398,7 +398,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </p>
         </div>
 
-        <div
+        {getLanguageSpecificField("why", recommendation.why).trim() && <div
           className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
             isWildcard
               ? "bg-gradient-to-br from-purple-100/60 to-purple-50/40 border-purple-300 shadow-md shadow-purple-200/40"
@@ -439,7 +439,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           >
             {whyExpanded ? "↑ daha az" : "↓ devamını gör"}
           </button>
-        </div>
+        </div>}
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2 relative z-10">
