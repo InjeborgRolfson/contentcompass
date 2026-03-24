@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { Loader2, Library, User, Calendar } from "lucide-react";
+import { Loader2, Library, User, Calendar, Bookmark, BookmarkCheck } from "lucide-react";
 import { ContentType } from "@/types/content";
 import Pagination from "@/components/Pagination";
 
@@ -78,6 +78,8 @@ export default function LibraryPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
+  const [savedTitles, setSavedTitles] = useState<Set<string>>(new Set());
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
 
   const fetchLibrary = useCallback(async (type: string, page: number) => {
     setLoading(true);
@@ -99,9 +101,27 @@ export default function LibraryPage() {
     }
   }, []);
 
+  const fetchSavedTitles = useCallback(async () => {
+    try {
+      const res = await fetch("/api/recommendations/save");
+      if (!res.ok) return;
+      const data = await res.json();
+      const titles = new Set<string>(
+        (Array.isArray(data?.data) ? data.data : []).map((item: any) => item.title as string),
+      );
+      setSavedTitles(titles);
+    } catch (err) {
+      console.error("Failed to fetch saved titles:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchLibrary(activeType, 0);
   }, [activeType, fetchLibrary]);
+
+  useEffect(() => {
+    fetchSavedTitles();
+  }, [fetchSavedTitles]);
 
   const handleTypeChange = (type: string) => {
     setActiveType(type);
@@ -111,6 +131,43 @@ export default function LibraryPage() {
   const handlePageChange = (page: number) => {
     fetchLibrary(activeType, page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSave = async (e: React.MouseEvent, item: ContentItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (savedTitles.has(item.title) || savingIds.has(item._id)) return;
+
+    setSavingIds((prev) => new Set(prev).add(item._id));
+    try {
+      const res = await fetch("/api/recommendations/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: item.type,
+          title: item.title,
+          creator: item.creator,
+          year: item.year,
+          description: item.description_en || item.description_tr || "",
+          description_en: item.description_en,
+          description_tr: item.description_tr,
+          why: "",
+          tags: item.tags,
+          photo: item.photo,
+        }),
+      });
+      if (res.ok) {
+        setSavedTitles((prev) => new Set(prev).add(item.title));
+      }
+    } catch (err) {
+      console.error("Failed to save item:", err);
+    } finally {
+      setSavingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item._id);
+        return next;
+      });
+    }
   };
 
   const getDescription = (item: ContentItem) => {
@@ -228,6 +285,23 @@ export default function LibraryPage() {
                         "upper",
                       )}
                     </span>
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <button
+                      onClick={(e) => handleSave(e, item)}
+                      disabled={savingIds.has(item._id)}
+                      className={`p-3 rounded-2xl transition-all shadow-md ${
+                        savedTitles.has(item.title)
+                          ? "bg-theme-600 text-white shadow-theme-200"
+                          : "bg-white text-theme-400 hover:text-theme-600 hover:bg-theme-50 border border-theme-100"
+                      }`}
+                    >
+                      {savedTitles.has(item.title) ? (
+                        <BookmarkCheck className="w-5 h-5" />
+                      ) : (
+                        <Bookmark className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
