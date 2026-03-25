@@ -1,25 +1,24 @@
+/* eslint-disable @next/next/no-img-element */
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { Playfair_Display, Cormorant_Garamond, DM_Sans } from "next/font/google";
-import styles from "./odilon/odilon.module.css";
+import { Newsreader, Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 
-const playfair = Playfair_Display({
+const newsreader = Newsreader({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["400", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-playfair",
+  variable: "--font-newsreader",
 });
 
-const cormorant = Cormorant_Garamond({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plus-jakarta",
 });
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500", "700"],
   variable: "--font-dm-sans",
 });
 
@@ -34,310 +33,480 @@ export default async function Home() {
   if (session) redirect("/home");
 
   return (
-    <div
-      className={`${playfair.variable} ${cormorant.variable} ${dmSans.variable} ${styles.page}`}
-    >
-      {/* NAV */}
-      <nav className={styles.nav}>
-        <a href="#" className={styles.navLogo}>
-          <span className={styles.navLogoName}>odilon</span>
-          <span className={styles.navLogoTag}>Multi-Genre Turnstile Machine</span>
-        </a>
-        <div className={styles.navCenter}>
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 36 36"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+    <>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      />
+      <div
+        className={`${newsreader.variable} ${plusJakarta.variable} ${dmSans.variable} bg-surface text-on-surface font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed`}
+      >
+        {/* TopNavBar */}
+        <nav className="fixed top-0 w-full flex justify-between items-center px-8 py-6 max-w-none bg-[#fff8f2]/70 backdrop-blur-xl z-50">
+          <div
+            className="text-2xl italic text-[#490c0f]"
+            style={{ fontFamily: "var(--font-gloock), serif" }}
           >
-            <circle cx="18" cy="18" r="16.5" stroke="#7A3B2E" strokeWidth="1" />
-            <circle cx="18" cy="18" r="3.5" stroke="#7A3B2E" strokeWidth="0.75" fill="none" />
-            <polygon points="18,4 20,18 18,22 16,18" fill="#7A3B2E" opacity="0.85" />
-            <polygon points="18,32 16,18 18,14 20,18" fill="#7A3B2E" opacity="0.35" />
-            <polygon points="4,18 18,16 22,18 18,20" fill="#7A3B2E" opacity="0.35" />
-            <polygon points="32,18 18,20 14,18 18,16" fill="#7A3B2E" opacity="0.85" />
-          </svg>
-        </div>
-        <div className={styles.navActions}>
-          <a href="#how-it-works" className={styles.btnGhost}>
-            how it works
-          </a>
-          <a href="/login" className={styles.btnPrimary}>
-            try odilon
-          </a>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section className={styles.hero}>
-        <div className={styles.heroLeft}>
-          <span className={styles.heroEyebrow}>cross-format discovery</span>
-          <h1 className={styles.heroHeadline}>
-            Your favourite book
-            <br />
-            has a <em>twin</em>
-            <br />
-            in another world.
-          </h1>
-          <p className={styles.heroSub}>
-            odilon reads what you love — a book, a film, a painting — and finds its counterpart
-            across formats. What if Dorian Gray were a melody? What if your favourite series were a
-            podcast?
-          </p>
-          <div className={styles.heroCta}>
-            <a href="/login" className={styles.btnPrimaryLg}>
-              try odilon
+            odilon
+          </div>
+          <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
+            <img src="/pusula-logo.png" alt="Odilon compass" width={36} height={36} />
+          </div>
+          <div className="flex items-center gap-3 md:gap-8">
+            <a
+              className="hidden md:block text-[#544341] font-label text-sm tracking-wide hover:text-[#9e3e4e] transition-colors duration-300"
+              href="#"
+            >
+              How it works
             </a>
-            <a href="#how-it-works" className={styles.heroCataLink}>
-              see how it works
+            <a
+              className="bg-primary-container text-on-primary px-4 md:px-6 py-3 md:py-2 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-all active:scale-95"
+              href="/login"
+            >
+              Try odilon
+            </a>
+            <div className="hidden md:flex items-center gap-4">
+              <span className="material-symbols-outlined text-[#490c0f]">explore</span>
+              <span className="material-symbols-outlined text-[#490c0f]">compass_calibration</span>
+            </div>
+          </div>
+        </nav>
+
+        {/* ── Hero Section ─────────────────────────────────────────────── */}
+        <section className="relative min-h-screen bg-[#F5DAA7] overflow-hidden pt-24">
+          <div className="max-w-screen-2xl mx-auto px-8 pt-4 pb-32 relative">
+            <div className="grid grid-cols-12 gap-8 items-start">
+
+              {/* Left: H1 + subline + CTAs + decorative quote */}
+              <div className="col-span-12 lg:col-span-3 pt-12">
+                <div className="space-y-8">
+                  {/* Primary headline + subline */}
+                  <div className="space-y-4">
+                    <h1
+                      className="font-headline font-light text-[#842A3B] leading-tight"
+                      style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+                    >
+                      Your favourite book has a{" "}
+                      <em className="serif-italic">little sister</em>{" "}
+                      — in melodies.
+                    </h1>
+                    <p
+                      className="font-headline font-light text-secondary leading-relaxed"
+                      style={{ fontSize: "17px" }}
+                    >
+                      odilon reads what you love — a book, a film, a painting — and finds its
+                      counterpart across every format.
+                    </p>
+                  </div>
+                  {/* CTAs */}
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href="/login"
+                      className="inline-flex items-center justify-center bg-primary-container text-surface px-6 py-3 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-all active:scale-95 w-fit"
+                    >
+                      Step through
+                    </a>
+                    <a
+                      href="#how-it-works"
+                      className="text-secondary font-label text-sm hover:text-[#490c0f] transition-colors w-fit"
+                    >
+                      ↓ See how it works
+                    </a>
+                  </div>
+                  {/* Decorative quote — reduced weight */}
+                  <div className="relative opacity-40">
+                    <span
+                      className="material-symbols-outlined text-secondary text-5xl opacity-20 absolute -top-8 -left-4"
+                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
+                    >
+                      format_quote
+                    </span>
+                    <p className="text-2xl serif-italic text-[#842A3B] leading-relaxed relative z-10">
+                      &ldquo;I have placed there a little door opening on to the mysterious.&rdquo;
+                    </p>
+                    <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#544341]">
+                      — Odilon Redon, To Myself: Notes on Life, Art and Artists
+                    </p>
+                  </div>
+                  <div className="bg-surface-container p-6 rounded-lg asymmetric-float shadow-sm border border-outline-variant/10 max-w-[240px]">
+                    <p className="text-xs text-on-surface-variant leading-relaxed">
+                      Tell odilon what you love. It finds where that feeling lives in another format.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle: Wordmark + Portrait */}
+              <div className="col-span-12 lg:col-span-6 flex flex-col items-center">
+                <div className="mb-4">
+                  <img src="/pusula-logo.png" alt="Odilon compass" width={60} height={60} />
+                </div>
+                <h1 className="hidden sm:block text-[5rem] sm:text-[7rem] lg:text-[10rem] xl:text-[14rem] leading-none gloock-wordmark text-[#842A3B] tracking-tighter select-none">
+                  odilon
+                </h1>
+                <div className="relative mt-[-3rem] z-20 group">
+                  <div className="absolute -inset-4 bg-surface-container-high rounded-lg rotate-3 transition-transform group-hover:rotate-1 duration-500" />
+                  <div className="relative overflow-hidden rounded-lg shadow-2xl w-full lg:max-w-md aspect-[4/5] max-h-[50vh] lg:max-h-none">
+                    <img
+                      alt="Odilon Redon — closed eyes"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                      src="/redon-closed-eyes.jpg"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Art of Discovery */}
+              <div className="hidden lg:flex col-span-12 lg:col-span-3 pt-32 lg:text-right flex-col items-end gap-16">
+                <div className="space-y-6 max-w-xs">
+                  <h2 className="text-4xl font-headline italic text-[#842A3B]">
+                    The Art of Discovery
+                  </h2>
+                  <p className="text-on-surface-variant leading-loose">
+                    odilon reads what you love across any format — and finds where that same feeling
+                    lives somewhere else entirely.
+                  </p>
+                </div>
+                <div className="relative w-full h-32 hidden lg:block">
+                  <div className="absolute right-0 top-0 w-48 h-48 hand-drawn-connector opacity-30" />
+                  <span className="material-symbols-outlined absolute -bottom-4 right-44 text-secondary/40">
+                    auto_awesome
+                  </span>
+                </div>
+                <div className="space-y-4 w-full">
+                  <button className="flex items-center gap-4 text-[#842A3B] group ml-auto">
+                    <span className="font-semibold uppercase tracking-widest text-sm">
+                      See How It Works
+                    </span>
+                    <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">
+                      arrow_forward
+                    </span>
+                  </button>
+                  <div className="h-[1px] w-full bg-[#842A3B]/20" />
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+        {/* Shared SVG marker — arrowhead for all whimsical arrows */}
+        <svg className="absolute w-0 h-0 overflow-hidden" aria-hidden="true">
+          <defs>
+            <marker id="whimsical-ah" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+              <path d="M 0 0 L 6 3 L 0 6" stroke="#9e3e4e" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </marker>
+          </defs>
+        </svg>
+
+        {/* Brand story — Odilon Redon */}
+        <section className="bg-[#F5DAA7] w-full py-20 px-6">
+          <div className="max-w-[680px] mx-auto flex flex-col items-center text-center">
+
+            {/* Portrait */}
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src="/redon-portrait.jpg"
+                alt="Odilon Redon"
+                className="w-20 h-20 rounded-full object-cover"
+              />
+              <p
+                className="font-label text-secondary"
+                style={{ fontSize: "12px", letterSpacing: "0.08em" }}
+              >
+                Odilon Redon · 1840–1916
+              </p>
+            </div>
+
+            {/* Blockquote */}
+            <div className="mt-8 flex flex-col items-center gap-5">
+              <div className="w-8 h-[1px] bg-primary/30" />
+              <blockquote
+                className="font-headline font-light text-primary leading-[1.5] italic"
+                style={{ fontSize: "clamp(22px, 3vw, 26px)" }}
+              >
+                My drawings inspire, and are not to be defined. They place us,
+                as does music, in the ambiguous realm of the undetermined.
+              </blockquote>
+            </div>
+
+            {/* Explanation */}
+            <p
+              className="mt-4 font-headline font-light text-secondary leading-[1.7]"
+              style={{ fontSize: "16px" }}
+            >
+              odilon is named after him. Like his art, it refuses to be confined
+              to a single genre — it moves between worlds, the way music moves
+              between feelings.
+            </p>
+
+          </div>
+        </section>
+
+        <main id="how-it-works" className="pt-20 pb-20 px-6 md:px-12 max-w-[1400px] mx-auto">
+          {/* Hero Section / Grid Wrapper */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 items-start">
+
+            {/* Column 1: Books to Music */}
+            <div className="space-y-12">
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Book → Music</p>
+
+              {/* Book Card */}
+              <div className="bg-surface-container p-6 rounded-xl relative group hover:rotate-1 transition-transform duration-500">
+                <div className="aspect-[3/4] overflow-hidden rounded-lg mb-4">
+                  <img
+                    alt="The Picture of Dorian Gray"
+                    className="w-full h-full object-cover"
+                    src="/dorian-gray.jpg"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">BOOK</p>
+                  <p className="font-headline italic text-[15px] text-primary">The Picture of Dorian Gray</p>
+                  <p className="font-label text-[12px] text-secondary">Oscar Wilde</p>
+                </div>
+              </div>
+
+              {/* Bridge: arrow + label */}
+              <div className="flex flex-col items-center gap-2 pointer-events-none">
+                <div className="relative h-16 w-full">
+                  <svg className="absolute w-24 h-24 left-1/2 -translate-x-1/2 -top-4">
+                    <path className="whimsical-arrow" d="M 48 0 Q 60 40 48 80" markerEnd="url(#whimsical-ah)" />
+                  </svg>
+                </div>
+                <span className="bridge-pill">mood &amp; tone</span>
+              </div>
+
+              {/* Music Player Card */}
+              <div className="bg-surface-container-high p-6 rounded-xl backdrop-blur-sm border border-outline-variant/15">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-secondary/20">
+                    <img
+                      alt="Agnes Obel"
+                      className="w-full h-full object-cover"
+                      src="/agnes-obel-aventine.jpg"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">MUSIC</p>
+                    <p className="font-headline italic text-[15px] text-primary">The Curse</p>
+                    <p className="font-label text-[12px] text-secondary">Agnes Obel</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button className="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center hover:scale-110 transition-transform">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      play_arrow
+                    </span>
+                  </button>
+                  <div className="flex-1 h-1 bg-outline-variant/30 rounded-full overflow-hidden">
+                    <div className="w-1/3 h-full bg-secondary" />
+                  </div>
+                  <span className="text-[10px] font-label text-on-surface-variant">0:42 / 5:53</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2: Paintings to Games */}
+            <div className="space-y-12 md:mt-24">
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Painting → Game</p>
+
+              {/* Game Card */}
+              <div className="bg-surface-container-low p-4 rounded-xl shadow-sm border border-outline-variant/10 -rotate-2 hover:rotate-0 transition-all duration-500">
+                <div className="aspect-video overflow-hidden rounded-lg mb-4">
+                  <img
+                    alt="Sacramento, Video Game"
+                    className="w-full h-full object-cover"
+                    src="/sacramento-game.gif"
+                  />
+                </div>
+                <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">GAME</p>
+                <p className="font-headline italic text-[15px] text-primary">Sacramento, Video Game</p>
+              </div>
+
+              {/* Bridge: arrow + label */}
+              <div className="flex flex-col items-center gap-2 pointer-events-none">
+                <div className="relative h-16 w-full">
+                  <svg className="absolute w-24 h-24 left-1/2 -translate-x-1/2 -top-4">
+                    <path className="whimsical-arrow" d="M 48 0 C 10 30 80 50 48 80" markerEnd="url(#whimsical-ah)" />
+                  </svg>
+                </div>
+                <span className="bridge-pill">visual style</span>
+              </div>
+
+              {/* Art Card (Odilon Redon) */}
+              <div className="bg-surface-container p-6 rounded-xl hover:shadow-xl transition-shadow duration-700">
+                <div className="aspect-square overflow-hidden rounded-lg mb-4 grayscale hover:grayscale-0 transition-all duration-1000">
+                  <img
+                    alt="Odilon inspired artwork"
+                    className="w-full h-full object-cover"
+                    src="/redon-painting.jpg"
+                  />
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">PAINTING</p>
+                  <p className="font-headline italic text-[15px] text-primary">The archival reference</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 3: Movie to Anime */}
+            <div className="space-y-12 md:mt-24">
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Movie → Anime</p>
+
+              {/* Live Action Card */}
+              <div className="bg-surface-container-highest rounded-xl shadow-sm rotate-1 hover:rotate-0 transition-all duration-500 p-4">
+                <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
+                  <img
+                    alt="Ghost in the Shell — Live Action"
+                    className="w-full h-full object-cover"
+                    src="/ghost-in-the-shell.webp"
+                  />
+                </div>
+                <div>
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">MOVIE</p>
+                  <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
+                </div>
+              </div>
+
+              {/* Bridge: arrow + label */}
+              <div className="flex flex-col items-center gap-2 pointer-events-none">
+                <div className="relative h-16 w-full">
+                  <svg className="absolute w-24 h-24 left-1/2 -translate-x-1/2 -top-4">
+                    <path className="whimsical-arrow" d="M 48 0 Q 36 40 48 80" markerEnd="url(#whimsical-ah)" />
+                  </svg>
+                </div>
+                <span className="bridge-pill">theme &amp; universe</span>
+              </div>
+
+              {/* 1995 Anime Card */}
+              <div className="bg-surface-container p-6 rounded-xl hover:shadow-xl transition-shadow duration-700">
+                <div className="aspect-[3/4] overflow-hidden rounded-lg mb-4">
+                  <img
+                    alt="Ghost in the Shell 1995"
+                    className="w-full h-full object-cover"
+                    src="/ghost-in-the-shell-1995.webp"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">ANIME</p>
+                    <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
+                  </div>
+                  <p className="text-sm text-on-surface-variant leading-relaxed">
+                    The architectural soul of the 1995 masterpiece finds its genetic echo in the
+                    brutalist streets of modern noir cinema.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </main>
+
+        {/* Format Grid */}
+        <section className="w-full bg-surface py-16 md:py-20 px-6">
+          <p
+            className="text-center font-label uppercase text-secondary opacity-50 mb-6"
+            style={{ fontSize: "11px", letterSpacing: "0.2em" }}
+          >
+            ELEVEN FORMATS · EVERY COMBINATION POSSIBLE
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {["Book", "Movie", "Tv Show", "Podcast", "Music", "Game", "Creator", "Article", "Youtube", "Painting", "Other"].map((f) => (
+              <span
+                key={f}
+                className="text-secondary text-[13px] rounded-[99px] px-4 py-[6px] border-[0.5px] border-primary-container/20 bg-transparent"
+              >
+                {f}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* Dark closing section */}
+        <section className="relative w-full min-h-[60vh] bg-[#3D1A0E] flex items-center justify-center overflow-hidden">
+          {/* Watermark wordmark */}
+          <span
+            className="absolute inset-0 flex items-center justify-center gloock-wordmark pointer-events-none select-none"
+            aria-hidden="true"
+            style={{ fontSize: "clamp(120px, 15vw, 200px)", color: "#5A2E1A" }}
+          >
+            odilon
+          </span>
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col items-center text-center px-6 py-20 gap-6 max-w-[700px]">
+            <p
+              className="font-label uppercase text-surface opacity-50"
+              style={{ fontSize: "11px", letterSpacing: "0.2em" }}
+            >
+              Ready when you are
+            </p>
+            <h2
+              className="font-headline font-light text-surface leading-[1.2] italic"
+              style={{ fontSize: "clamp(48px, 6vw, 72px)" }}
+            >
+              What does your favourite book sound like?
+            </h2>
+            <a
+              href="/login"
+              className="dark-cta-pill font-label text-surface rounded-full px-9 cursor-pointer"
+              style={{ fontSize: "15px", padding: "14px 36px" }}
+            >
+              Enter odilon
             </a>
           </div>
-        </div>
-        <div className={styles.heroRight}>
-          <div className={styles.heroPaintingWrap}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/redon-closed-eyes.jpg"
-              alt="Odilon Redon painting"
-              className={styles.heroPaintingImg}
-            />
-          </div>
-          <div className={styles.heroBigType}>odilon</div>
-        </div>
-      </section>
+        </section>
 
-      <div className={styles.sectionDivider} />
-
-      {/* HOW IT WORKS */}
-      <section className={styles.howSection} id="how-it-works">
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionLabel}>how it works</span>
-          <h2 className={styles.sectionTitle}>
-            Tell odilon what you love. It finds where that feeling lives in another format.
-          </h2>
-        </div>
-        <div className={styles.exampleGrid}>
-
-          {/* Card 1 */}
-          <div className={styles.exampleCard}>
-            <p className={styles.exampleHook}>
-              Your favourite book may have a little sister — but in melodies.
-            </p>
-            <div className={styles.exampleFlow}>
-              <div className={styles.exampleSource}>
-                <svg
-                  viewBox="0 0 52 68"
-                  style={{ width: "52px", height: "68px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="52" height="68" fill="#3A2A1A" />
-                  <rect x="4" y="4" width="44" height="60" fill="#2C1E12" />
-                  <text x="26" y="22" textAnchor="middle" fontFamily="serif" fontSize="7" fill="#C4956A" fontStyle="italic">THE PICTURE OF</text>
-                  <text x="26" y="34" textAnchor="middle" fontFamily="serif" fontSize="9" fill="#E8CFA0" fontWeight="bold">DORIAN</text>
-                  <text x="26" y="45" textAnchor="middle" fontFamily="serif" fontSize="9" fill="#E8CFA0" fontWeight="bold">GRAY</text>
-                  <text x="26" y="58" textAnchor="middle" fontFamily="serif" fontSize="6" fill="#A07850">Oscar Wilde</text>
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>book</span>
-                  <span className={styles.exampleItemTitle}>The Picture of Dorian Gray</span>
-                  <span className={styles.exampleArtist}>Oscar Wilde</span>
-                </div>
-              </div>
-              <div className={styles.exampleArrow}>
-                <div className={styles.arrowLine} />
-                <span className={styles.arrowReason}>mood &amp; tone</span>
-                <div className={styles.arrowLine} />
-              </div>
-              <div className={styles.exampleResult}>
-                <svg
-                  viewBox="0 0 52 52"
-                  style={{ width: "52px", height: "52px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="52" height="52" fill="#1A1A2E" />
-                  <circle cx="26" cy="26" r="18" fill="#16213E" stroke="#534AB7" strokeWidth="0.5" />
-                  <circle cx="26" cy="26" r="4" fill="#534AB7" opacity="0.7" />
-                  <circle cx="26" cy="26" r="1.5" fill="#E8CFA0" />
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>music</span>
-                  <span className={styles.exampleItemTitle}>The Curse</span>
-                  <span className={styles.exampleArtist}>Agnes Obel</span>
-                </div>
-              </div>
+        {/* Footer */}
+        <footer className="bg-[#fff2de] border-t border-[#dac1bf]/15 py-12 px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 w-full max-w-[1400px] mx-auto">
+            <div
+              className="text-lg text-[#490c0f]"
+              style={{ fontFamily: "var(--font-gloock), serif" }}
+            >
+              odilon
             </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className={styles.exampleCard}>
-            <p className={styles.exampleHook}>
-              What if your favourite painting had a world you could play?
-            </p>
-            <div className={styles.exampleFlow}>
-              <div className={styles.exampleSource}>
-                <svg
-                  viewBox="0 0 60 60"
-                  style={{ width: "60px", height: "60px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="60" height="60" fill="#2A1A3E" />
-                  <ellipse cx="30" cy="25" rx="14" ry="16" fill="#5A3A7A" opacity="0.6" />
-                  <ellipse cx="22" cy="38" rx="10" ry="7" fill="#8A5AB0" opacity="0.4" />
-                  <circle cx="30" cy="22" r="8" fill="#C090E0" opacity="0.35" />
-                  <path d="M10 50 Q30 35 50 50" fill="#3A2050" opacity="0.5" />
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>painting</span>
-                  <span className={styles.exampleItemTitle}>Symbolist figure, halo</span>
-                  <span className={styles.exampleArtist}>Odilon Redon, c. 1890s</span>
-                </div>
-              </div>
-              <div className={styles.exampleArrow}>
-                <div className={styles.arrowLine} />
-                <span className={styles.arrowReason}>visual style</span>
-                <div className={styles.arrowLine} />
-              </div>
-              <div className={styles.exampleResult}>
-                <svg
-                  viewBox="0 0 60 60"
-                  style={{ width: "60px", height: "60px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="60" height="60" fill="#1A2A3A" />
-                  <rect x="5" y="5" width="50" height="50" fill="#243040" rx="2" />
-                  <text x="30" y="28" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#8ABCD0" fontWeight="bold">SACRAMENTO</text>
-                  <text x="30" y="40" textAnchor="middle" fontFamily="sans-serif" fontSize="6" fill="#5A8AA0">Video Game</text>
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>game</span>
-                  <span className={styles.exampleItemTitle}>Sacramento</span>
-                  <span className={styles.exampleArtist}>surreal, nostalgic</span>
-                </div>
-              </div>
+            <div className="flex gap-8">
+              <a
+                className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
+                href="#"
+              >
+                Saved
+              </a>
+              <a
+                className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
+                href="#"
+              >
+                Privacy
+              </a>
+              <a
+                className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
+                href="#"
+              >
+                Contact
+              </a>
             </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className={styles.exampleCard}>
-            <p className={styles.exampleHook}>
-              What if your favourite film expanded into a whole universe?
+            <p className="text-sm font-label text-[#544341] tracking-tight">
+              © 2026 odilon. Multi-Genre Turnstile Machine.
             </p>
-            <div className={styles.exampleFlow}>
-              <div className={styles.exampleSource}>
-                <svg
-                  viewBox="0 0 52 68"
-                  style={{ width: "52px", height: "68px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="52" height="68" fill="#0A1520" />
-                  <rect x="2" y="2" width="48" height="64" fill="#0F1E30" />
-                  <text x="26" y="24" textAnchor="middle" fontFamily="sans-serif" fontSize="6" fill="#4A90C8" fontWeight="bold">GHOST</text>
-                  <text x="26" y="34" textAnchor="middle" fontFamily="sans-serif" fontSize="5" fill="#C0D8E8">IN THE SHELL</text>
-                  <text x="26" y="52" textAnchor="middle" fontFamily="sans-serif" fontSize="5" fill="#3A6090">1995 · film</text>
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>film</span>
-                  <span className={styles.exampleItemTitle}>Ghost in the Shell</span>
-                  <span className={styles.exampleArtist}>Mamoru Oshii, 1995</span>
-                </div>
-              </div>
-              <div className={styles.exampleArrow}>
-                <div className={styles.arrowLine} />
-                <span className={styles.arrowReason}>theme &amp; universe</span>
-                <div className={styles.arrowLine} />
-              </div>
-              <div className={styles.exampleResult}>
-                <svg
-                  viewBox="0 0 60 60"
-                  style={{ width: "60px", height: "60px", flexShrink: 0, borderRadius: "1px", border: "0.5px solid rgba(122,59,46,0.18)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect width="60" height="60" fill="#0A0F1A" />
-                  <circle cx="30" cy="25" r="14" fill="#1A2535" stroke="#2A4060" strokeWidth="0.5" />
-                  <text x="30" y="23" textAnchor="middle" fontFamily="sans-serif" fontSize="5" fill="#5A8AA0">STAND ALONE</text>
-                  <text x="30" y="31" textAnchor="middle" fontFamily="sans-serif" fontSize="5" fill="#5A8AA0">COMPLEX</text>
-                  <text x="30" y="52" textAnchor="middle" fontFamily="sans-serif" fontSize="5" fill="#3A5A70">series · 2002</text>
-                </svg>
-                <div className={styles.exampleMeta}>
-                  <span className={styles.exampleFormatTag}>series</span>
-                  <span className={styles.exampleItemTitle}>Ghost in the Shell: SAC</span>
-                  <span className={styles.exampleArtist}>deeper cyberpunk universe</span>
-                </div>
-              </div>
-            </div>
           </div>
+        </footer>
 
+        {/* Floating Action — Mobile only */}
+        <div className="fixed bottom-8 right-8 md:hidden">
+          <button className="w-14 h-14 rounded-full bg-primary shadow-xl text-on-primary flex items-center justify-center">
+            <span className="material-symbols-outlined">auto_awesome</span>
+          </button>
         </div>
-      </section>
-
-      <div className={styles.sectionDivider} />
-
-      {/* FORMATS */}
-      <section className={styles.formatsSection}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionLabel}>formats</span>
-          <h2 className={styles.sectionTitle}>Eleven worlds. Every combination possible.</h2>
-        </div>
-        <div className={styles.formatsGrid}>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>📚</span><span className={styles.formatName}>Books</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>🎬</span><span className={styles.formatName}>Film</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>📺</span><span className={styles.formatName}>Series</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>🎙</span><span className={styles.formatName}>Podcast</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>🎵</span><span className={styles.formatName}>Music</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>🎮</span><span className={styles.formatName}>Games</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>✦</span><span className={styles.formatName}>Creative</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>📰</span><span className={styles.formatName}>Articles</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>▶</span><span className={styles.formatName}>Youtube</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>🎨</span><span className={styles.formatName}>Painting</span></div>
-          <div className={styles.formatPill}><span className={styles.formatIcon}>✦</span><span className={styles.formatName}>Other</span></div>
-        </div>
-      </section>
-
-      <div className={styles.sectionDivider} />
-
-      {/* QUOTE */}
-      <section className={styles.quoteSection}>
-        <div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/redon-portrait.jpg"
-            alt="Portrait of Odilon Redon"
-            className={styles.redonPortraitImg}
-          />
-          <p className={styles.redonCaption}>Odilon Redon · 1840–1916 · Symbolist painter</p>
-        </div>
-        <div>
-          <blockquote className={styles.quoteText}>
-            My drawings inspire, and are not to be defined. They place us, as does music, in the
-            ambiguous realm of the undetermined.
-          </blockquote>
-          <p className={styles.quoteAttribution}>
-            <strong>Odilon Redon</strong> — To Myself: Notes on Life, Art and Artists
-          </p>
-          <div className={styles.quoteConnection}>
-            odilon is named after him. Like his art, it refuses to be confined to a single genre —
-            it moves between worlds, the way music moves between feelings.
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className={styles.ctaSection} id="try">
-        <p className={styles.ctaEyebrow}>ready when you are</p>
-        <h2 className={styles.ctaHeadline}>
-          What does your <em>favourite book</em> sound like?
-        </h2>
-        <a href="/login" className={styles.btnPrimaryInv}>
-          try odilon — it&apos;s free
-        </a>
-      </section>
-
-      {/* FOOTER */}
-      <footer className={styles.footer}>
-        <span className={styles.footerLogo}>odilon</span>
-        <span className={styles.footerCopy}>Multi-Genre Turnstile Machine · 2026</span>
-      </footer>
-    </div>
+      </div>
+    </>
   );
 }
