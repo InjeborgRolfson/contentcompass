@@ -2,6 +2,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Newsreader, Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -279,36 +280,7 @@ export default async function Home() {
               </div>
 
               {/* Music Player Card */}
-              <div className="bg-surface-container-high p-6 rounded-xl backdrop-blur-sm border border-outline-variant/15">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-secondary/20">
-                    <img
-                      alt="Agnes Obel"
-                      className="w-full h-full object-cover"
-                      src="/agnes-obel-aventine.jpg"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">MUSIC</p>
-                    <p className="font-headline italic text-[15px] text-primary">The Curse</p>
-                    <p className="font-label text-[12px] text-secondary">Agnes Obel</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button className="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center hover:scale-110 transition-transform">
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      play_arrow
-                    </span>
-                  </button>
-                  <div className="flex-1 h-1 bg-outline-variant/30 rounded-full overflow-hidden">
-                    <div className="w-1/3 h-full bg-secondary" />
-                  </div>
-                  <span className="text-[10px] font-label text-on-surface-variant">0:42 / 5:53</span>
-                </div>
-              </div>
+              <MusicPlayer />
             </div>
 
             {/* Column 2: Paintings to Games */}
