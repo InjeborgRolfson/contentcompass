@@ -1,6 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Newsreader, Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 import MusicPlayer from "@/components/MusicPlayer";
 
@@ -23,15 +26,135 @@ const dmSans = DM_Sans({
   variable: "--font-dm-sans",
 });
 
-export const metadata = {
-  title: "odilon — Multi-Genre Turnstile Machine",
-  description:
-    "odilon reads what you love and finds its counterpart across formats. Books, films, music, games, podcasts and more.",
-};
+type Lang = "EN" | "TR";
 
-export default async function Home() {
-  const session = await auth();
-  if (session) redirect("/home");
+const translations = {
+  EN: {
+    nav_how: "How it works",
+    nav_try: "Try odilon",
+    hero_h1_prefix: "Your favourite book has a\u00a0",
+    hero_h1_em: "little sister",
+    hero_h1_suffix: "\u00a0— in melodies.",
+    hero_sub:
+      "odilon reads what you love — a book, a film, a painting — and finds its counterpart across every format.",
+    hero_cta: "Step through",
+    hero_scroll: "↓ See how it works",
+    art_of_discovery: "The Art of Discovery",
+    art_body:
+      "odilon reads what you love across any format — and finds where that same feeling lives somewhere else entirely.",
+    see_how: "SEE HOW IT WORKS",
+    card_mini:
+      "Tell odilon what you love. It finds where that feeling lives in another format.",
+    col1_label: "BOOK → MUSIC",
+    col2_label: "PAINTING → GAME",
+    col3_label: "MOVIE → ANIME",
+    bridge1: "mood\u00a0&\u00a0tone",
+    bridge2: "visual style",
+    bridge3: "theme\u00a0&\u00a0universe",
+    format_header: "ELEVEN FORMATS · EVERY COMBINATION POSSIBLE",
+    formats: [
+      "Book",
+      "Movie",
+      "Tv Show",
+      "Podcast",
+      "Music",
+      "Game",
+      "Creator",
+      "Article",
+      "Youtube",
+      "Painting",
+      "Other",
+    ],
+    label_book: "BOOK",
+    label_music: "MUSIC",
+    label_game: "GAME",
+    label_painting: "PAINTING",
+    label_movie: "MOVIE",
+    label_anime: "ANIME",
+    ready: "READY WHEN YOU ARE",
+    closing_h2: "What does your favourite book sound like?",
+    enter: "Enter odilon",
+    footer_saved: "Saved",
+    footer_privacy: "Privacy",
+    footer_contact: "Contact",
+    footer_copy: "© 2026 odilon. Multi-Genre Turnstile Machine.",
+    redon_explain:
+      "odilon is named after him. Like his art, it refuses to be confined to a single genre — it moves between worlds, the way music moves between feelings.",
+    anime_desc:
+      "The architectural soul of the 1995 masterpiece finds its genetic echo in the brutalist streets of modern noir cinema.",
+    painting_ref: "The archival reference",
+  },
+  TR: {
+    nav_how: "Nasıl çalışır",
+    nav_try: "Odilon'u dene",
+    hero_h1_prefix: "En sevdiğin kitabın melodilerde gizli bir\u00a0",
+    hero_h1_em: "kız kardeşi",
+    hero_h1_suffix: "\u00a0var.",
+    hero_sub:
+      "odilon odilon sevdiklerini tanır — kitap, film, tablo — ve her formatta karşılığını bulur.",
+    hero_cta: "Keşfe Çık",
+    hero_scroll: "↓ Nasıl çalışır",
+    art_of_discovery: "Keşif Sanatı",
+    art_body:
+      "odilon sevdiklerini tanır — ve o hissin başka bir yerde nasıl yaşadığını bulur.",
+    see_how: "NASIL ÇALIŞIR",
+    card_mini:
+      "odilon'a sevdiklerini söyle. O hissin başka bir formatta nerede yaşadığını bulur.",
+    col1_label: "KİTAP → MÜZİK",
+    col2_label: "RESİM → OYUN",
+    col3_label: "FİLM → ANİME",
+    bridge1: "duygu\u00a0&\u00a0ton",
+    bridge2: "görsel stil",
+    bridge3: "tema\u00a0&\u00a0evren",
+    format_header: "ON BİR FORMAT · HER KOMBİNASYON MÜMKÜN",
+    formats: [
+      "Kitap",
+      "Film",
+      "Dizi",
+      "Podcast",
+      "Müzik",
+      "Oyun",
+      "İçerik Üreticisi",
+      "Makale",
+      "Youtube",
+      "Resim",
+      "Diğer",
+    ],
+    label_book: "KİTAP",
+    label_music: "MÜZİK",
+    label_game: "OYUN",
+    label_painting: "RESİM",
+    label_movie: "FİLM",
+    label_anime: "ANİME",
+    ready: "SEN HAZIR OLDUĞUNDA",
+    closing_h2: "En sevdiğin kitabın bir tınısı olsaydı?",
+    enter: "odilon'a adım at",
+    footer_saved: "Kaydedilenler",
+    footer_privacy: "Gizlilik",
+    footer_contact: "İletişim",
+    footer_copy: "© 2026 odilon. Çok Formatlı Keşif Motoru.",
+    redon_explain:
+      "odilon onun adını taşır. Sanatı gibi, tek bir türe sığmayı reddeder — müziğin duygular arasında gezindiği gibi, o da dünyalar arasında gezinir.",
+    anime_desc:
+      "1995 başyapıtının mimari ruhu, modern noir sinemanın brütalist sokaklarında genetik bir yankı bulur.",
+    painting_ref: "Arşiv referansı",
+  },
+} as const;
+
+export default function Home() {
+  const { status } = useSession();
+  const router = useRouter();
+  const [lang, setLang] = useState<Lang>("EN");
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/home");
+    }
+  }, [status, router]);
+
+  if (status === "loading") return null;
+
+  const t = translations[lang];
 
   return (
     <>
@@ -53,18 +176,68 @@ export default async function Home() {
           <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
             <img src="/pusula-logo.png" alt="Odilon compass" width={36} height={36} />
           </div>
-          <div className="flex items-center gap-3 md:gap-8">
+          <div className="flex items-center gap-3 md:gap-6">
             <a
               className="hidden md:block text-[#544341] font-label text-sm tracking-wide hover:text-[#9e3e4e] transition-colors duration-300"
-              href="#"
+              href="#how-it-works"
             >
-              How it works
+              {t.nav_how}
             </a>
+
+            {/* Language toggle */}
+            <div
+              className="hidden md:flex items-center gap-[6px]"
+              style={{ fontFamily: "var(--font-plus-jakarta), sans-serif", fontSize: "13px" }}
+            >
+              <button
+                onClick={() => setLang("EN")}
+                className="transition-opacity cursor-pointer"
+                style={{
+                  color: "#490c0f",
+                  opacity: lang === "EN" ? 1 : 0.4,
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontFamily: "inherit",
+                  fontSize: "inherit",
+                  fontWeight: lang === "EN" ? 600 : 400,
+                }}
+              >
+                EN
+              </button>
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "1px",
+                  height: "12px",
+                  background: "#544341",
+                  opacity: 0.25,
+                  verticalAlign: "middle",
+                }}
+              />
+              <button
+                onClick={() => setLang("TR")}
+                className="transition-opacity cursor-pointer"
+                style={{
+                  color: "#490c0f",
+                  opacity: lang === "TR" ? 1 : 0.4,
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontFamily: "inherit",
+                  fontSize: "inherit",
+                  fontWeight: lang === "TR" ? 600 : 400,
+                }}
+              >
+                TR
+              </button>
+            </div>
+
             <a
               className="bg-primary-container text-on-primary px-4 md:px-6 py-3 md:py-2 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-all active:scale-95"
               href="/login"
             >
-              Try odilon
+              {t.nav_try}
             </a>
             <div className="hidden md:flex items-center gap-4">
               <span className="material-symbols-outlined text-[#490c0f]">explore</span>
@@ -81,23 +254,16 @@ export default async function Home() {
               {/* Left: H1 + subline + CTAs + decorative quote */}
               <div className="col-span-12 lg:col-span-3 pt-12">
                 <div className="space-y-8">
-                  {/* Primary headline + subline */}
-                  <div className="space-y-4">
+                  {/* Primary headline */}
+                  <div>
                     <h1
                       className="font-headline font-light text-[#842A3B] leading-tight"
                       style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
                     >
-                      Your favourite book has a{" "}
-                      <em className="serif-italic">little sister</em>{" "}
-                      — in melodies.
+                      {t.hero_h1_prefix}
+                      <em className="serif-italic">{t.hero_h1_em}</em>
+                      {t.hero_h1_suffix}
                     </h1>
-                    <p
-                      className="font-headline font-light text-secondary leading-relaxed"
-                      style={{ fontSize: "17px" }}
-                    >
-                      odilon reads what you love — a book, a film, a painting — and finds its
-                      counterpart across every format.
-                    </p>
                   </div>
                   {/* CTAs */}
                   <div className="flex flex-col gap-3">
@@ -105,34 +271,14 @@ export default async function Home() {
                       href="/login"
                       className="inline-flex items-center justify-center bg-primary-container text-surface px-6 py-3 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-all active:scale-95 w-fit"
                     >
-                      Step through
+                      {t.hero_cta}
                     </a>
                     <a
                       href="#how-it-works"
                       className="text-secondary font-label text-sm hover:text-[#490c0f] transition-colors w-fit"
                     >
-                      ↓ See how it works
+                      {t.hero_scroll}
                     </a>
-                  </div>
-                  {/* Decorative quote — reduced weight */}
-                  <div className="relative opacity-40">
-                    <span
-                      className="material-symbols-outlined text-secondary text-5xl opacity-20 absolute -top-8 -left-4"
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
-                    >
-                      format_quote
-                    </span>
-                    <p className="text-2xl serif-italic text-[#842A3B] leading-relaxed relative z-10">
-                      &ldquo;I have placed there a little door opening on to the mysterious.&rdquo;
-                    </p>
-                    <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#544341]">
-                      — Odilon Redon, To Myself: Notes on Life, Art and Artists
-                    </p>
-                  </div>
-                  <div className="bg-surface-container p-6 rounded-lg asymmetric-float shadow-sm border border-outline-variant/10 max-w-[240px]">
-                    <p className="text-xs text-on-surface-variant leading-relaxed">
-                      Tell odilon what you love. It finds where that feeling lives in another format.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -161,35 +307,31 @@ export default async function Home() {
               <div className="hidden lg:flex col-span-12 lg:col-span-3 pt-32 lg:text-right flex-col items-end gap-16">
                 <div className="space-y-6 max-w-xs">
                   <h2 className="text-4xl font-headline italic text-[#842A3B]">
-                    The Art of Discovery
+                    {t.art_of_discovery}
                   </h2>
                   <p className="text-on-surface-variant leading-loose">
-                    odilon reads what you love across any format — and finds where that same feeling
-                    lives somewhere else entirely.
+                    {t.hero_sub}
                   </p>
                 </div>
-                <div className="relative w-full h-32 hidden lg:block">
-                  <div className="absolute right-0 top-0 w-48 h-48 hand-drawn-connector opacity-30" />
-                  <span className="material-symbols-outlined absolute -bottom-4 right-44 text-secondary/40">
-                    auto_awesome
+                {/* Decorative quote — stays in original language */}
+                <div className="relative opacity-40 text-center w-full max-w-xs mx-auto mt-12">
+                  <span
+                    className="material-symbols-outlined text-secondary text-5xl opacity-20 absolute -top-8 left-1/2 -translate-x-1/2"
+                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
+                  >
+                    format_quote
                   </span>
-                </div>
-                <div className="space-y-4 w-full">
-                  <button className="flex items-center gap-4 text-[#842A3B] group ml-auto">
-                    <span className="font-semibold uppercase tracking-widest text-sm">
-                      See How It Works
-                    </span>
-                    <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">
-                      arrow_forward
-                    </span>
-                  </button>
-                  <div className="h-[1px] w-full bg-[#842A3B]/20" />
+                  <p className="text-xl serif-italic text-[#842A3B] leading-relaxed relative z-10">
+                    &ldquo;I have placed there a little door opening on to the mysterious.&rdquo;
+                  </p>
+                  <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#544341]">
+                    — Odilon Redon, To Myself: Notes on Life, Art and Artists
+                  </p>
                 </div>
               </div>
 
             </div>
           </div>
-
         </section>
 
         {/* Shared SVG marker — arrowhead for all whimsical arrows */}
@@ -220,7 +362,7 @@ export default async function Home() {
               </p>
             </div>
 
-            {/* Blockquote */}
+            {/* Blockquote — stays in original language per instructions */}
             <div className="mt-8 flex flex-col items-center gap-5">
               <div className="w-8 h-[1px] bg-primary/30" />
               <blockquote
@@ -237,9 +379,7 @@ export default async function Home() {
               className="mt-4 font-headline font-light text-secondary leading-[1.7]"
               style={{ fontSize: "16px" }}
             >
-              odilon is named after him. Like his art, it refuses to be confined
-              to a single genre — it moves between worlds, the way music moves
-              between feelings.
+              {t.redon_explain}
             </p>
 
           </div>
@@ -251,7 +391,7 @@ export default async function Home() {
 
             {/* Column 1: Books to Music */}
             <div className="space-y-12">
-              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Book → Music</p>
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">{t.col1_label}</p>
 
               {/* Book Card */}
               <div className="bg-surface-container p-6 rounded-xl relative group hover:rotate-1 transition-transform duration-500">
@@ -263,7 +403,7 @@ export default async function Home() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">BOOK</p>
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">{t.label_book}</p>
                   <p className="font-headline italic text-[15px] text-primary">The Picture of Dorian Gray</p>
                   <p className="font-label text-[12px] text-secondary">Oscar Wilde</p>
                 </div>
@@ -276,7 +416,7 @@ export default async function Home() {
                     <path className="whimsical-arrow" d="M 48 0 Q 60 40 48 80" markerEnd="url(#whimsical-ah)" />
                   </svg>
                 </div>
-                <span className="bridge-pill">mood &amp; tone</span>
+                <span className="bridge-pill">{t.bridge1}</span>
               </div>
 
               {/* Music Player Card */}
@@ -285,7 +425,7 @@ export default async function Home() {
 
             {/* Column 2: Paintings to Games */}
             <div className="space-y-12 md:mt-24">
-              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Painting → Game</p>
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">{t.col2_label}</p>
 
               {/* Game Card */}
               <div className="bg-surface-container-low p-4 rounded-xl shadow-sm border border-outline-variant/10 -rotate-2 hover:rotate-0 transition-all duration-500">
@@ -296,7 +436,7 @@ export default async function Home() {
                     src="/sacramento-game.gif"
                   />
                 </div>
-                <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">GAME</p>
+                <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">{t.label_game}</p>
                 <p className="font-headline italic text-[15px] text-primary">Sacramento, Video Game</p>
               </div>
 
@@ -307,7 +447,7 @@ export default async function Home() {
                     <path className="whimsical-arrow" d="M 48 0 C 10 30 80 50 48 80" markerEnd="url(#whimsical-ah)" />
                   </svg>
                 </div>
-                <span className="bridge-pill">visual style</span>
+                <span className="bridge-pill">{t.bridge2}</span>
               </div>
 
               {/* Art Card (Odilon Redon) */}
@@ -320,15 +460,15 @@ export default async function Home() {
                   />
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">PAINTING</p>
-                  <p className="font-headline italic text-[15px] text-primary">The archival reference</p>
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">{t.label_painting}</p>
+                  <p className="font-headline italic text-[15px] text-primary">{t.painting_ref}</p>
                 </div>
               </div>
             </div>
 
             {/* Column 3: Movie to Anime */}
             <div className="space-y-12 md:mt-24">
-              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">Movie → Anime</p>
+              <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">{t.col3_label}</p>
 
               {/* Live Action Card */}
               <div className="bg-surface-container-highest rounded-xl shadow-sm rotate-1 hover:rotate-0 transition-all duration-500 p-4">
@@ -340,7 +480,7 @@ export default async function Home() {
                   />
                 </div>
                 <div>
-                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">MOVIE</p>
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">{t.label_movie}</p>
                   <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
                 </div>
               </div>
@@ -352,7 +492,7 @@ export default async function Home() {
                     <path className="whimsical-arrow" d="M 48 0 Q 36 40 48 80" markerEnd="url(#whimsical-ah)" />
                   </svg>
                 </div>
-                <span className="bridge-pill">theme &amp; universe</span>
+                <span className="bridge-pill">{t.bridge3}</span>
               </div>
 
               {/* 1995 Anime Card */}
@@ -366,12 +506,11 @@ export default async function Home() {
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">ANIME</p>
+                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">{t.label_anime}</p>
                     <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
                   </div>
                   <p className="text-sm text-on-surface-variant leading-relaxed">
-                    The architectural soul of the 1995 masterpiece finds its genetic echo in the
-                    brutalist streets of modern noir cinema.
+                    {t.anime_desc}
                   </p>
                 </div>
               </div>
@@ -388,10 +527,10 @@ export default async function Home() {
             className="text-center font-label uppercase text-secondary opacity-50 mb-6"
             style={{ fontSize: "11px", letterSpacing: "0.2em" }}
           >
-            ELEVEN FORMATS · EVERY COMBINATION POSSIBLE
+            {t.format_header}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {["Book", "Movie", "Tv Show", "Podcast", "Music", "Game", "Creator", "Article", "Youtube", "Painting", "Other"].map((f) => (
+            {t.formats.map((f) => (
               <span
                 key={f}
                 className="text-secondary text-[13px] rounded-[99px] px-4 py-[6px] border-[0.5px] border-primary-container/20 bg-transparent"
@@ -415,24 +554,18 @@ export default async function Home() {
 
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center text-center px-6 py-20 gap-6 max-w-[700px]">
-            <p
-              className="font-label uppercase text-surface opacity-50"
-              style={{ fontSize: "11px", letterSpacing: "0.2em" }}
-            >
-              Ready when you are
-            </p>
             <h2
               className="font-headline font-light text-surface leading-[1.2] italic"
               style={{ fontSize: "clamp(48px, 6vw, 72px)" }}
             >
-              What does your favourite book sound like?
+              {t.closing_h2}
             </h2>
             <a
               href="/login"
               className="dark-cta-pill font-label text-surface rounded-full px-9 cursor-pointer"
               style={{ fontSize: "15px", padding: "14px 36px" }}
             >
-              Enter odilon
+              {t.enter}
             </a>
           </div>
         </section>
@@ -451,23 +584,23 @@ export default async function Home() {
                 className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
                 href="#"
               >
-                Saved
+                {t.footer_saved}
               </a>
               <a
                 className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
                 href="#"
               >
-                Privacy
+                {t.footer_privacy}
               </a>
               <a
                 className="text-sm font-label text-[#544341] hover:underline decoration-[#9e3e4e] underline-offset-4"
                 href="#"
               >
-                Contact
+                {t.footer_contact}
               </a>
             </div>
             <p className="text-sm font-label text-[#544341] tracking-tight">
-              © 2026 odilon. Multi-Genre Turnstile Machine.
+              {t.footer_copy}
             </p>
           </div>
         </footer>
