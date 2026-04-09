@@ -16,7 +16,7 @@ export async function PATCH(
     const supabase = createSupabase();
     const data = await req.json();
 
-    const { creatorMode, id: _, _id, ...sanitizedData } = data;
+    const { creatorMode, id: _, ...sanitizedData } = data;
 
     const { data: favorite, error } = await supabase
       .from('favorites')

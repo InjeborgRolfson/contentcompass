@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     const supabase = createSupabase();
     const data = await req.json();
     
-    const { creatorMode, id, _id, ...sanitizedData } = data;
+    const { creatorMode, id, ...sanitizedData } = data;
 
     const { error, data: favorite } = await supabase
       .from('favorites')

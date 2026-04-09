@@ -84,7 +84,7 @@ const getTypeBadgeStyle = (type: string): React.CSSProperties => {
 };
 interface RecommendationProps {
   recommendation: {
-    _id?: string;
+    id: string;
     type: string;
     title: string;
     creator: string;
@@ -145,7 +145,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
   const handleSave = async () => {
     if (isSaved && !isSavedPage) return;
     if (isSavedPage && onRemove && recommendation.id) {
-      setRemoving(true);
+      setSaving(true);
       try {
         const res = await fetch("/api/recommendations/save", {
           method: "DELETE",
@@ -156,7 +156,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       } catch (err) {
         console.error(err);
       } finally {
-        setRemoving(false);
+        setSaving(false);
       }
       return;
     }
