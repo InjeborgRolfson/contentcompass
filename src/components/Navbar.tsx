@@ -26,10 +26,10 @@ const Navbar = () => {
       <Link
         href={href}
         className={cn(
-          "px-4 py-2 rounded-lg transition-colors duration-200",
+          "px-4 py-2 rounded-lg transition-colors duration-200 font-label",
           isActive
-            ? "bg-theme-600 text-white"
-            : "text-theme-900/60 hover:text-theme-600 hover:bg-theme-50",
+            ? "bg-primary text-on-primary"
+            : "text-on-surface/60 hover:text-primary hover:bg-surface-container-high",
         )}
       >
         {label}
@@ -38,15 +38,15 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-theme-100 sticky top-0 z-50">
+    <nav className="bg-surface-container-low/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-8">
             <Link href="/favorites" className="flex items-center gap-2 group">
-              <div className="bg-theme-600 p-2 rounded-xl group-hover:rotate-12 transition-transform duration-300">
-                <Compass className="w-6 h-6 text-white" />
+              <div className="bg-primary p-2 rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <Compass className="w-6 h-6 text-on-primary" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-theme-900 to-theme-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-headline">
                 ContentCompass
               </span>
             </Link>
@@ -60,14 +60,14 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex bg-theme-50/50 p-1 rounded-xl border border-theme-100">
+            <div className="flex bg-surface-container p-1 rounded-xl border border-outline-variant">
               <button
                 onClick={() => changeLanguage("EN")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200",
+                  "px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 font-label",
                   language === "EN"
-                    ? "bg-theme-600 text-white shadow-sm"
-                    : "text-theme-400 hover:text-theme-600",
+                    ? "bg-primary text-on-primary shadow-sm"
+                    : "text-on-surface/50 hover:text-primary",
                 )}
               >
                 EN
@@ -75,10 +75,10 @@ const Navbar = () => {
               <button
                 onClick={() => changeLanguage("TR")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200",
+                  "px-3 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 font-label",
                   language === "TR"
-                    ? "bg-theme-600 text-white shadow-sm"
-                    : "text-theme-400 hover:text-theme-600",
+                    ? "bg-primary text-on-primary shadow-sm"
+                    : "text-on-surface/50 hover:text-primary",
                 )}
               >
                 TR
@@ -86,15 +86,15 @@ const Navbar = () => {
             </div>
 
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm text-theme-900/60">{t("email")}</span>
-              <span className="text-sm font-medium text-theme-900">
+              <span className="text-sm text-on-surface/60 font-body">{t("email")}</span>
+              <span className="text-sm font-medium text-on-surface font-label">
                 {session.user?.email}
               </span>
             </div>
 
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+              className="p-2 text-error hover:bg-error/10 rounded-xl transition-colors"
               title={t("signOut")}
             >
               <LogOut className="w-5 h-5" />

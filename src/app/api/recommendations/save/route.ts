@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import dbConnect from "@/lib/mongodb";
-import Recommendation from "@/models/Recommendation";
+import { createSupabase } from "@/lib/supabase";
 import { normalizeContentType } from "@/utils/content-type";
 
 export const runtime = "nodejs";
@@ -14,93 +13,130 @@ export async function GET(req: Request) {
     if (!session?.user?.id)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const supabase = createSupabase();
+
     const { searchParams } = new URL(req.url);
     const page = Math.max(0, parseInt(searchParams.get("page") ?? "0", 10));
 
-    await dbConnect();
-    const [items, total] = await Promise.all([
-      Recommendation.find({ userId: session.user.id })
-        .sort({ _id: -1 })
-        .skip(page * PAGE_SIZE)
-        .limit(PAGE_SIZE),
-      Recommendation.countDocuments({ userId: session.user.id }),
-    ]);
+    const { data: items, count: total, error } = await supabase
+      .from('recommendations')
+      .select('*', { count: 'exact' })
+      .eq('user_id', session.user.id)
+      .order('id', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    if (error) {
+      console.error(' Supabase GET saved recommendations error:', error);
+      return NextResponse.json({ error: 'Database query failed', details: error.message }, { status: 500 });
+    }
+
 
     return NextResponse.json({
       success: true,
       data: items,
-      total,
+      total: total || 0,
       page,
-      totalPages: Math.ceil(total / PAGE_SIZE),
+      totalPages: Math.ceil((total || 0) / PAGE_SIZE),
     });
-  } catch (error) {
-    console.error("Error fetching saved recommendations:", error);
+  } catch (error: any) {
+    console.error(" CRITICAL error in GET saved recommendations:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Unexpected Server Error", message: error?.message || String(error) },
       { status: 500 },
     );
   }
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   try {
+    const session = await auth();
+    if (!session?.user?.id)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const supabase = createSupabase();
     const data = await req.json();
-    await dbConnect();
 
     // Check if already saved
-    const existing = await Recommendation.findOne({
-      userId: session.user.id,
-      title: data.title,
-      type: data.type,
-    });
+    const { data: existing } = await supabase
+      .from('recommendations')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('title', data.title)
+      .eq('type', data.type)
+      .single();
 
     if (existing) {
-      if (data.savedFrom && existing.savedFrom !== data.savedFrom) {
-        await Recommendation.updateOne(
-          { _id: existing._id },
-          { $set: { savedFrom: data.savedFrom } },
-        );
+      if (data.savedFrom && existing.saved_from !== data.savedFrom) {
+        await supabase
+          .from('recommendations')
+          .update({ saved_from: data.savedFrom })
+          .eq('id', existing.id);
       }
       return NextResponse.json({ message: "Already saved" }, { status: 200 });
     }
 
-    const saved = await Recommendation.create({
-      ...data,
-      type: normalizeContentType(data.type || "Other"),
-      description: data.description || data.description_en || data.description_tr || "",
-      why: data.why || data.why_en || data.why_tr || "",
-      year: data.year || "unknown",
-      userId: session.user.id,
-    });
+    const { data: saved, error } = await supabase
+      .from('recommendations')
+      .insert({
+        title: data.title,
+        type: normalizeContentType(data.type || "Other"),
+        creator: data.creator,
+        year: data.year || "unknown",
+        description: data.description || data.description_en || data.description_tr || "",
+        why: data.why || data.why_en || data.why_tr || "",
+        tags: data.tags || [],
+        photo: data.photo,
+        isWildcard: data.isWildcard || false,
+        saved_from: data.savedFrom || "unknown",
+        user_id: session.user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(' Supabase POST saved recommendation error:', error);
+      return NextResponse.json({ error: 'Database insertion failed', details: error.message }, { status: 500 });
+    }
+
 
     return NextResponse.json(saved, { status: 201 });
   } catch (error: any) {
-    console.error("Error saving recommendation:", error);
+    console.error(" CRITICAL error in POST saved recommendation:", error);
     return NextResponse.json(
-      { error: error?.message || "Internal Server Error" },
+      { error: error?.message || "Unexpected Server Error" },
       { status: 500 },
     );
   }
 }
 
 export async function DELETE(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   try {
+    const session = await auth();
+    if (!session?.user?.id)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const supabase = createSupabase();
     const { id } = await req.json();
-    await dbConnect();
-    await Recommendation.deleteOne({ _id: id, userId: session.user.id });
+    const { error } = await supabase
+      .from('recommendations')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', session.user.id);
+
+    if (error) {
+      console.error(' Supabase DELETE saved recommendation error:', error);
+      return NextResponse.json({ error: 'Database deletion failed', details: error.message }, { status: 500 });
+    }
+
+
     return NextResponse.json({ message: "Deleted" });
-  } catch (error) {
+  } catch (error: any) {
+    console.error(" CRITICAL error in DELETE saved recommendation:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Unexpected Server Error", message: error?.message || String(error) },
       { status: 500 },
     );
   }
 }
+
+

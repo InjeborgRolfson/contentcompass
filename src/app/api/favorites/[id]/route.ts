@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import dbConnect from '@/lib/mongodb';
-import Favorite from '@/models/Favorite';
+import { createSupabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -14,26 +13,34 @@ export async function PATCH(
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const supabase = createSupabase();
     const data = await req.json();
-    await dbConnect();
 
-    // Find and update the favorite, ensuring it belongs to the user
-    const favorite = await Favorite.findOneAndUpdate(
-      { _id: id, userId: session.user.id },
-      { $set: data },
-      { new: true }
-    );
+    const { creatorMode, id: _, _id, ...sanitizedData } = data;
 
-    if (!favorite) {
-      return NextResponse.json({ error: 'Favorite not found' }, { status: 404 });
+    const { data: favorite, error } = await supabase
+      .from('favorites')
+      .update(sanitizedData)
+      .eq('id', id)
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    if (error || !favorite) {
+      console.error(' Supabase PATCH favorite error:', error);
+      return NextResponse.json({ 
+        error: 'Favorite update failed', 
+        details: error?.message || 'Item not found' 
+      }, { status: error ? 500 : 404 });
     }
 
+
     return NextResponse.json(favorite);
-  } catch (error) {
-    console.error('Full error in PATCH favorites:', error);
+  } catch (error: any) {
+    console.error(' CRITICAL error in PATCH favorite:', error);
     return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+      error: 'Unexpected Server Error', 
+      message: error?.message || String(error) 
     }, { status: 500 });
   }
 }
@@ -47,24 +54,31 @@ export async function DELETE(
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    await dbConnect();
+    const supabase = createSupabase();
 
-    // Find and delete the favorite, ensuring it belongs to the user
-    const favorite = await Favorite.findOneAndDelete({
-      _id: id,
-      userId: session.user.id,
-    });
+    const { error, count } = await supabase
+      .from('favorites')
+      .delete({ count: 'exact' })
+      .eq('id', id)
+      .eq('user_id', session.user.id);
 
-    if (!favorite) {
-      return NextResponse.json({ error: 'Favorite not found' }, { status: 404 });
+    if (error || count === 0) {
+      console.error(' Supabase DELETE favorite error:', error);
+      return NextResponse.json({ 
+        error: 'Favorite deletion failed', 
+        details: error?.message || 'Item not found' 
+      }, { status: error ? 500 : 404 });
     }
 
+
     return NextResponse.json({ message: 'Favorite deleted successfully' });
-  } catch (error) {
-    console.error('Full error in DELETE favorites:', error);
+  } catch (error: any) {
+    console.error(' CRITICAL error in DELETE favorite:', error);
     return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+      error: 'Unexpected Server Error', 
+      message: error?.message || String(error) 
     }, { status: 500 });
   }
 }
+
+

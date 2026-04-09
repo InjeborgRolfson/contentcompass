@@ -28,11 +28,12 @@ const contentTypes: ContentType[] = [
 ];
 
 interface SeenItem {
-  _id: string;
+  id: number | string;
   title: string;
   type: string;
   seenAt: string;
 }
+
 
 const getTypeBadgeStyle = (type: string): React.CSSProperties => {
   const styles: Record<string, React.CSSProperties> = {
@@ -110,7 +111,8 @@ export default function SavedPage() {
     message: string;
     onUndo?: () => void;
   } | null>(null);
-  const [deletingFromSeen, setDeletingFromSeen] = useState<string | null>(null);
+  const [deletingFromSeen, setDeletingFromSeen] = useState<string | number | null>(null);
+
   const { t, formatText } = useLanguage();
 
   useEffect(() => {
@@ -174,11 +176,13 @@ export default function SavedPage() {
   };
 
   const handleRemove = async (id: string) => {
-    const itemToRemove = saved.find((s) => s._id === id);
+    const itemToRemove = saved.find((s) => s.id === id);
+
     if (!itemToRemove) return;
 
     // Optimistic UI update
-    const newSavedPage = saved.filter((s) => s._id !== id);
+    const newSavedPage = saved.filter((s) => s.id !== id);
+
     setSaved(newSavedPage);
     const newTotal = totalCount - 1;
     setTotalCount(newTotal);
@@ -211,7 +215,8 @@ export default function SavedPage() {
   };
 
   const handleRemoveFromSeen = async (item: SeenItem) => {
-    setDeletingFromSeen(item._id);
+    setDeletingFromSeen(item.id);
+
     try {
       const res = await fetch("/api/seen", {
         method: "DELETE",
@@ -219,7 +224,8 @@ export default function SavedPage() {
         body: JSON.stringify({ title: item.title, type: item.type }),
       });
       if (res.ok) {
-        setSeen((prev) => prev.filter((s) => s._id !== item._id));
+        setSeen((prev) => prev.filter((s) => s.id !== item.id));
+
       } else {
         console.error("Failed to remove from seen:", res.status);
       }
@@ -233,7 +239,7 @@ export default function SavedPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-12">
-        <h1 className="text-4xl font-extrabold text-theme-900 mb-6">
+        <h1 className="text-4xl font-extrabold text-on-surface mb-6 font-headline">
           {t("saved")}
         </h1>
 
@@ -242,20 +248,20 @@ export default function SavedPage() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => handleTabChange("saved")}
-              className={`px-4 py-2 rounded-xl font-bold transition-all border ${
+              className={`px-4 py-2 rounded-xl font-bold transition-all border font-label ${
                 activeTab === "saved"
-                  ? "bg-theme-600 text-white border-theme-600"
-                  : "bg-theme-50 text-theme-600 border-theme-100 hover:bg-theme-100"
+                  ? "bg-primary text-on-primary border-primary"
+                  : "bg-surface-container text-primary border-outline-variant hover:bg-surface-container-high"
               }`}
             >
               {t("savedContent")}
             </button>
             <button
               onClick={() => handleTabChange("seen")}
-              className={`px-4 py-2 rounded-xl font-bold transition-all border ${
+              className={`px-4 py-2 rounded-xl font-bold transition-all border font-label ${
                 activeTab === "seen"
-                  ? "bg-theme-600 text-white border-theme-600"
-                  : "bg-theme-50 text-theme-600 border-theme-100 hover:bg-theme-100"
+                  ? "bg-primary text-on-primary border-primary"
+                  : "bg-surface-container text-primary border-outline-variant hover:bg-surface-container-high"
               }`}
             >
               {t("seenContent")}
@@ -268,7 +274,7 @@ export default function SavedPage() {
 
         {/* Subtitle for Saved tab only */}
         {activeTab === "saved" && (
-          <p className="text-theme-900/60 font-medium mb-8">
+          <p className="text-on-surface/60 font-medium mb-8 font-body">
             {t("yourCustomCompassReading")}
           </p>
         )}
@@ -279,12 +285,12 @@ export default function SavedPage() {
         <>
           {loading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
             </div>
           ) : saved.length === 0 ? (
-            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-theme-100 flex flex-col items-center gap-4">
-              <Bookmark className="w-12 h-12 text-theme-100" />
-              <p className="text-theme-900/40 text-lg font-bold">
+            <div className="text-center py-32 bg-surface-container rounded-3xl border-2 border-dashed border-outline-variant flex flex-col items-center gap-4">
+              <Bookmark className="w-12 h-12 text-outline-variant" />
+              <p className="text-on-surface/40 text-lg font-bold font-headline">
                 {t("noneSelected")}
               </p>
             </div>
@@ -303,11 +309,11 @@ export default function SavedPage() {
                     className="animate-in fade-in slide-in-from-bottom-4 duration-500"
                   >
                     <div className="flex items-center gap-4 mb-6">
-                      <h2 className="text-2xl font-black text-theme-950">
+                      <h2 className="text-2xl font-black text-on-surface font-headline">
                         {t(type.toLowerCase() as any) || type}
                       </h2>
-                      <div className="h-1 flex-grow bg-theme-50 rounded-full" />
-                      <span className="bg-theme-50 text-theme-600 px-3 py-1 rounded-full text-xs font-bold">
+                      <div className="h-1 flex-grow bg-outline-variant rounded-full" />
+                      <span className="bg-surface-container text-primary px-3 py-1 rounded-full text-xs font-bold font-label">
                         {
                           saved.filter(
                             (rec) =>
@@ -326,7 +332,8 @@ export default function SavedPage() {
                         )
                         .map((rec) => (
                           <RecommendationCard
-                            key={rec._id}
+                            key={rec.id}
+
                             recommendation={rec}
                             isSavedPage={true}
                             onRemove={handleRemove}
@@ -367,12 +374,12 @@ export default function SavedPage() {
         <>
           {seenLoading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
             </div>
           ) : seen.length === 0 ? (
-            <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-theme-100 flex flex-col items-center gap-4">
-              <Eye className="w-12 h-12 text-theme-100" />
-              <p className="text-theme-900/40 text-lg font-bold">
+            <div className="text-center py-32 bg-surface-container rounded-3xl border-2 border-dashed border-outline-variant flex flex-col items-center gap-4">
+              <Eye className="w-12 h-12 text-outline-variant" />
+              <p className="text-on-surface/40 text-lg font-bold font-headline">
                 {t("noSeenContent")}
               </p>
             </div>
@@ -380,7 +387,8 @@ export default function SavedPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {seen.map((item) => (
                 <div
-                  key={item._id}
+                  key={item.id}
+
                   className="bg-white rounded-2xl p-6 shadow-sm border border-theme-50 hover:shadow-lg transition-shadow group"
                 >
                   <div className="flex justify-between items-start gap-4 mb-4">
@@ -395,7 +403,8 @@ export default function SavedPage() {
                     </span>
                     <button
                       onClick={() => handleRemoveFromSeen(item)}
-                      disabled={deletingFromSeen === item._id}
+                      disabled={deletingFromSeen === item.id}
+
                       className="p-2 text-theme-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0 disabled:opacity-50"
                       title={t("removeFromSeen")}
                     >

@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import dbConnect from "@/lib/mongodb";
-import RateLimit from "@/models/RateLimit";
-import ContentEntry from "@/models/ContentEntry";
-import Favorite from "@/models/Favorite";
+import { createSupabase } from "@/lib/supabase";
 
 function slugify(text: string): string {
   return text
@@ -15,10 +12,16 @@ function slugify(text: string): string {
 }
 
 async function saveToContentLibrary(rec: any): Promise<void> {
+  const supabase = createSupabase();
   try {
     const baseSlug = slugify(rec.title);
-    // Check if this slug belongs to a different entry
-    const existingBySlug = await ContentEntry.findOne({ slug: baseSlug });
+    
+    const { data: existingBySlug } = await supabase
+      .from('content_entries')
+      .select('title, type')
+      .eq('slug', baseSlug)
+      .single();
+
     const slug =
       existingBySlug &&
       !(
@@ -28,26 +31,22 @@ async function saveToContentLibrary(rec: any): Promise<void> {
         ? `${baseSlug}-${slugify(rec.type)}`
         : baseSlug;
 
-    await ContentEntry.findOneAndUpdate(
-      { title: rec.title, type: rec.type },
-      {
-        $setOnInsert: { slug },
-        $set: {
-          creator: rec.creator || "",
-          year: rec.year || "",
-          description_en: rec.description_en || rec.description || "",
-          description_tr: rec.description_tr || "",
-          tags: rec.tags || [],
-          ...(rec.photo ? { photo: rec.photo } : {}),
-        },
-      },
-      { upsert: true },
-    );
+    await supabase
+      .from('content_entries')
+      .upsert({
+        title: rec.title,
+        type: rec.type,
+        slug,
+        creator: rec.creator || "",
+        year: rec.year || "",
+        description_en: rec.description_en || rec.description || "",
+        description_tr: rec.description_tr || "",
+        tags: rec.tags || [],
+        ...(rec.photo ? { photo: rec.photo } : {}),
+      }, { onConflict: 'title,type' });
+
   } catch (err: any) {
-    // Duplicate key errors are expected (race conditions) — log others
-    if (err?.code !== 11000) {
-      console.error("ContentLibrary save error:", err);
-    }
+    console.error(" ContentLibrary save error:", err);
   }
 }
 
@@ -59,56 +58,77 @@ export async function POST(req: Request) {
     if (!session?.user?.id)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    await dbConnect();
+    const supabase = createSupabase();
 
-    // Fetch the user's existing favorites to exclude them from recommendations
-    const userFavorites = await Favorite.find(
-      { userId: session.user.id },
-      { title: 1, wikidataId: 1 },
-    ).lean();
-    const favoriteTitles: string[] = (userFavorites as any[]).map((f) => f.title);
-    const favoriteWikidataIds: string[] = (userFavorites as any[])
-      .map((f) => f.wikidataId)
-      .filter(Boolean);
+    const { data: userFavorites, error: favError } = await supabase
+      .from('favorites')
+      .select('title')
+      .eq('user_id', session.user.id);
 
-    // Check rate limit: 10 per 60 minutes
-    // Bypass for localhost development
+
+    if (favError) {
+      console.error(' Supabase fetch favorites error:', favError);
+      return NextResponse.json({ error: 'Failed to fetch favorites', details: favError }, { status: 500 });
+    }
+
+    const favoriteTitles: string[] = (userFavorites || []).map((f) => f.title);
+    const favoriteWikidataIds: string[] = [];
+
+
     const isLocalhost = req.headers.get("host")?.includes("localhost");
     const now = new Date();
     const SIXTY_MINUTES = 60 * 60 * 1000;
     const LIMIT = 10;
 
     if (!isLocalhost) {
-      let rateLimit = await RateLimit.findOne({ userId: session.user.id });
+      const { data: rateLimit, error: rateError } = await supabase
+        .from('rate_limits')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
 
-      if (!rateLimit) {
-        // First time user, create entry
-        rateLimit = await RateLimit.create({
-          userId: session.user.id,
-          count: 1,
-          resetAt: new Date(now.getTime() + SIXTY_MINUTES),
-        });
-      } else if (now > rateLimit.resetAt) {
-        // Limit expired, reset count and window
-        rateLimit.count = 1;
-        rateLimit.resetAt = new Date(now.getTime() + SIXTY_MINUTES);
-        await rateLimit.save();
-      } else if (rateLimit.count >= LIMIT) {
-        // In-window and count exceeded
-        const diffMs = rateLimit.resetAt.getTime() - now.getTime();
-        const diffMins = Math.ceil(diffMs / 60000);
-        return NextResponse.json(
-          {
-            error: "Too many requests. Please try again later.",
-            minutesLeft: diffMins,
-          },
-          { status: 429 },
-        );
+      if (!rateLimit || rateError) {
+        await supabase
+          .from('rate_limits')
+          .insert({
+            user_id: session.user.id,
+            count: 1,
+            reset_at: new Date(now.getTime() + SIXTY_MINUTES).toISOString(),
+          });
       } else {
-        // In-window and count not exceeded
-        rateLimit.count += 1;
-        await rateLimit.save();
+        const resetAt = new Date(rateLimit.reset_at);
+        if (now > resetAt) {
+          await supabase
+            .from('rate_limits')
+            .update({
+              count: 1,
+              reset_at: new Date(now.getTime() + SIXTY_MINUTES).toISOString(),
+            })
+            .eq('user_id', session.user.id);
+        } else if (rateLimit.count >= LIMIT) {
+          const diffMs = resetAt.getTime() - now.getTime();
+          const diffMins = Math.ceil(diffMs / 60000);
+          return NextResponse.json(
+            {
+              error: "Too many requests. Please try again later.",
+              minutesLeft: diffMins,
+            },
+            { status: 429 },
+          );
+        } else {
+          await supabase
+            .from('rate_limits')
+            .update({ count: rateLimit.count + 1 })
+            .eq('user_id', session.user.id);
+        }
       }
+    }
+
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
     const {
@@ -119,7 +139,7 @@ export async function POST(req: Request) {
       language,
       turkishOnly,
       excludeTitles,
-    } = await req.json();
+    } = body;
 
     if (
       !selectedFavorites ||
@@ -135,12 +155,10 @@ export async function POST(req: Request) {
     const favoritesStr = selectedFavorites
       .map((fav: any) => {
         if (fav.isCreator) {
-          // Format creator entries specially
           const typeStr = fav.type ? ` (${fav.type})` : "";
           const noteStr = fav.note ? ` — Note: ${fav.note}` : "";
           return `[Creator] ${fav.title}${typeStr}${noteStr}`;
         } else {
-          // Format regular title-based entries
           return `Title: ${fav.title}, Type: ${fav.type}, Note: ${fav.note}, Tags: ${fav.tags.join(", ")}`;
         }
       })
@@ -226,7 +244,7 @@ export async function POST(req: Request) {
       
       For your wildcard recommendation, set "isWildcard": true instead of false.`;
 
-    const response = await fetch(
+    const openRouterResponse = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
@@ -254,50 +272,36 @@ export async function POST(req: Request) {
       },
     );
 
-    let data;
+    let aiData;
     try {
-      data = await response.json();
+      aiData = await openRouterResponse.json();
     } catch (e) {
-      console.error("Failed to parse OpenRouter response:", e);
-      return NextResponse.json(
-        { error: "AI service returned invalid JSON" },
-        { status: 500 },
-      );
+      console.error(" Failed to parse OpenRouter response:", e);
+      return NextResponse.json({ error: "AI service returned invalid JSON" }, { status: 500 });
     }
 
-    if (!response.ok || !data.choices) {
-      console.error("OpenRouter API error:", JSON.stringify(data));
-      return NextResponse.json(
-        { error: "AI service error", details: data },
-        { status: 500 },
-      );
+    if (!openRouterResponse.ok || !aiData.choices) {
+      console.error(" OpenRouter API error:", JSON.stringify(aiData));
+      return NextResponse.json({ error: "AI service error", details: aiData }, { status: 500 });
     }
 
-    const text = data.choices[0]?.message?.content?.trim() || "[]";
+    const text = aiData.choices[0]?.message?.content?.trim() || "[]";
     try {
-      // OpenRouter sometimes returns the array directly or wrapped in an object
       let parsed = JSON.parse(text);
-
-      // Handle the case where the LLM might have wrapped the array in a "recommendations" field
       if (!Array.isArray(parsed) && parsed.recommendations) {
         parsed = parsed.recommendations;
       }
 
       const recommendations = Array.isArray(parsed) ? parsed : [];
-
-      // Ensure all recommendations have isWildcard field (default: false)
-      // Find the one marked as wildcard, or if none, designate a random one
       const recommendationsWithWildcard = recommendations.map((rec: any) => ({
         ...rec,
         isWildcard: rec.isWildcard === true ? true : false,
       }));
 
-      // Count how many wildcards we have
       const wildcardCount = recommendationsWithWildcard.filter(
         (rec: any) => rec.isWildcard,
       ).length;
 
-      // If no wildcard was marked by the AI, pick one at random to be the wildcard
       if (wildcardCount === 0 && recommendationsWithWildcard.length > 0) {
         const randomIndex = Math.floor(
           Math.random() * recommendationsWithWildcard.length,
@@ -305,7 +309,6 @@ export async function POST(req: Request) {
         recommendationsWithWildcard[randomIndex].isWildcard = true;
       }
 
-      // Ensure only one wildcard (if somehow multiple were marked)
       let foundWildcard = false;
       for (let i = 0; i < recommendationsWithWildcard.length; i++) {
         if (recommendationsWithWildcard[i].isWildcard) {
@@ -317,12 +320,10 @@ export async function POST(req: Request) {
         }
       }
 
-      // Fetch photos for each recommendation
       const recommendationsWithPhotos = await Promise.all(
         recommendationsWithWildcard.map(async (rec: any) => {
           let photoUrl = "";
           try {
-            // Search for the content in Wikidata
             const searchRes = await fetch(
               `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
                 rec.title,
@@ -332,7 +333,6 @@ export async function POST(req: Request) {
             const result = searchData.search?.[0];
 
             if (result) {
-              // Get Wikipedia title
               const entityRes = await fetch(
                 `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${result.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`,
               );
@@ -341,7 +341,6 @@ export async function POST(req: Request) {
                 entityData.entities?.[result.id]?.sitelinks?.enwiki?.title;
 
               if (wikiTitle) {
-                // Get all images from the page
                 const imagesRes = await fetch(
                   `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
                     wikiTitle,
@@ -352,7 +351,6 @@ export async function POST(req: Request) {
                 const pageId = Object.keys(pages)[0];
                 const images = pages[pageId]?.images || [];
 
-                // Filter out common non-infobox images
                 const infoboxImage = images.find((img: any) => {
                   const title = img.title.toLowerCase();
                   const isMediaFile =
@@ -370,7 +368,6 @@ export async function POST(req: Request) {
                 });
 
                 if (infoboxImage) {
-                  // Get the image info to get the URL
                   const imageInfoRes = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
                       infoboxImage.title,
@@ -387,40 +384,34 @@ export async function POST(req: Request) {
               }
             }
           } catch (err) {
-            console.error("Failed to fetch photo for recommendation:", err);
+            console.error(" Failed to fetch photo for recommendation:", err);
           }
 
           return { ...rec, photo: photoUrl || null };
         }),
       );
 
-      // Post-filter: remove any recommendation that matches an existing favorite
       const favTitlesLower = new Set(favoriteTitles.map((t) => t.toLowerCase()));
       const favWikidataIdSet = new Set(favoriteWikidataIds);
       const filteredRecommendations = recommendationsWithPhotos.filter((rec: any) => {
         if (favTitlesLower.has(rec.title?.toLowerCase())) return false;
-        if (rec.wikidataId && favWikidataIdSet.has(rec.wikidataId)) return false;
+        if (rec.wikidata_id && favWikidataIdSet.has(rec.wikidata_id)) return false;
         return true;
       });
 
-      // Silently save each recommendation to the public content library
       Promise.allSettled(
         filteredRecommendations.map((rec: any) => saveToContentLibrary(rec)),
       ).catch(() => {});
 
       return NextResponse.json(filteredRecommendations);
-    } catch (parseError) {
-      console.error("Parse error:", parseError, text);
-      return NextResponse.json(
-        { error: "Failed to parse AI response" },
-        { status: 500 },
-      );
+    } catch (parseError: any) {
+      console.error(" AI response parse error:", parseError);
+      return NextResponse.json({ error: "Failed to parse AI response", message: parseError?.message }, { status: 500 });
     }
-  } catch (error) {
-    console.error("AI recommendation error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+  } catch (error: any) {
+    console.error(" CRITICAL error in recommendations API:", error);
+    return NextResponse.json({ error: "Unexpected Server Error", message: error?.message || String(error) }, { status: 500 });
   }
 }
+
+

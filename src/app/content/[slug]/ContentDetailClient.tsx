@@ -43,7 +43,8 @@ const contentTypeEmojis: Record<string, string> = {
 };
 
 interface ContentEntry {
-  _id: string;
+  id: number | string;
+
   type: string;
   title: string;
   creator: string;
@@ -116,9 +117,9 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
   const emoji = contentTypeEmojis[displayType.toLowerCase()] ?? "🌐";
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-surface">
       {/* Hero image section */}
-      <div className="relative w-full bg-theme-950 overflow-hidden" style={{ minHeight: "60vh" }}>
+      <div className="relative w-full bg-primary overflow-hidden" style={{ minHeight: "60vh" }}>
         {entry.photo ? (
           <>
             {/* Blurred background fill */}
@@ -140,17 +141,16 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 py-24" style={{ minHeight: "40vh" }}>
             <span className="text-8xl">{emoji}</span>
-            <span className="text-white/30 text-lg font-bold uppercase tracking-widest">
+            <span className="text-on-primary/30 text-lg font-bold uppercase tracking-widest">
               {displayType}
             </span>
           </div>
         )}
 
-        {/* Back button overlay */}
         <div className="absolute top-4 left-4 z-20">
           <Link
             href="/library"
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md text-white rounded-xl text-sm font-bold hover:bg-white/20 transition-colors border border-white/20"
+            className="flex items-center gap-2 px-4 py-2 bg-on-primary/10 backdrop-blur-md text-on-primary rounded-xl text-sm font-bold hover:bg-on-primary/20 transition-colors border border-on-primary/20"
           >
             <ArrowLeft className="w-4 h-4" />
             {t("backToLibrary")}
@@ -162,10 +162,10 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
           <button
             onClick={handleSave}
             disabled={saving || isSaved}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border font-label ${
               isSaved
-                ? "bg-theme-600 text-white border-theme-500 shadow-lg shadow-theme-900/40"
-                : "bg-white/10 backdrop-blur-md text-white border-white/20 hover:bg-white/20"
+                ? "bg-surface text-on-surface border-outline shadow-lg shadow-primary/20"
+                : "bg-on-primary/10 backdrop-blur-md text-on-primary border-on-primary/20 hover:bg-on-primary/20"
             }`}
           >
             {saving ? (
@@ -185,7 +185,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
         {/* Type badge */}
         <div className="mb-4">
           <span
-            className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
+            className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border font-label"
             style={badgeStyle}
           >
             {formatText(t(displayType.toLowerCase() as any) || displayType, "upper")}
@@ -193,12 +193,12 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl sm:text-5xl font-black text-theme-950 leading-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl font-black text-on-surface leading-tight mb-6 font-headline">
           {entry.title}
         </h1>
 
         {/* Meta info */}
-        <div className="flex flex-wrap gap-6 text-sm font-bold text-theme-900/50 uppercase tracking-tight mb-8">
+        <div className="flex flex-wrap gap-6 text-sm font-bold text-on-surface/50 uppercase tracking-tight mb-8 font-label">
           {entry.creator && (
             <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -218,10 +218,10 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
           <button
             onClick={handleSave}
             disabled={saving || isSaved}
-            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-sm transition-all border shadow-sm ${
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-sm transition-all border shadow-sm font-label ${
               isSaved
-                ? "bg-theme-600 text-white border-theme-500 shadow-theme-100 cursor-default"
-                : "bg-white text-theme-600 border-theme-200 hover:bg-theme-50 hover:border-theme-300 hover:shadow-md"
+                ? "bg-primary text-on-primary border-primary/80 shadow-primary/20 cursor-default"
+                : "bg-surface-container text-primary border-outline-variant hover:bg-surface-container-high hover:border-outline hover:shadow-md"
             }`}
           >
             {saving ? (
@@ -236,11 +236,11 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-theme-100 mb-8" />
+        <div className="h-px bg-outline-variant mb-8" />
 
         {/* Description */}
         {description && (
-          <p className="text-lg leading-relaxed text-theme-900/75 font-medium mb-10">
+          <p className="text-lg leading-relaxed text-on-surface/75 font-medium mb-10 font-body">
             {description}
           </p>
         )}
@@ -251,7 +251,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
             {entry.tags.map((tag, i) => (
               <span
                 key={i}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-theme-100 text-theme-600/70 text-xs font-bold rounded-xl shadow-sm uppercase tracking-wider"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant text-primary/70 text-xs font-bold rounded-xl shadow-sm uppercase tracking-wider font-label"
               >
                 <Tag className="w-3 h-3" />
                 {tag}
@@ -263,7 +263,7 @@ export default function ContentDetailClient({ entry }: { entry: ContentEntry }) 
         {/* Back link */}
         <Link
           href="/library"
-          className="inline-flex items-center gap-2 text-sm font-bold text-theme-600 hover:text-theme-800 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/70 transition-colors font-label"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("backToLibrary")}

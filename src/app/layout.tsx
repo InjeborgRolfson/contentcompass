@@ -42,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${gloock.variable} ${playpenSans.variable} antialiased h-full bg-[#f8f9fc] text-theme-900 font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${gloock.variable} ${playpenSans.variable} antialiased h-full bg-surface text-on-surface font-body`}
       >
         <SessionProvider>
           <LanguageProvider>

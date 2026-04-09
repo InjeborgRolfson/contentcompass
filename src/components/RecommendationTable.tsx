@@ -45,21 +45,25 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   const handleSave = async (rec: any, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (isSavedPage && onRemove && rec._id) {
+    if (isSavedPage && onRemove && rec.id) {
+
       try {
         const res = await fetch("/api/recommendations/save", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: rec._id }),
+          body: JSON.stringify({ id: rec.id }),
+
         });
-        if (res.ok) onRemove(rec._id);
+        if (res.ok) onRemove(rec.id);
+
       } catch (err) {
         console.error(err);
       }
       return;
     }
 
-    const id = rec._id || rec.title;
+              const id = rec.id || rec.title;
+
     if (savedIds.includes(id)) return;
 
     setSavingId(id);
@@ -83,7 +87,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   const handleMarkAsSeen = async (rec: any, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    const id = rec._id || rec.title;
+              const id = rec.id || rec.title;
+
     if (fadedIds.has(id)) return;
 
     setMarkingAsSeenId(id);
@@ -108,11 +113,11 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   };
 
   return (
-    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-theme-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="overflow-hidden bg-surface rounded-[2rem] shadow-sm border border-outline-variant animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-theme-50 bg-theme-50/30 text-theme-400 text-[10px] font-black uppercase tracking-widest">
+            <tr className="border-b border-outline-variant bg-surface-container-high text-primary/60 text-[10px] font-black uppercase tracking-widest font-label">
               <th className="px-8 py-6">{t("contentType")}</th>
               <th className="px-8 py-6">{t("title")}</th>
               <th className="px-8 py-6">{t("authorCreator")}</th>
@@ -122,7 +127,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
           </thead>
           <tbody className="divide-y divide-theme-50">
             {recommendations.map((rec, idx) => {
-              const id = rec._id || rec.title;
+                        const id = rec.id || rec.title;
+
               const isSaved = isSavedPage || savedIds.includes(id);
               const isSaving = savingId === id;
               const isSeenInDB =
@@ -135,15 +141,15 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                     onClick={() => toggleRow(idx)}
                     className={`cursor-pointer transition-colors group relative ${
                       rec.isWildcard
-                        ? "bg-purple-50/20 hover:bg-purple-50/30"
-                        : "hover:bg-theme-50/20"
+                        ? "bg-primary/5 hover:bg-primary/10"
+                        : "hover:bg-surface-container/50"
                     } ${
                       isFaded ? "opacity-40 pointer-events-none" : "opacity-100"
                     } transition-opacity duration-500`}
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-theme-50 text-theme-600 text-[9px] font-black rounded-full tracking-widest border border-theme-100">
+                        <span className="px-3 py-1 bg-surface-container text-primary text-[9px] font-black rounded-full tracking-widest border border-outline-variant font-label">
                           {formatText(
                             t(normalizeContentType(rec.type || "Other").toLowerCase() as any) ||
                               normalizeContentType(rec.type || "Other"),
@@ -151,7 +157,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                           )}
                         </span>
                         {isSavedPage && rec.savedFrom === "library" && (
-                          <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-amber-50 text-amber-700 border-amber-200">
+                          <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-surface-container text-on-surface/70 border-outline-variant font-label">
                             {t("library")}
                           </span>
                         )}

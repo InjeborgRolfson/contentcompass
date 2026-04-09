@@ -156,7 +156,8 @@ export default function DiscoverPage() {
     if (selectedIds.length === favorites.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(favorites.map((f) => f._id));
+      setSelectedIds(favorites.map((f) => f.id));
+
     }
   };
 
@@ -175,7 +176,8 @@ export default function DiscoverPage() {
   };
 
   const selectedFavorites = useMemo(
-    () => favorites.filter((f) => selectedIds.includes(f._id)),
+    () => favorites.filter((f) => selectedIds.includes(f.id)),
+
     [favorites, selectedIds],
   );
 
@@ -229,12 +231,13 @@ export default function DiscoverPage() {
         const errorData = await res.json().catch(() => ({}));
         if (res.status === 429 && errorData.minutesLeft) {
           setMinutesRemaining(errorData.minutesLeft);
-          return; // Stop without setting recommendError
+          return;
         }
-        throw new Error(
-          `HTTP ${res.status}: ${errorData.error || "Unknown error"}`,
-        );
+        const error = new Error(`HTTP ${res.status}: ${errorData.error || "Unknown error"}`) as any;
+        error.details = errorData.details;
+        throw error;
       }
+
       const data = await res.json();
       if (Array.isArray(data)) {
         setRecommendations(data);
@@ -242,10 +245,12 @@ export default function DiscoverPage() {
       } else {
         throw new Error("Invalid response format from API");
       }
-    } catch (err) {
+    } catch (err: any) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
       console.error("Failed to find matches:", errorMsg);
+      if (err.details) console.error("Error details:", err.details);
       setRecommendError(errorMsg);
+
       setRecommendations([]);
     } finally {
       setLoading(false);
@@ -273,19 +278,19 @@ export default function DiscoverPage() {
   return (
     <div className="flex flex-col min-h-screen pb-32 md:pb-20">
       {showHint && (
-        <div className="bg-theme-600 text-white animate-in slide-in-from-top duration-500 overflow-hidden relative">
+        <div className="bg-primary text-on-primary animate-in slide-in-from-top duration-500 overflow-hidden relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+              <div className="w-10 h-10 bg-on-primary/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
                 <Compass className="w-6 h-6 animate-pulse" />
               </div>
-              <p className="text-sm md:text-base font-medium leading-tight">
+              <p className="text-sm md:text-base font-medium leading-tight font-body">
                 {t("discoverHint")}
               </p>
             </div>
             <button
               onClick={dismissHint}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 hover:bg-on-primary/20 rounded-lg transition-colors flex-shrink-0"
               aria-label="Dismiss hint"
             >
               <X className="w-5 h-5" />
@@ -294,22 +299,22 @@ export default function DiscoverPage() {
         </div>
       )}
       {/* Hero Panel */}
-      <div className="bg-[#0f172a] text-white pt-24 pb-16 md:pt-32 md:pb-24 shadow-2xl relative">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-theme-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="bg-surface-container text-on-surface pt-24 pb-16 md:pt-32 md:pb-24 shadow-lg relative">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 mb-12">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-theme-400 mb-2">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-primary/60 mb-2 font-label">
                 {t("discover")}
               </h2>
-              <h1 className="text-2xl md:text-5xl font-extrabold flex flex-wrap items-center gap-2 md:gap-3">
+              <h1 className="text-2xl md:text-5xl font-extrabold flex flex-wrap items-center gap-2 md:gap-3 font-headline">
                 {t("yourCustomCompassReading")}
-                <span className="text-theme-400/30 font-light text-xl md:text-2xl hidden md:inline">
+                <span className="text-primary/30 font-light text-xl md:text-2xl hidden md:inline">
                   /
                 </span>
-                <span className="text-theme-300/80 font-medium text-base md:text-lg italic w-full md:w-auto mt-1 md:mt-0">
+                <span className="text-primary/70 font-medium text-base md:text-lg italic w-full md:w-auto mt-1 md:mt-0 serif-italic">
                   {selectionText}
                 </span>
               </h1>
@@ -323,11 +328,11 @@ export default function DiscoverPage() {
                   loading ||
                   (minutesRemaining !== null && minutesRemaining > 0)
                 }
-                className={`w-full md:w-auto justify-center px-10 py-4 rounded-2xl font-bold shadow-2xl transition-all flex items-center gap-2 relative group overflow-hidden ${
+                className={`w-full md:w-auto justify-center px-10 py-4 rounded-2xl font-bold shadow-2xl transition-all flex items-center gap-2 relative group overflow-hidden font-label ${
                   selectedIds.length === 0 ||
                   (minutesRemaining !== null && minutesRemaining > 0)
-                    ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                    : "bg-theme-600 hover:bg-theme-500 text-white hover:-translate-y-1 active:scale-95"
+                    ? "bg-surface-container-high text-on-surface/50 cursor-not-allowed border border-outline-variant"
+                    : "bg-primary hover:bg-primary/90 text-on-primary hover:-translate-y-1 active:scale-95"
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -355,26 +360,31 @@ export default function DiscoverPage() {
               <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                 <button
                   onClick={toggleAll}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border flex items-center gap-2 ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border flex items-center gap-2 font-label ${
                     selectedIds.length === favorites.length
-                      ? "bg-theme-600 border-theme-500 text-white shadow-lg shadow-theme-900/40"
-                      : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500"
+                      ? "bg-primary border-primary/80 text-on-primary shadow-lg shadow-primary/40"
+                      : "bg-surface-container-high border-outline-variant text-on-surface/50 hover:border-outline"
                   }`}
                 >
                   <Star
-                    className={`w-4 h-4 ${selectedIds.length === favorites.length ? "fill-white" : ""}`}
+                    className={`w-4 h-4 ${
+                      selectedIds.length === favorites.length ? "fill-on-primary" : ""
+                    }`}
                   />
                   {t("allFavorites")}
                 </button>
 
                 {favorites.map((fav) => (
                   <button
-                    key={fav._id}
-                    onClick={() => toggleFavorite(fav._id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
-                      selectedIds.includes(fav._id)
-                        ? "bg-theme-500/20 border-theme-400 text-theme-100 shadow-md shadow-theme-900/20"
-                        : "bg-slate-900/40 border-slate-800 text-slate-500 hover:border-slate-700"
+                    key={fav.id}
+
+                    onClick={() => toggleFavorite(fav.id)}
+
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border font-label ${
+                      selectedIds.includes(fav.id)
+
+                        ? "bg-primary/20 border-primary text-primary shadow-md shadow-primary/20"
+                        : "bg-surface-container-high border-outline-variant text-on-surface/50 hover:border-outline"
                     }`}
                   >
                     {fav.title}{" "}
@@ -385,7 +395,7 @@ export default function DiscoverPage() {
                 ))}
 
                 {favorites.length === 0 && !favoritesLoading && (
-                  <div className="flex items-center gap-2 text-slate-500 italic text-sm py-2">
+                  <div className="flex items-center gap-2 text-on-surface/50 italic text-sm py-2 font-body">
                     <Info className="w-4 h-4" />
                     {t("tagline")}
                   </div>
@@ -393,7 +403,7 @@ export default function DiscoverPage() {
               </div>
 
               {selectedIds.length === 0 && (
-                <p className="text-xs text-theme-400/60 animate-pulse font-medium">
+                <p className="text-xs text-primary/60 animate-pulse font-medium font-label">
                   {t("selectHint")}
                 </p>
               )}

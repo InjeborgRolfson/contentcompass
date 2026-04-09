@@ -44,7 +44,7 @@ const BottomNav = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-theme-100 z-50 pb-safe">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-low border-t border-outline-variant z-50 pb-safe">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -56,15 +56,15 @@ const BottomNav = () => {
               href={item.href}
               className={cn(
                 'relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors duration-200',
-                isActive ? 'text-theme-600' : 'text-theme-900/60'
+                isActive ? 'text-primary' : 'text-on-surface/60'
               )}
             >
-              <Icon className={cn('w-6 h-6', isActive && 'fill-theme-600/10')} />
-              <span className="text-[10px] font-medium tracking-wider">
+              <Icon className={cn('w-6 h-6', isActive && 'fill-primary/10')} />
+              <span className="text-[10px] font-medium tracking-wider font-label">
                 {formatText(item.label, 'upper')}
               </span>
               {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-theme-600 rounded-b-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-b-full" />
               )}
             </Link>
           );

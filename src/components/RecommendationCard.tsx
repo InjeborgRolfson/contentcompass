@@ -144,17 +144,19 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 
   const handleSave = async () => {
     if (isSaved && !isSavedPage) return;
-    if (isSavedPage && onRemove && recommendation._id) {
-      // Logic for deleting on Saved page
+    if (isSavedPage && onRemove && recommendation.id) {
+      setRemoving(true);
       try {
         const res = await fetch("/api/recommendations/save", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: recommendation._id }),
+          body: JSON.stringify({ id: recommendation.id }),
         });
-        if (res.ok) onRemove(recommendation._id);
+        if (res.ok) onRemove(recommendation.id);
       } catch (err) {
         console.error(err);
+      } finally {
+        setRemoving(false);
       }
       return;
     }
@@ -210,8 +212,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
     <div
       className={`rounded-[2rem] p-8 transition-all group flex flex-col h-full relative overflow-hidden ${
         isWildcard
-          ? "bg-gradient-to-br from-purple-50 via-white to-purple-50/40 border-2 border-purple-400 shadow-lg shadow-purple-200/60 hover:shadow-2xl hover:shadow-purple-300/80"
-          : "bg-white border border-theme-50 shadow-sm hover:shadow-2xl hover:shadow-theme-100"
+          ? "bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-high border-2 border-primary/30 shadow-lg shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30"
+          : "bg-surface-container border border-outline-variant shadow-sm hover:shadow-2xl hover:shadow-surface-container"
       } ${
         isFaded ? "opacity-40 pointer-events-none" : "opacity-100"
       } transition-all duration-500`}
@@ -219,7 +221,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         isWildcard
           ? {
               backgroundImage:
-                "radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%)",
+                "radial-gradient(circle at 20% 50%, rgba(73, 12, 15, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(73, 12, 15, 0.05) 0%, transparent 50%)",
             }
           : {}
       }
@@ -227,16 +229,16 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       {isWildcard && (
         <>
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-2 right-4 text-purple-200/40 text-xl">
+            <div className="absolute top-2 right-4 text-primary/20 text-xl">
               ✦
             </div>
-            <div className="absolute top-1/4 left-2 text-purple-200/30 text-lg">
+            <div className="absolute top-1/4 left-2 text-primary/15 text-lg">
               ✦
             </div>
-            <div className="absolute bottom-1/3 right-1/4 text-purple-200/25 text-base">
+            <div className="absolute bottom-1/3 right-1/4 text-primary/10 text-base">
               ✦
             </div>
-            <div className="absolute bottom-4 left-1/3 text-purple-200/35 text-sm">
+            <div className="absolute bottom-4 left-1/3 text-primary/20 text-sm">
               ✦
             </div>
           </div>
@@ -245,7 +247,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
       <div className="flex justify-between items-start mb-6 gap-3 relative z-10">
         <div className="flex items-center gap-2">
           <span
-            className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border"
+            className="px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest border font-label"
             style={getTypeBadgeStyle(displayType)}
           >
             {formatText(
@@ -254,12 +256,12 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             )}
           </span>
           {isWildcard && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-200 to-purple-100 text-purple-800 text-[10px] font-black rounded-full tracking-widest border-2 border-purple-400 flex items-center gap-1.5 shadow-md">
+            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full tracking-widest border-2 border-primary/30 flex items-center gap-1.5 shadow-md font-label">
               <span className="text-sm">✦</span> {t("wildcard")}
             </span>
           )}
           {isSavedPage && recommendation.savedFrom === "library" && (
-            <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-amber-50 text-amber-700 border-amber-200">
+            <span className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-widest border bg-surface-container text-on-surface/70 border-outline-variant font-label">
               {t("library")}
             </span>
           )}
@@ -272,8 +274,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
               disabled={marking || isFaded}
               className={`p-3 rounded-2xl transition-all ${
                 isFaded
-                  ? "bg-gray-200 text-gray-400 cursor-default"
-                  : "bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-200"
+                  ? "bg-surface-container-high text-on-surface/30 cursor-default"
+                  : "bg-surface-container text-on-surface/50 hover:text-on-surface hover:bg-surface-container-high border border-transparent hover:border-outline-variant"
               }`}
               title={t("alreadySeen")}
             >
@@ -286,8 +288,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             disabled={saving || (isSaved && !isSavedPage)}
             className={`p-3 rounded-2xl transition-all ${
               isSaved
-                ? "bg-theme-600 text-white shadow-lg shadow-theme-100"
-                : "bg-theme-50/50 text-theme-200 hover:text-theme-600 hover:bg-white border border-transparent hover:border-theme-100"
+                ? "bg-primary text-on-primary shadow-lg shadow-primary/40"
+                : "bg-surface-container/50 text-on-surface/30 hover:text-primary hover:bg-surface-container-high border border-transparent hover:border-primary/30"
             }`}
           >
             {isSaved ? (
@@ -301,7 +303,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="p-3 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500 shadow-sm hover:shadow-lg hover:shadow-red-100 group/delete"
+              className="p-3 rounded-2xl bg-error/10 text-error hover:bg-error hover:text-on-primary transition-all border border-error/30 hover:border-error shadow-sm hover:shadow-lg hover:shadow-error/20 group/delete"
               title={t("delete")}
             >
               <Trash2 className="w-5 h-5" />
@@ -318,7 +320,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
               alt={recommendation.title}
               className={`w-16 h-16 object-cover rounded-xl transition-all ${
                 isWildcard
-                  ? "ring-2 ring-purple-300 shadow-lg shadow-purple-200/50"
+                  ? "ring-2 ring-primary/30 shadow-lg shadow-primary/20"
                   : ""
               }`}
             />
@@ -327,16 +329,16 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           <div
             className={`w-16 h-16 rounded-xl flex flex-col items-center justify-center shrink-0 transition-all ${
               isWildcard
-                ? "bg-gradient-to-br from-purple-100 to-purple-50 ring-2 ring-purple-300"
-                : "bg-theme-50"
+                ? "bg-primary/10 ring-2 ring-primary/30"
+                : "bg-surface-container-high"
             }`}
           >
             <div className="text-2xl">
               {getContentTypeEmoji(displayType)}
             </div>
             <div
-              className={`text-[9px] font-bold mt-1 text-center px-1 ${
-                isWildcard ? "text-purple-600" : "text-theme-400"
+              className={`text-[9px] font-bold mt-1 text-center px-1 font-label ${
+                isWildcard ? "text-primary" : "text-primary/40"
               }`}
             >
               {displayType.substring(0, 8)}
@@ -345,10 +347,10 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         )}
 
         <h3
-          className={`text-2xl font-black transition-colors leading-tight ${
+          className={`text-2xl font-black transition-colors leading-tight font-headline ${
             isWildcard
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800 group-hover:from-purple-700 group-hover:to-purple-900"
-              : "text-theme-950 group-hover:text-theme-600"
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary group-hover:from-primary/90 group-hover:to-secondary/90"
+              : "text-on-surface group-hover:text-primary"
           }`}
         >
           {recommendation.title}
@@ -357,8 +359,8 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
 
       <div className="mb-6 relative z-10">
         <div
-          className={`flex flex-wrap gap-4 text-xs font-bold uppercase tracking-tighter ${
-            isWildcard ? "text-purple-900/60" : "text-theme-900/40"
+          className={`flex flex-wrap gap-4 text-xs font-bold uppercase tracking-tighter font-label ${
+            isWildcard ? "text-primary/50" : "text-on-surface/40"
           }`}
         >
           <div className="flex items-center gap-1.5">
@@ -376,12 +378,12 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         <div className="relative">
           <Info
             className={`w-4 h-4 absolute -left-6 top-1 ${
-              isWildcard ? "text-purple-300" : "text-theme-200"
+              isWildcard ? "text-primary/30" : "text-outline-variant"
             }`}
           />
           <p
-            className={`text-sm leading-relaxed font-medium ${
-              isWildcard ? "text-purple-900/75" : "text-theme-900/70"
+            className={`text-sm leading-relaxed font-medium font-body ${
+              isWildcard ? "text-primary/75" : "text-on-surface/70"
             }`}
           >
             {getLanguageSpecificField(
@@ -394,20 +396,20 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         {(getLanguageSpecificField("why", recommendation.why) || "").trim() && recommendation.savedFrom === "discover" && <div
           className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
             isWildcard
-              ? "bg-gradient-to-br from-purple-100/60 to-purple-50/40 border-purple-300 shadow-md shadow-purple-200/40"
-              : "bg-theme-50/40 border-theme-100"
+              ? "bg-primary/5 border-primary/30 shadow-md shadow-primary/10"
+              : "bg-surface-container-high border-outline-variant"
           }`}
         >
           <div
-            className={`absolute top-0 right-0 p-4 opacity-15 ${
-              isWildcard ? "text-purple-600" : "text-theme-600"
+            className={`absolute top-0 right-0 p-4 opacity-10 ${
+              isWildcard ? "text-primary" : "text-primary"
             }`}
           >
             <Sparkles className="w-8 h-8" />
           </div>
           <h4
-            className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${
-              isWildcard ? "text-purple-700" : "text-theme-600"
+            className={`text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 font-label ${
+              isWildcard ? "text-primary" : "text-primary"
             }`}
           >
             <Sparkles
@@ -416,18 +418,18 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
             {t("whyWeRecommend")}
           </h4>
           <p
-            className={`text-sm leading-relaxed italic font-medium ${whyExpanded ? "" : "line-clamp-2"} ${
-              isWildcard ? "text-purple-900/85" : "text-theme-900/80"
+            className={`text-sm leading-relaxed italic font-medium font-body ${whyExpanded ? "" : "line-clamp-2"} ${
+              isWildcard ? "text-primary/85" : "text-on-surface/80"
             }`}
           >
             "{getLanguageSpecificField("why", recommendation.why)}"
           </p>
           <button
             onClick={() => setWhyExpanded(!whyExpanded)}
-            className={`text-[10px] font-bold mt-1 transition-colors ${
+            className={`text-[10px] font-bold mt-1 transition-colors font-label ${
               isWildcard
-                ? "text-purple-500 hover:text-purple-700"
-                : "text-theme-400 hover:text-theme-600"
+                ? "text-primary/60 hover:text-primary"
+                : "text-primary/40 hover:text-primary"
             }`}
           >
             {whyExpanded ? "↑ daha az" : "↓ devamını gör"}
@@ -439,10 +441,10 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         {(recommendation.tags || []).map((tag, idx) => (
           <span
             key={idx}
-            className={`px-3 py-1.5 text-[10px] font-bold rounded-xl uppercase transition-all ${
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-xl uppercase transition-all font-label ${
               isWildcard
-                ? "bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-300 text-purple-700 shadow-md shadow-purple-200/30"
-                : "bg-white border border-theme-50 text-theme-600/60 shadow-sm"
+                ? "bg-primary/10 border border-primary/30 text-primary shadow-md shadow-primary/10"
+                : "bg-surface-container border border-outline-variant text-primary/60 shadow-sm"
             }`}
           >
             # {tag}

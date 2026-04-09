@@ -1,48 +1,51 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import ContentEntry from "@/models/ContentEntry";
+import { NextResponse } from 'next/server';
+import { createSupabase } from '@/lib/supabase';
 
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
 const PAGE_SIZE = 24;
 
 export async function GET(req: Request) {
   try {
-    await dbConnect();
+    const supabase = createSupabase();
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
     const page = Math.max(0, parseInt(searchParams.get("page") ?? "0", 10));
 
-    const filter: Record<string, any> = {};
+    let query = supabase
+      .from('content_entries')
+      .select('*', { count: 'exact' });
+
     if (type && type !== "all") {
-      filter.type =
-        type.toLowerCase() === "youtube"
-          ? { $regex: /^youtube/i }
-          : { $regex: new RegExp(`^${type}$`, "i") };
+      if (type.toLowerCase() === "youtube") {
+        query = query.ilike('type', 'youtube%');
+      } else {
+        query = query.ilike('type', type);
+      }
     }
 
-    const [items, total] = await Promise.all([
-      ContentEntry.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(page * PAGE_SIZE)
-        .limit(PAGE_SIZE)
-        .lean(),
-      ContentEntry.countDocuments(filter),
-    ]);
+    const { data: items, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    if (error) {
+      console.error(' Supabase GET library error:', error);
+      return NextResponse.json({ error: 'Database query failed', details: error.message }, { status: 500 });
+    }
+
 
     return NextResponse.json({
-      success: true,
-      data: items,
-      total,
+      items,
+      total: count || 0,
       page,
-      totalPages: Math.ceil(total / PAGE_SIZE),
+      totalPages: Math.ceil((count || 0) / PAGE_SIZE),
     });
-  } catch (error) {
-    console.error("Error fetching library:", error);
+  } catch (error: any) {
+    console.error(' CRITICAL error in GET library:', error);
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
-      { status: 500 },
+      { error: 'Unexpected Server Error', message: error?.message || String(error) },
+      { status: 500 }
     );
   }
 }

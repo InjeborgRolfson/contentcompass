@@ -59,7 +59,8 @@ const getTypeBadgeStyle = (type: string): React.CSSProperties => {
 };
 
 interface ContentItem {
-  _id: string;
+  id: number | string;
+
   type: string;
   title: string;
   creator: string;
@@ -80,7 +81,8 @@ export default function LibraryPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
   const [savedTitles, setSavedTitles] = useState<Set<string>>(new Set());
-  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [savingIds, setSavingIds] = useState<Set<string | number>>(new Set());
+
 
   const fetchLibrary = useCallback(async (type: string, page: number) => {
     setLoading(true);
@@ -137,9 +139,11 @@ export default function LibraryPage() {
   const handleSave = async (e: React.MouseEvent, item: ContentItem) => {
     e.preventDefault();
     e.stopPropagation();
-    if (savedTitles.has(item.title) || savingIds.has(item._id)) return;
+    if (savedTitles.has(item.title) || savingIds.has(item.id)) return;
 
-    setSavingIds((prev) => new Set(prev).add(item._id));
+
+    setSavingIds((prev) => new Set(prev).add(item.id));
+
     try {
       const res = await fetch("/api/recommendations/save", {
         method: "POST",
@@ -166,7 +170,8 @@ export default function LibraryPage() {
     } finally {
       setSavingIds((prev) => {
         const next = new Set(prev);
-        next.delete(item._id);
+        next.delete(item.id);
+
         return next;
       });
     }
@@ -255,7 +260,8 @@ export default function LibraryPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {items.map((item) => (
               <Link
-                key={item._id}
+                key={item.id}
+
                 href={`/content/${item.slug}`}
                 className="group bg-white rounded-3xl overflow-hidden border border-theme-50 shadow-sm hover:shadow-xl hover:shadow-theme-100 transition-all duration-300 flex flex-col"
               >
@@ -291,7 +297,8 @@ export default function LibraryPage() {
                   <div className="absolute top-3 right-3">
                     <button
                       onClick={(e) => handleSave(e, item)}
-                      disabled={savingIds.has(item._id)}
+                      disabled={savingIds.has(item.id)}
+
                       className={`p-3 rounded-2xl transition-all shadow-md ${
                         savedTitles.has(item.title)
                           ? "bg-theme-600 text-white shadow-theme-200"

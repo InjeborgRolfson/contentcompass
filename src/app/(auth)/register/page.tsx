@@ -21,32 +21,35 @@ export default function RegisterPage() {
     setError('');
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
 
       if (res.ok) {
         // Automatically sign in after registration
         const result = await signIn('credentials', {
-          email,
+          email: normalizedEmail,
           password,
           redirect: false,
         });
 
         if (result?.error) {
-          setError('Registration successful, but login failed. Please login manually.');
-        } else {
+          console.error('Post-registration login failed:', result.error);
+          setError('Registration successful! Please login with your credentials.');
+        } else if (result?.ok) {
           router.push('/favorites');
           router.refresh();
         }
       } else {
         const data = await res.json();
-        setError(data.error || 'An error occurred');
+        setError(data.error || 'Registration failed');
       }
     } catch (err) {
-      setError('An error occurred');
+      console.error('Registration error:', err);
+      setError('An error occurred during registration');
     } finally {
       setLoading(false);
     }

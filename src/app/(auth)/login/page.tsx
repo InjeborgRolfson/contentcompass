@@ -22,19 +22,21 @@ export default function LoginPage() {
 
     try {
       const res = await signIn('credentials', {
-        email,
-        password,
+        email: email.trim().toLowerCase(),
+        password: password,
         redirect: false,
       });
 
       if (res?.error) {
-        setError('Invalid credentials');
-      } else {
+        console.error('SignIn error:', res.error);
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else if (res?.ok) {
         router.push('/favorites');
         router.refresh();
       }
     } catch (err) {
-      setError('An error occurred');
+      console.error('Login error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

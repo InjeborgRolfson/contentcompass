@@ -106,7 +106,8 @@ export default function FavoritesPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteFavorite = async (id: string) => {
+  const handleDeleteFavorite = async (id: number | string) => {
+
     if (
       !window.confirm(
         t("confirmDelete" as any) ||
@@ -534,7 +535,8 @@ export default function FavoritesPage() {
       }
 
       const url = editingFavorite
-        ? `/api/favorites/${editingFavorite._id}`
+        ? `/api/favorites/${editingFavorite.id}`
+
         : "/api/favorites";
       const method = editingFavorite ? "PATCH" : "POST";
 
@@ -577,14 +579,14 @@ export default function FavoritesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
         <div className="flex-1">
           <div className="flex items-end gap-4 mb-2">
-            <h1 className="text-4xl font-extrabold text-theme-900">
+            <h1 className="text-4xl font-extrabold text-on-surface font-headline">
               {t("myCollection")}
             </h1>
             {favorites.length > 0 && (
               <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />
             )}
           </div>
-          <p className="text-theme-900/60">{t("tagline")}</p>
+          <p className="text-on-surface/60 font-body">{t("tagline")}</p>
         </div>
 
         <button
@@ -601,7 +603,7 @@ export default function FavoritesPage() {
             });
             setIsModalOpen(true);
           }}
-          className="flex items-center gap-2 px-6 py-3 bg-theme-600 hover:bg-theme-700 text-white rounded-2xl font-bold shadow-lg shadow-theme-100 transition-all active:scale-95"
+          className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-on-primary rounded-2xl font-bold shadow-lg shadow-primary/40 transition-all active:scale-95 font-label"
         >
           <Plus className="w-5 h-5" />
           {t("addFavorite")}
@@ -610,17 +612,17 @@ export default function FavoritesPage() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-10 h-10 animate-spin text-theme-600" />
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
         </div>
       ) : favorites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-[32px] border-2 border-dashed border-theme-100 text-center animate-in fade-in duration-500">
+        <div className="flex flex-col items-center justify-center py-20 px-6 bg-surface-container rounded-[32px] border-2 border-dashed border-outline-variant text-center animate-in fade-in duration-500">
           <div className="w-24 h-24 bg-theme-50 rounded-full flex items-center justify-center text-theme-200 mb-8">
             <Compass className="w-12 h-12 animate-[spin_10s_linear_infinite]" />
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-theme-950 mb-3">
             {t("emptyFavoritesTitle")}
           </h2>
-          <p className="text-theme-900/50 max-w-sm mb-10 leading-relaxed">
+          <p className="text-on-surface/50 max-w-sm mb-10 leading-relaxed font-body">
             {t("emptyFavoritesSubtitle")}
           </p>
           <button
@@ -637,7 +639,7 @@ export default function FavoritesPage() {
               });
               setIsModalOpen(true);
             }}
-            className="group flex items-center gap-3 px-8 py-4 bg-theme-600 hover:bg-theme-700 text-white rounded-2xl font-bold shadow-xl shadow-theme-100 transition-all hover:-translate-y-1 active:scale-95"
+            className="group flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-on-primary rounded-2xl font-bold shadow-xl shadow-primary/40 transition-all hover:-translate-y-1 active:scale-95 font-label"
           >
             <Plus className="w-5 h-5" />
             {t("addFirstFavorite")}
@@ -662,11 +664,11 @@ export default function FavoritesPage() {
                   className="animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="h-8 w-1.5 bg-theme-600 rounded-full" />
-                    <h2 className="text-2xl font-extrabold text-theme-950 tracking-tight">
+                    <div className="h-8 w-1.5 bg-primary rounded-full" />
+                    <h2 className="text-2xl font-extrabold text-on-surface tracking-tight font-headline">
                       {t(type.toLowerCase() as any)}
                     </h2>
-                    <span className="px-3 py-1 bg-theme-50 text-theme-600 text-xs font-bold rounded-full border border-theme-100 uppercase tracking-wider">
+                    <span className="px-3 py-1 bg-surface-container text-primary text-xs font-bold rounded-full border border-outline-variant uppercase tracking-wider font-label">
                       {typeFavorites.length}
                     </span>
                   </div>
@@ -675,7 +677,8 @@ export default function FavoritesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {typeFavorites.map((fav) => (
                         <FavoriteCard
-                          key={fav._id}
+                          key={fav.id}
+
                           favorite={fav}
                           onEdit={handleEditClick}
                         />
@@ -703,10 +706,10 @@ export default function FavoritesPage() {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-theme-900/20 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
-            <div className="px-8 py-6 border-b border-theme-50 flex justify-between items-center bg-theme-50/30">
-              <h2 className="text-2xl font-bold text-theme-900">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-on-surface/20 backdrop-blur-sm">
+          <div className="bg-surface w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-high/30">
+              <h2 className="text-2xl font-bold text-on-surface font-headline">
                 {editingFavorite
                   ? t("editFavorite" as any) || "Edit Favorite"
                   : t("addFavorite")}
@@ -716,9 +719,9 @@ export default function FavoritesPage() {
                   setIsModalOpen(false);
                   setEditingFavorite(null);
                 }}
-                className="p-2 hover:bg-white rounded-xl transition-colors"
+                className="p-2 hover:bg-surface-container/50 rounded-xl transition-colors"
               >
-                <X className="w-6 h-6 text-theme-900/40" />
+                <X className="w-6 h-6 text-on-surface/40" />
               </button>
             </div>
 
@@ -918,7 +921,8 @@ export default function FavoritesPage() {
               {editingFavorite && (
                 <button
                   type="button"
-                  onClick={() => handleDeleteFavorite(editingFavorite._id)}
+                  onClick={() => handleDeleteFavorite(editingFavorite.id)}
+
                   className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border border-red-100 mt-2"
                 >
                   {t("deleteFavorite")}

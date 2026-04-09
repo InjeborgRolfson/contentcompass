@@ -48,11 +48,11 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
   };
 
   return (
-    <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm border border-theme-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="overflow-hidden bg-surface rounded-[2rem] shadow-sm border border-outline-variant animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-theme-50 bg-theme-50/30 text-theme-400 text-[10px] font-black uppercase tracking-widest">
+            <tr className="border-b border-outline-variant bg-surface-container-high text-primary/60 text-[10px] font-black uppercase tracking-widest font-label">
               <th className="px-8 py-6">{t('contentType')}</th>
               <th className="px-8 py-6">{t('title')}</th>
               <th className="px-8 py-6">{t('creator')}</th>
@@ -65,7 +65,7 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
             {favorites.map((fav, idx) => (
               <tr 
                 key={idx}
-                className="hover:bg-theme-50/20 transition-colors group"
+                className="hover:bg-surface-container/50 transition-colors group"
               >
                 <td className="px-8 py-6 whitespace-nowrap">
                   <span 
@@ -77,17 +77,17 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
                   </span>
                 </td>
                 <td className="px-8 py-6">
-                  <span className="text-sm font-bold text-theme-950 group-hover:text-theme-600 transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap">
+                  <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors block max-w-xs md:max-w-md overflow-hidden text-overflow-ellipsis whitespace-nowrap font-headline">
                     {fav.title}
                   </span>
                 </td>
-                <td className="px-8 py-6 text-sm text-theme-900/60 font-medium">
+                <td className="px-8 py-6 text-sm text-on-surface/60 font-medium font-body">
                   {fav.creator || '—'}
                 </td>
-                <td className="px-8 py-6 text-sm text-theme-900/40 font-bold tabular-nums">
+                <td className="px-8 py-6 text-sm text-on-surface/40 font-bold tabular-nums font-label">
                   {fav.year || '—'}
                 </td>
-                <td className="px-8 py-6 text-sm text-theme-900/60 font-medium max-w-xs overflow-hidden text-overflow-ellipsis whitespace-nowrap">
+                <td className="px-8 py-6 text-sm text-on-surface/60 font-medium max-w-xs overflow-hidden text-overflow-ellipsis whitespace-nowrap font-body">
                   {fav.note || '—'}
                 </td>
                 <td className="px-8 py-6">
@@ -100,7 +100,7 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onDelete?.(fav._id)}
+                      onClick={() => onDelete?.(fav.id)}
                       className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:border-red-500"
                       title={t('delete' as any)}
                     >

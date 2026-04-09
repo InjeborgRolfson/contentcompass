@@ -1,32 +1,36 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import ContentEntry from "@/models/ContentEntry";
+import { NextResponse } from 'next/server';
+import { createSupabase } from '@/lib/supabase';
 
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
 export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ slug: string }> },
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { slug } = await params;
-    await dbConnect();
+    const supabase = createSupabase();
 
-    const entry = await ContentEntry.findOne({ slug }).lean();
+    const { data: entry, error } = await supabase
+      .from('content_entries')
+      .select('*')
+      .eq('slug', slug)
+      .single();
 
-    if (!entry) {
-      return NextResponse.json(
-        { success: false, error: "Not found" },
-        { status: 404 },
-      );
+    if (error || !entry) {
+      console.error(' Supabase GET library item error:', error);
+      return NextResponse.json({ 
+        error: 'Content not found', 
+        details: error 
+      }, { status: error ? 500 : 404 });
     }
 
-    return NextResponse.json({ success: true, data: entry });
-  } catch (error) {
-    console.error("Error fetching content entry:", error);
+    return NextResponse.json(entry);
+  } catch (error: any) {
+    console.error(' CRITICAL error in GET library item:', error);
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
-      { status: 500 },
+      { error: 'Unexpected Server Error', message: error?.message || String(error) },
+      { status: 500 }
     );
   }
 }

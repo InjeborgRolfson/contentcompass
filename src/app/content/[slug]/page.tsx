@@ -1,27 +1,24 @@
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import dbConnect from "@/lib/mongodb";
-import ContentEntry from "@/models/ContentEntry";
-import ContentDetailClient from "./ContentDetailClient";
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+import ContentDetailClient from './ContentDetailClient';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 async function getEntry(slug: string) {
-  await dbConnect();
-  const entry = await ContentEntry.findOne({ slug }).lean<{
-    _id: any;
-    type: string;
-    title: string;
-    creator: string;
-    year: string;
-    description_en: string;
-    description_tr: string;
-    photo: string | null;
-    tags: string[];
-    slug: string;
-  }>();
+  const { data: entry, error } = await supabase
+    .from('content_entries')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error || !entry) return null;
   return entry;
 }
 
@@ -30,10 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const entry = await getEntry(slug);
 
   if (!entry) {
-    return { title: "Not Found — ContentCompass" };
+    return { title: 'Not Found — ContentCompass' };
   }
 
-  const description = entry.description_en || entry.description_tr || "";
+  const description = entry.description_en || entry.description_tr || '';
   const imageUrl = entry.photo ?? undefined;
 
   return {
@@ -42,11 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: entry.title,
       description,
-      type: "article",
+      type: 'article',
       ...(imageUrl ? { images: [{ url: imageUrl, alt: entry.title }] } : {}),
     },
     twitter: {
-      card: imageUrl ? "summary_large_image" : "summary",
+      card: imageUrl ? 'summary_large_image' : 'summary',
       title: entry.title,
       description,
       ...(imageUrl ? { images: [imageUrl] } : {}),
@@ -60,10 +57,8 @@ export default async function ContentPage({ params }: Props) {
 
   if (!entry) notFound();
 
-  const serialized = {
-    ...entry,
-    _id: String(entry._id),
-  };
+  // Supabase uses 'id' instead of '_id'
+  return <ContentDetailClient entry={entry} />;
 
-  return <ContentDetailClient entry={serialized} />;
 }
+
