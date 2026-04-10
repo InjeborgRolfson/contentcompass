@@ -160,15 +160,16 @@ export default function HomeClient() {
         className={`${newsreader.variable} ${plusJakarta.variable} ${dmSans.variable} bg-surface text-on-surface font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed`}
       >
         {/* TopNavBar */}
-        <nav className="fixed top-0 w-full flex justify-between items-center px-8 py-6 max-w-none bg-[#fff8f2]/70 backdrop-blur-xl z-50">
-          <div
-            className="text-2xl italic text-[#490c0f]"
+        <nav className="fixed top-0 w-full flex justify-between items-center px-8 py-6 max-w-none bg-[#fff8f2]/70 backdrop-blur-xl z-50 border-b border-[#dac1bf]/30 shadow-sm">
+          <a
+            href="/"
+            className="text-2xl italic text-[#490c0f] hover:opacity-80 transition-opacity"
             style={{ fontFamily: "var(--font-gloock), serif" }}
           >
             odilon
-          </div>
-          <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-            <img src="/pusula-logo.png" alt="Odilon compass" width={36} height={36} />
+          </a>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:block">
+            <img src="/pusula-logo.png" alt="Odilon compass" width={52} height={52} />
           </div>
           <div className="flex items-center gap-3 md:gap-6">
             <a
@@ -260,7 +261,7 @@ export default function HomeClient() {
                     </h1>
                   </div>
                   {/* CTAs */}
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
                     <a
                       href="/login"
                       className="inline-flex items-center justify-center bg-primary-container text-surface px-6 py-3 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-all active:scale-95 w-fit"
@@ -278,16 +279,14 @@ export default function HomeClient() {
               </div>
 
               {/* Middle: Wordmark + Portrait */}
-              <div className="col-span-12 lg:col-span-6 flex flex-col items-center">
-                <div className="mb-4">
-                  <img src="/pusula-logo.png" alt="Odilon compass" width={60} height={60} />
-                </div>
-                <h1 className="hidden sm:block text-[5rem] sm:text-[7rem] lg:text-[10rem] xl:text-[14rem] leading-none gloock-wordmark text-[#842A3B] tracking-tighter select-none">
+              <div className="col-span-12 lg:col-span-6 flex flex-col items-center pt-12">
+
+                <h1 className="hidden sm:block text-[5rem] sm:text-[7rem] lg:text-[10rem] xl:text-[14rem] leading-none gloock-wordmark text-[#842A3B] -mt-16 tracking-tighter select-none">
                   odilon
                 </h1>
-                <div className="relative mt-[-3rem] z-20 group">
+                <div className="relative mt-[-4rem] z-20 group">
                   <div className="absolute -inset-4 bg-surface-container-high rounded-lg rotate-3 transition-transform group-hover:rotate-1 duration-500" />
-                  <div className="relative overflow-hidden rounded-lg shadow-2xl w-full lg:max-w-md aspect-[4/5] max-h-[50vh] lg:max-h-none">
+                  <div className="relative overflow-hidden rounded-lg shadow-2xl w-full lg:max-w-md aspect-[4/5]">
                     <img
                       alt="Odilon Redon — closed eyes"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
@@ -298,7 +297,7 @@ export default function HomeClient() {
               </div>
 
               {/* Right: Art of Discovery */}
-              <div className="hidden lg:flex col-span-12 lg:col-span-3 pt-32 lg:text-right flex-col items-end gap-16">
+              <div className="hidden lg:flex col-span-12 lg:col-span-3 pt-12 lg:text-right flex-col items-end gap-16">
                 <div className="space-y-6 max-w-xs">
                   <h2 className="text-4xl font-headline italic text-[#842A3B]">
                     {t.art_of_discovery}
@@ -308,7 +307,7 @@ export default function HomeClient() {
                   </p>
                 </div>
                 {/* Decorative quote — stays in original language */}
-                <div className="relative opacity-40 text-center w-full max-w-xs mx-auto mt-12">
+                <div className="relative opacity-80 text-center w-full max-w-xs mx-auto mt-12">
                   <span
                     className="material-symbols-outlined text-secondary text-5xl opacity-20 absolute -top-8 left-1/2 -translate-x-1/2"
                     style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
