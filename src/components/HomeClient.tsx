@@ -388,7 +388,7 @@ export default function HomeClient() {
               <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">{t.col1_label}</p>
 
               {/* Book Card */}
-              <div className="bg-surface-container p-6 rounded-xl relative group hover:rotate-1 transition-transform duration-500">
+              <div className="bg-surface-container-low p-6 rounded-xl shadow-sm border border-outline-variant/10 relative group hover:rotate-1 transition-transform duration-500">
                 <div className="aspect-[3/4] overflow-hidden rounded-lg mb-4">
                   <img
                     alt="The Picture of Dorian Gray"
@@ -445,7 +445,7 @@ export default function HomeClient() {
               </div>
 
               {/* Art Card (Odilon Redon) */}
-              <div className="bg-surface-container p-6 rounded-xl hover:shadow-xl transition-shadow duration-700">
+              <div className="bg-surface-container-low p-6 rounded-xl shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all duration-700">
                 <div className="aspect-square overflow-hidden rounded-lg mb-4 grayscale hover:grayscale-0 transition-all duration-1000">
                   <img
                     alt="Odilon inspired artwork"
@@ -466,7 +466,7 @@ export default function HomeClient() {
               <p className="font-label text-[11px] uppercase tracking-[0.12em] text-secondary opacity-50">{t.col3_label}</p>
 
               {/* Live Action Card */}
-              <div className="bg-surface-container-highest rounded-xl shadow-sm rotate-1 hover:rotate-0 transition-all duration-500 p-4">
+              <div className="bg-surface-container-low rounded-xl shadow-sm border border-outline-variant/10 rotate-1 hover:rotate-0 transition-all duration-500 p-4">
                 <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
                   <img
                     alt="Ghost in the Shell — Live Action"
@@ -491,7 +491,7 @@ export default function HomeClient() {
               </div>
 
               {/* 1995 Anime Card */}
-              <div className="bg-surface-container p-6 rounded-xl hover:shadow-xl transition-shadow duration-700">
+              <div className="bg-surface-container-low p-6 rounded-xl shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all duration-700">
                 <div className="aspect-[3/4] overflow-hidden rounded-lg mb-4">
                   <img
                     alt="Ghost in the Shell 1995"

@@ -66,7 +66,7 @@ export default function MusicPlayer() {
       : "0:42 / 5:53";
 
   return (
-    <div className="bg-surface-container-high p-6 rounded-xl backdrop-blur-sm border border-outline-variant/15">
+    <div className="bg-surface-container-low p-6 rounded-xl shadow-sm backdrop-blur-sm border border-outline-variant/10">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-secondary/20">
           <img
