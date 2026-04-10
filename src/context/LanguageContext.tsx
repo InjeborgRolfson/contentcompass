@@ -29,6 +29,8 @@ const translations: Translations = {
     TR: "Pusulanın Gösterdiği Yer",
   },
   whyWeRecommend: { EN: "Why we recommend this", TR: "Neden öneriyoruz" },
+  showMore: { EN: "↓ read more", TR: "↓ devamını gör" },
+  showLess: { EN: "↑ less", TR: "↑ daha az" },
   explorationLimit: {
     EN: "You've reached the exploration limit for this session.",
     TR: "Bu oturum için keşif sınırına ulaştınız.",

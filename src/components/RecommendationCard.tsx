@@ -393,7 +393,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </p>
         </div>
 
-        {(getLanguageSpecificField("why", recommendation.why) || "").trim() && recommendation.savedFrom === "discover" && <div
+        {(getLanguageSpecificField("why", recommendation.why) || "").trim() && <div
           className={`rounded-3xl p-6 border-2 relative overflow-hidden ${
             isWildcard
               ? "bg-primary/5 border-primary/30 shadow-md shadow-primary/10"
@@ -422,7 +422,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
               isWildcard ? "text-primary/85" : "text-on-surface/80"
             }`}
           >
-            "{getLanguageSpecificField("why", recommendation.why)}"
+            {getLanguageSpecificField("why", recommendation.why)}
           </p>
           <button
             onClick={() => setWhyExpanded(!whyExpanded)}
@@ -432,7 +432,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
                 : "text-primary/40 hover:text-primary"
             }`}
           >
-            {whyExpanded ? "↑ daha az" : "↓ devamını gör"}
+            {whyExpanded ? t("showLess") || "↑ less" : t("showMore") || "↓ read more"}
           </button>
         </div>}
       </div>

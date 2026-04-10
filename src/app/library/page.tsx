@@ -91,11 +91,13 @@ export default function LibraryPage() {
       if (type !== "all") params.set("type", type);
       const res = await fetch(`/api/library?${params}`);
       const data = await res.json();
-      if (data.success) {
-        setItems(data.data ?? []);
+      if (!data.error) {
+        setItems(data.items ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setCurrentPage(data.page ?? 0);
+      } else {
+        console.error("Library API error:", data.error, data.details);
       }
     } catch (err) {
       console.error("Failed to fetch library:", err);
