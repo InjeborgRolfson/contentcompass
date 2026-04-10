@@ -148,7 +148,7 @@ export default function HomeClient() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/home");
+      router.replace("/favorites");
     }
   }, [status, router]);
 
