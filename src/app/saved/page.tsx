@@ -10,6 +10,7 @@ import RecommendationTable from "@/components/RecommendationTable";
 import Pagination from "@/components/Pagination";
 import Toast from "@/components/ui/Toast";
 import { normalizeContentType } from "@/utils/content-type";
+import { getTypeBadgeStyle } from "@/utils/categoryColors";
 
 type TabType = "saved" | "seen";
 
@@ -34,68 +35,6 @@ interface SeenItem {
   seenAt: string;
 }
 
-
-const getTypeBadgeStyle = (type: string): React.CSSProperties => {
-  const styles: Record<string, React.CSSProperties> = {
-    book: {
-      backgroundColor: "#EAF3DE",
-      color: "#3B6D11",
-      borderColor: "#C0DD97",
-    },
-    movie: {
-      backgroundColor: "#E6F1FB",
-      color: "#185FA5",
-      borderColor: "#B5D4F4",
-    },
-    "tv show": {
-      backgroundColor: "#EEEDFE",
-      color: "#534AB7",
-      borderColor: "#CECBF6",
-    },
-    game: {
-      backgroundColor: "#FAEEDA",
-      color: "#854F0B",
-      borderColor: "#FAC775",
-    },
-    music: {
-      backgroundColor: "#FBEAF0",
-      color: "#993556",
-      borderColor: "#F4C0D1",
-    },
-    podcast: {
-      backgroundColor: "#FAECE7",
-      color: "#993C1D",
-      borderColor: "#F5C4B3",
-    },
-    article: {
-      backgroundColor: "#E1F5EE",
-      color: "#0F6E56",
-      borderColor: "#9FE1CB",
-    },
-    youtube: {
-      backgroundColor: "#FCEBEB",
-      color: "#A32D2D",
-      borderColor: "#F7C1C1",
-    },
-    creator: {
-      backgroundColor: "#F5F3FF",
-      color: "#5B21B6",
-      borderColor: "#DDD6FE",
-    },
-    painting: {
-      backgroundColor: "#FEF9C3",
-      color: "#854D0E",
-      borderColor: "#FDE047",
-    },
-  };
-  return (
-    styles[type.toLowerCase()] ?? {
-      backgroundColor: "#EEF2FF",
-      color: "#4338CA",
-      borderColor: "#C7D2FE",
-    }
-  );
-};
 
 export default function SavedPage() {
   const [activeTab, setActiveTab] = useState<TabType>("saved");

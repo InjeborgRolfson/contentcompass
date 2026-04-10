@@ -3,6 +3,7 @@
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Pencil, Trash2, Clock, User } from 'lucide-react';
+import { getTypeBadgeStyle } from '@/utils/categoryColors';
 
 interface FavoriteTableProps {
   favorites: any[];
@@ -31,20 +32,6 @@ const FavoriteTable: React.FC<FavoriteTableProps> = ({
 
   const getContentTypeEmoji = (type: string): string => {
     return contentTypeEmojis[type.toLowerCase()] || '🌐';
-  };
-
-  const getTypeBadgeStyle = (type: string): React.CSSProperties => {
-    const styles: Record<string, React.CSSProperties> = {
-      book:     { backgroundColor: '#EAF3DE', color: '#3B6D11', borderColor: '#C0DD97' },
-      movie:    { backgroundColor: '#E6F1FB', color: '#185FA5', borderColor: '#B5D4F4' },
-      'tv show':{ backgroundColor: '#EEEDFE', color: '#534AB7', borderColor: '#CECBF6' },
-      game:     { backgroundColor: '#FAEEDA', color: '#854F0B', borderColor: '#FAC775' },
-      music:    { backgroundColor: '#FBEAF0', color: '#993556', borderColor: '#F4C0D1' },
-      podcast:  { backgroundColor: '#FAECE7', color: '#993C1D', borderColor: '#F5C4B3' },
-      article:  { backgroundColor: '#E1F5EE', color: '#0F6E56', borderColor: '#9FE1CB' },
-      youtube:  { backgroundColor: '#FCEBEB', color: '#A32D2D', borderColor: '#F7C1C1' },
-    };
-    return styles[type.toLowerCase()] ?? { backgroundColor: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' };
   };
 
   return (

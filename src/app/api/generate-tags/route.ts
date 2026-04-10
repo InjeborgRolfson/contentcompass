@@ -80,6 +80,7 @@ async function getWikipediaTitleFromWikidata(
     `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
       query,
     )}&language=en&format=json&origin=*&limit=5`,
+    { headers: { "User-Agent": "ContentCompass/1.0 (info@contentcompass.app)" } }
   );
 
   if (!searchRes.ok) return null;
@@ -119,6 +120,7 @@ async function getWikipediaTitleFromWikidata(
 
     const entityRes = await fetch(
       `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${result.id}&props=sitelinks&sitefilter=enwiki&format=json&origin=*`,
+      { headers: { "User-Agent": "ContentCompass/1.0 (info@contentcompass.app)" } }
     );
     if (!entityRes.ok) continue;
 
@@ -154,6 +156,7 @@ async function getWikipediaTitleFromSearch(
     `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(
       query,
     )}&limit=1&namespace=0&format=json&origin=*`,
+    { headers: { "User-Agent": "ContentCompass/1.0 (info@contentcompass.app)" } }
   );
 
   if (!searchRes.ok) return null;
@@ -187,6 +190,7 @@ async function getTagsFromWikipediaTitle(wikiTitle: string): Promise<string[]> {
     `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
       wikiTitle,
     )}&prop=categories&cllimit=50&format=json&origin=*`,
+    { headers: { "User-Agent": "ContentCompass/1.0 (info@contentcompass.app)" } }
   );
 
   if (!categoriesRes.ok) return [];

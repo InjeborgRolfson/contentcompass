@@ -8,6 +8,7 @@ import FavoriteCard from "@/components/FavoriteCard";
 import FavoriteTable from "@/components/FavoriteTable";
 import ViewToggle from "@/components/ViewToggle";
 import Pagination from "@/components/Pagination";
+import { getTypeColor, getTypeBadgeStyle } from "@/utils/categoryColors";
 
 const contentTypes: ContentType[] = [
   "Book",
@@ -664,11 +665,17 @@ export default function FavoritesPage() {
                   className="animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="h-8 w-1.5 bg-primary rounded-full" />
+                    <div 
+                      className="h-8 w-1.5 rounded-full" 
+                      style={{ backgroundColor: getTypeColor(type) }} 
+                    />
                     <h2 className="text-2xl font-extrabold text-on-surface tracking-tight font-headline">
                       {t(type.toLowerCase() as any)}
                     </h2>
-                    <span className="px-3 py-1 bg-surface-container text-primary text-xs font-bold rounded-full border border-outline-variant uppercase tracking-wider font-label">
+                    <span 
+                      className="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider font-label"
+                      style={getTypeBadgeStyle(type)}
+                    >
                       {typeFavorites.length}
                     </span>
                   </div>
@@ -864,11 +871,17 @@ export default function FavoritesPage() {
                             creatorMode: type === "Creator",
                           })
                         }
-                        className={`px-2 py-2 text-xs font-bold rounded-xl transition-all border ${
+                        className={`px-2 py-2 text-xs font-bold rounded-xl transition-all border`}
+                        style={
                           formData.type === type
-                            ? "bg-theme-600 text-white border-theme-600 shadow-md shadow-theme-100"
-                            : "bg-white text-theme-900/40 border-theme-50 hover:border-theme-200"
-                        }`}
+                            ? { 
+                                backgroundColor: getTypeColor(type), 
+                                borderColor: getTypeColor(type),
+                                color: "#ffffff",
+                                boxShadow: `0 4px 6px -1px ${getTypeColor(type)}40`
+                              }
+                            : { backgroundColor: "transparent", borderColor: "#e2e8f0", color: "#94a3b8" }
+                        }
                       >
                         {t(type.toLowerCase() as any)}
                       </button>
