@@ -88,10 +88,10 @@ const translations = {
     nav_how: "Nasıl çalışır",
     nav_try: "Odilon'u dene",
     hero_h1_prefix: "En sevdiğin kitabın melodilerde gizli bir\u00a0",
-    hero_h1_em: "kız kardeşi",
+    hero_h1_em: "kardeşi",
     hero_h1_suffix: "\u00a0var.",
     hero_sub:
-      "odilon odilon sevdiklerini tanır — kitap, film, tablo — ve her formatta karşılığını bulur.",
+      "odilon sevdiklerini tanır — kitap, film, tablo — ve her formatta karşılığını bulur.",
     hero_cta: "Keşfe Çık",
     hero_scroll: "↓ Nasıl çalışır",
     art_of_discovery: "Keşif Sanatı",
