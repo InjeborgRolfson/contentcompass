@@ -80,14 +80,11 @@ const translations = {
     footer_copy: "© 2026 odilon. Multi-Genre Turnstile Machine.",
     redon_explain:
       "odilon is named after him. Like his art, it refuses to be confined to a single genre — it moves between worlds, the way music moves between feelings.",
-    anime_desc:
-      "The architectural soul of the 1995 masterpiece finds its genetic echo in the brutalist streets of modern noir cinema.",
-    painting_ref: "The archival reference",
   },
   TR: {
     nav_how: "Nasıl çalışır",
     nav_try: "Odilon'u dene",
-    hero_h1_prefix: "En sevdiğin kitabın melodilerde gizli bir\u00a0",
+    hero_h1_prefix: "En sevdiğin kitabın melodilerde gizli bir ",
     hero_h1_em: "kardeşi",
     hero_h1_suffix: "\u00a0var.",
     hero_sub:
@@ -135,9 +132,6 @@ const translations = {
     footer_copy: "© 2026 odilon. Çok Formatlı Keşif Motoru.",
     redon_explain:
       "odilon onun adını taşır. Sanatı gibi, tek bir türe sığmayı reddeder — müziğin duygular arasında gezindiği gibi, o da dünyalar arasında gezinir.",
-    anime_desc:
-      "1995 başyapıtının mimari ruhu, modern noir sinemanın brütalist sokaklarında genetik bir yankı bulur.",
-    painting_ref: "Arşiv referansı",
   },
 } as const;
 
@@ -459,9 +453,10 @@ export default function HomeClient() {
                     src="/redon-painting.jpg"
                   />
                 </div>
-                <div className="text-center space-y-1">
+                <div className="space-y-1">
                   <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">{t.label_painting}</p>
-                  <p className="font-headline italic text-[15px] text-primary">{t.painting_ref}</p>
+                  <p className="font-headline italic text-[15px] text-primary">La Barque</p>
+                  <p className="font-label text-[12px] text-secondary">Odilon Redon</p>
                 </div>
               </div>
             </div>
@@ -504,14 +499,9 @@ export default function HomeClient() {
                     src="/ghost-in-the-shell-1995.webp"
                   />
                 </div>
-                <div className="space-y-3">
-                  <div>
-                    <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60 mb-1">{t.label_anime}</p>
-                    <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
-                  </div>
-                  <p className="text-sm text-on-surface-variant leading-relaxed">
-                    {t.anime_desc}
-                  </p>
+                <div className="space-y-1">
+                  <p className="font-label text-[11px] uppercase tracking-widest text-secondary/60">{t.label_anime}</p>
+                  <p className="font-headline italic text-[15px] text-primary">Ghost in the Shell</p>
                 </div>
               </div>
 
